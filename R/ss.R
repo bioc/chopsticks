@@ -420,7 +420,11 @@ setClass("snp.tests.single",
 setClass("snp.tests.single.score", 
          representation("snp.tests.single", U="matrix", V="matrix"),
          contains="snp.tests.single")
-setClass("snp.tests.glm", contains="list")
+setClass("snp.tests.glm",
+         representation(test.names="character", chisq="numeric", df="integer",
+                        N="integer"))
+setClass("snp.tests.glm.score", representation("snp.tests.glm", score="list"),
+         contains="snp.tests.glm")
 
 setMethod("[",
           signature(x="snp.tests.single", i="ANY",
@@ -486,14 +490,30 @@ setMethod("[",
 setMethod("[",
           signature(x="snp.tests.glm", i="ANY",
                     j="missing", drop="missing"),
+           function(x, i, j, drop) {
+            if (is.character(i)) 
+              i <- match(i, x@test.names, nomatch=0)
+            new("snp.tests.glm",
+                test.names = x@test.names[i],
+                chisq = x@chisq[i],
+                df = x@df[i],
+                N = x@N[i])
+          })
+
+setMethod("[",
+          signature(x="snp.tests.glm.score", i="ANY",
+                    j="missing", drop="missing"),
           function(x, i, j, drop) {
             if (is.character(i)) 
-              i <- match(i, names(x), nomatch=0)
-            res <- new("snp.tests.glm", x@.Data[i])
-            names(res) <- names(x)[i]
-            res
+              i <- match(i, x@test.names, nomatch=0)
+            new("snp.tests.glm.score",
+                test.names = x@test.names[i],
+                chisq = x@chisq[i],
+                df = x@df[i],
+                N = x@N[i],
+                score = x@score[i])
           })
-                  
+                   
 setMethod("summary", "snp.tests.single",
           function(object) {
             if (length(object@N.r2)>0)
@@ -512,10 +532,10 @@ setMethod("summary", "snp.tests.single",
 
 setMethod("summary", "snp.tests.glm",
           function(object) {
-            chi2 <- sapply(object, '[[', "chi.squared")
-            df <- sapply(object, '[[', "df")
+            chi2 <- object@chisq
+            df <- object@df
             p <- pchisq(chi2, df=df, lower.tail=FALSE)
-            summary(data.frame(row.names=names(object),
+            summary(data.frame(row.names=object@test.names,
                                Chi.squared=chi2, Df=df, p.value=p))
           })
 
@@ -537,10 +557,10 @@ setMethod("show", "snp.tests.single",
 
 setMethod("show", "snp.tests.glm",
           function(object) {
-            chi2 <- sapply(object, '[[', "chi.squared")
-            df <- sapply(object, '[[', "df")
+            chi2 <- object@chisq
+            df <- object@df
             p <- pchisq(chi2, df=df, lower.tail=FALSE)
-            print(data.frame(row.names=names(object),
+            print(data.frame(row.names=object@test.names,
                              Chi.squared=chi2, Df=df, p.value=p))
           })
 
@@ -565,6 +585,8 @@ setGeneric("sample.size", function(x) standardGeneric("sample.size"),
 setGeneric("pool2", function(x, y, score) standardGeneric("pool2"),
            useAsDefault=FALSE)
 
+setGeneric("names")
+
 setMethod("p.value", signature(x="snp.tests.single", df="numeric"),
           function(x, df) {
             if (df>2)
@@ -576,10 +598,8 @@ setMethod("p.value", signature(x="snp.tests.single", df="numeric"),
 
 setMethod("p.value", signature(x="snp.tests.glm", df="missing"),
           function(x, df) {
-            p <- pchisq(q=sapply(x, '[[', "chi.squared"),
-                   df=sapply(x, '[[', "df"),
-                   lower.tail=FALSE)
-            names(p) <- names(x)
+            p <- pchisq(q=x@chisq, x@df, lower.tail=FALSE)
+            names(p) <- x@test.names
             p
           })
 
@@ -595,40 +615,23 @@ setMethod("chi.squared", signature(x="snp.tests.single", df="numeric"),
 
 setMethod("chi.squared", signature(x="snp.tests.glm", df="missing"),
           function(x, df) {
-            chi2 <- sapply(x, '[[', "chi.squared")
-            names(chi2) <- names(x)
+            chi2 <- x@chisq
+            names(chi2) <- x@test.names
             chi2
           })
 
-setMethod("p.value", signature(x="snp.tests.single.score", df="numeric"),
-          function(x, df) {
-            if (df>2)
-              stop("df must be 1 or 2")
-            p <- pchisq(x@chisq[,df], df=df, lower.tail=FALSE)
-            names(p) <- x@snp.names
-            p
-          })
-
-setMethod("chi.squared", signature(x="snp.tests.single.score", df="numeric"),
-          function(x, df) {
-            if (df>2)
-              stop("df must be 1 or 2")
-            chi2 <- x@chisq[,df]
-            names(chi2) <- x@snp.names
-            chi2
-          })
 
 setMethod("deg.freedom", signature(x="snp.tests.glm"),
           function(x) {
-            df <- sapply(x, '[[', "df")
-            names(df) <- names(x)
+            df <- x@df
+            names(df) <- x@test.names
             df
           })
 
 setMethod("effect.sign", signature(x="snp.tests.glm", simplify="logical"),
           function(x, simplify=TRUE) {
-            res <- sapply(x, function(x) sign(x$U))
-            names(res) <- names(x)
+            res <- sapply(x@score, function(x) sign(x$U))
+            names(res) <- x@test.names
             res
          })
 
@@ -636,23 +639,27 @@ setMethod("effect.sign",
           signature(x="snp.tests.single.score", simplify="missing"),
           function(x, simplify) {
             res <- sign(x@U[,1])
-            names(res) <- names(x)
+            names(res) <- x@snp.names
             res
           })
 
 setMethod("sample.size", signature(x="snp.tests.glm"),
           function(x) {
-            res <- sapply(x, '[[', "N")
-            names(res) <- names(x)
+            res <- x@N
+            names(res) <- x@test.names
             res
           })
 
 setMethod("sample.size", signature(x="snp.tests.single"),
           function(x) {
             res <- x@N
-            names(res) <- names(x)
+            names(res) <- x@snp.tests
             res
           })
+
+setMethod("names", signature(x="snp.tests.single"), function(x) x@snp.names)
+
+setMethod("names", signature(x="snp.tests.glm"), function(x) x@test.names)
 
 setMethod("pool2",
           signature(x="snp.tests.single.score",y="snp.tests.single.score",
@@ -728,44 +735,51 @@ setMethod("pool2",
             res
           })
 
+# need to edit this
+
 setMethod("pool2",
-          signature(x="snp.tests.glm",y="snp.tests.glm",
+          signature(x="snp.tests.glm.score",y="snp.tests.glm.score",
                     score="logical"),
           function(x, y, score) {
-            nm.x <- names(x)
-            nm.y <- names(y)
+            nm.x <- x@test.names
+            nm.y <- y@test.names
             if (is.null(nm.x) || is.null(nm.y)) {
               if (length(x)!=length(y))
                 stop("Cannot pool unnamed snp.test.glm objects of different lengths")
-              res <- .Call("pool2_glm", x, y, PACKAGE="snpMatrix")
-              if (!is.null(nm.x))
-                names(res) <- nm.x
-              else if (!is.null(nm.y))
-                names(res) <- nm.y
+              res <- .Call("pool2_glm", x, y, score, PACKAGE="snpMatrix")
+              return(res)
+            }
+            to.pool <- intersect(nm.x, nm.y)
+            if (length(to.pool)>0) {
+              res <- .Call("pool2_glm",
+                           x[to.pool],
+                           y[to.pool], score, 
+                           PACKAGE="snpMatrix")
+ 
             }
             else {
-              to.pool <- intersect(nm.x, nm.y)
-              if (!is.null(to.pool)) {
-                res <- .Call("pool2_glm",
-                             x[to.pool],
-                             y[to.pool],
-                             PACKAGE="snpMatrix")
-                names(res) <- to.pool
-              }
-              else {
-                res <- NULL
-              }
-              x.only <- setdiff(nm.x, to.pool)
-              y.only <- setdiff(nm.y, to.pool)
-              if (!is.null(x.only))
-                res <- append(res, x[x.only])
-              if (!is.null(y.only))
-                res <- append(res, y[y.only])
+              res <- NULL
             }
-            cl <- "snp.tests.glm"
-            attr(cl, "package") <- "snpMatrix"
-            class(res) <- cl
-            asS4(res)
+            x.only <- setdiff(nm.x, to.pool)
+            y.only <- setdiff(nm.y, to.pool)
+            if (length(x.only)==0 && length(y.only)==0)
+              return(res);
+            ix <- match(x.only, x@test.names, nomatch=0)
+            iy <- match(y.only, y@test.names, nomatch=0)
+            if (score)
+              res <- new("snp.tests.glm.score",
+               test.names=c(res@test.names, x@test.names[ix], y@test.names[iy]),
+               chisq=c(res@chisq, x@chisq[ix], y@chisq[iy]),        
+               df=c(res@df, x@df[ix], y@df[iy]),        
+               N=c(res@N, x@N[ix], y@N[iy]),        
+               score=append(res@score, append(x@score[ix], y@score[iy])))
+            else
+               res <- new("snp.tests.glm",
+               test.names=c(res@test.names, x@test.names[ix], y@test.names[iy]),
+               chisq=c(res@chisq, x@chisq[ix], y@chisq[iy]),        
+               df=c(res@df, x@df[ix], y@df[iy]),        
+               N=c(res@N, x@N[ix], y@N[iy]))       
+            res
           })
 
 # Switch allele methods 
@@ -823,15 +837,16 @@ setMethod("switch.alleles", signature(x="snp.tests.single.score", snps="ANY"),
             res
           })
 
-setMethod("switch.alleles", signature(x="snp.tests.glm", snps="character"),
+setMethod("switch.alleles", signature(x="snp.tests.glm.score",
+                                      snps="character"),
           function(x, snps) {
-            res <- lapply(x, sw1.glm, snps)
-            class(res) <- class(x)
-            asS4(res)
+            new("snp.tests.glm.score", test.names=x@test.names,
+                chisq=x@chisq, df=x@df, N=x@N,
+                score=lapply(x@score, sw1.glm, snps))
           })
 
 sw1.glm <- function(x, snps) {
-  to.switch <- x$parameters %in% snps
+  to.switch <- names(x$U) %in% snps
   if (!any(to.switch))
     return(x)
   res <- x
@@ -864,4 +879,8 @@ pool <- function(..., score=FALSE) {
     r <- pool2(..1, ..2, score=score)
   r
 }
+
+# To do
+
+# names method for snp and X.snp
 

@@ -3,6 +3,7 @@
 \alias{snp.tests.single-class}
 \alias{[,snp.tests.single,ANY,missing,missing-method}
 \alias{chi.squared,snp.tests.single,numeric-method}
+\alias{names,snp.tests.single-method}
 \alias{p.value,snp.tests.single,numeric-method}
 \alias{sample.size,snp.tests.single-method}
 \alias{show,snp.tests.single-method}
@@ -10,10 +11,8 @@
 
 \alias{snp.tests.single.score-class}
 \alias{[,snp.tests.single.score,ANY,missing,missing-method}
-\alias{chi.squared,snp.tests.single.score,numeric-method}
 \alias{effect.sign,snp.tests.single.score,missing-method}
 \alias{pool2,snp.tests.single.score,snp.tests.single.score,logical-method}
-\alias{p.value,snp.tests.single.score,numeric-method}
 \alias{switch.alleles,snp.tests.single.score,ANY-method}
 
 
@@ -54,15 +53,11 @@ provide methods for pooling results from several studies or parts of a study
     \item{chi.squared}{\code{signature(x = "snp.tests.single", df =
 	"numeric")}:
       Extract 1- and 2-df chi-squared test values}
-    \item{chi.squared}{\code{signature(x = "snp.tests.single.score", df =
-	"numeric")}:
-      Extract 1- and 2-df chi-squared test values}
     \item{effect.sign}{\code{signature(x = "snp.tests.single.score", simplify =
 	"missing")}: Extract signs of associations tested by the 1df tests}
+     \item{names}{\code{signature(x="snp.tests.single")}: Extract names of
+      test values (\code{snp.names} slot)}
     \item{p.value}{\code{signature(x = "snp.tests.single", df =
-	"numeric")}:
-      Evaluate 1- and 2-df test p-values}
-    \item{p.value}{\code{signature(x = "snp.tests.single.score", df =
 	"numeric")}:
       Evaluate 1- and 2-df test p-values}
     \item{show}{\code{signature(object = "snp.tests.single")}:

@@ -12,7 +12,8 @@ of the variance function,  "robust" tests may be selected.
 \usage{
 snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent.frame(),
    snp.data, rules=NULL, tests=NULL, robust = FALSE,
-   control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98), allow.missing=0.01)
+   control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98),
+allow.missing=0.01, score=FALSE)
 }
 \arguments{
   \item{formula}{The base model formula, with phenotype as dependent variable}
@@ -42,6 +43,7 @@ snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent
     new terms to be tested. See\ code{\link{glm.test.control}}}
   \item{allow.missing}{The maximum proportion of SNP genotype that can
     be missing before it becomes necessary to refit the base model}
+  \item{score}{Is extended score information to be returned?}
 }
 \details{
   The tests used are asymptotic chi-squared tests based on the vector of
@@ -75,18 +77,10 @@ snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent
   result much faster.
 }
 \value{
-  A data frame containing, for each SNP,
-  \item{Chi.squared}{The value of the  chi-squared test statistic}
-  \item{Df}{The corresponding degrees of freedom}
-  \item{Df.residual}{The residual degrees of freedom for the base model;
-  \emph{i.e.} the number of observations minus the number of parameters
-  fitted}
-  For the binomial family model, the base model can, in some circumstances,
-  lead to perfect prediction of some observations (\emph{i.e.} fitted
-  probabilities of 0 or 1). These observations are ignored in
-  subsequent calculations; in particular they are not counted
-  in the residual degrees of freedom. Similarly for Poisson means fitted
-  exactly to zero.
+  An object of class \code{\link[=snp.tests.glm-class]{snp.tests.glm}}
+  or \code{\link[=snp.tests.glm.score-class]{snp.tests.glm.score}}
+  depending on whether \code{score} is set to \code{FALSE} or \code{TRUE}
+  in the call.
 }
 \references{Boos, Dennis D. (1992) On generalized score tests. \emph{The
   American Statistician}, \strong{46}:327-333.}
@@ -102,7 +96,9 @@ snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent
   observations (e.g. for members of the same family); in this case, an
   appropriate robust estimate of the variance of the score test is used.
 }
-\seealso{\code{\link{single.snp.tests}}, \code{\link{snp.lhs.tests}},
+\seealso{\code{\link{snp.tests.glm-class}},
+  \code{\link{snp.tests.glm.score-class}},
+  \code{\link{single.snp.tests}}, \code{\link{snp.lhs.tests}},
     \code{\link{impute.snps}}, \code{\link{snp.reg.imputation-class}},
   \code{\link{snp.matrix-class}}, \code{\link{X.snp.matrix-class}}}
 \examples{

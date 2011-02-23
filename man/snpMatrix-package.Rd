@@ -11,18 +11,18 @@ Implements classes and methods for large-scale SNP association studies
 \details{
 \tabular{ll}{
 Package: \tab snpMatrix\cr
-Version: \tab 1.5.5\cr
+Version: \tab 1.5.6\cr
 Date: \tab 2008-10-09\cr
 Depends: \tab R(>= 2.3.0), survival, methods\cr
 Suggests: \tab hexbin\cr
 Enhances: \tab genetics\cr
 License: \tab GNU General Public Licence (GPLv3)\cr
 URL: \tab http://www-gene.cimr.cam.ac.uk/clayton/software/\cr
-Collate: \tab ld.with.R ss.R contingency.table.R glm\_test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq\_chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R tdt\_single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
+Collate: \tab ld.with.R ss.R contingency.table.R glm-test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq-chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R tdt-single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
 LazyLoad: \tab yes\cr
 biocViews: \tab Microarray, SNPsAndGeneticVariability\cr
-Packaged: \tab Thu Oct  9 15:07:21 BST 2008\cr
-Built: \tab R 2.7.1; x86\_64-redhat-linux-gnu; 2008-10-13 09:00:35; unix\cr
+Packaged: \tab Wed Oct 15 10:55:50 BST 2008\cr
+Built: \tab R 2.7.1; x86\_64-redhat-linux-gnu; 2008-10-15 10:53:33; unix\cr
 }
 
 Index:
@@ -90,7 +90,8 @@ snp.reg.imputation-class
                         Class "snp.reg.imputation"
 snp.rhs.tests           Score tests with SNP genotypes as independent
                         variable
-snp.tests.glm-class     Class "snp.tests.glm"
+snp.tests.glm-class     Classes "snp.tests.glm" and
+                        "snp.tests.glm.score"
 snp.tests.single-class
                         Classes "snp.tests.single" and
                         "snp.tests.single.score"

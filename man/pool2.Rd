@@ -9,7 +9,6 @@ recursively by \code{\link{pool}}
 \usage{
 pool2(x, y, score)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x, y}{Objects holding the (extended) test results. 
     These must be of class
@@ -17,8 +16,7 @@ pool2(x, y, score)
     or
     \code{\link[=snp.tests.glm-class]{snp.tests.glm}}}
   \item{score}{Is extended score information to
-  be returned in the output object (only relevant for
-  \code{snp.tests.single.score} objects)?}
+  be returned in the output object?}
 }
 \value{
   An object of same class as the input objects (optionally without the

@@ -13,7 +13,8 @@ snp.lhs.tests <-
   
 function(snp.data, base.formula, add.formula, subset, snp.subset,
          data=sys.parent(), robust=FALSE,
-         control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98))
+         control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98),
+         score=FALSE)
 {   
   if (is(snp.data,"snp.matrix")) 
     snames <- rownames(snp.data)
@@ -144,7 +145,7 @@ function(snp.data, base.formula, add.formula, subset, snp.subset,
   }
   .Call("snp_lhs_score",
         snp.data, X, strats, Z, snp.subset, robust, clust,
-        control, PACKAGE="snpMatrix")
+        control, as.logical(score), PACKAGE="snpMatrix")
 }
 
 # GLM tests with SNPs on RHS
@@ -154,7 +155,7 @@ function (formula, family="binomial", link, weights, subset,
           data=parent.frame(), snp.data, rules=NULL, 
           tests=NULL, robust=FALSE,
           control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98),
-          allow.missing=0.01) {
+          allow.missing=0.01, score=FALSE) {
   
   call <- match.call()
 
@@ -170,7 +171,7 @@ function (formula, family="binomial", link, weights, subset,
   if (missing(link))
     lnk <- fam # Canonical link is default
   else {
-    lnk <- pmatch(tolower(lnk), c("logit", "log", "identity", "inverse"))
+    lnk <- pmatch(tolower(link), c("logit", "log", "identity", "inverse"))
     if (is.na(fam))
       stop("Unrecognized link argument")
     if (lnk==0)
@@ -334,6 +335,7 @@ function (formula, family="binomial", link, weights, subset,
   
   .Call("snp_rhs_score", Y, fam, lnk, X, strats, snp.data, rules,
         weights, tests, robust, clust, control, allow.missing,
+        as.logical(score),
         PACKAGE="snpMatrix")
 }  
 
