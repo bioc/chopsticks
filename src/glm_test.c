@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <R.h>
 
 #include "mla.h"
 #include "glm_test.h"
@@ -15,6 +16,7 @@ family       GLM family (see below)
 link         Link function (see below)
 N            # units
 M            # X variables
+P            # X variables for which parameter estimates required
 S            # strata (0 means no intercept)
 y            y-variable (N-vector)
 prior        prior weights (if present)
@@ -37,6 +39,14 @@ weights      weights (N-vector)
 scale        scale factor (scalar)
 df_resid     residual degrees of freedom
 
+Output for coefficients to be estimated: 
+
+P_est        # coefficients which could be estimated
+which        which columns in the X matrix were estimated (first = 0)
+betaQ        vector of parameter estimates (in terms of basis matrix, Xb)
+tri          upper unit triangular transformation matrix, with Xb-tr.Xb
+             placed in the diagonal
+
 Return
 
 0            convergence
@@ -44,18 +54,19 @@ Return
 
 */
 
-int glm_fit(int family, int link, int N, int M, int S,
+int glm_fit(int family, int link, int N, int M, int P, int S,
 	    const double *y, const double *prior, const double *X, 
 	    const int *stratum, int maxit, double conv, int init, 
 	    int *rank, double *Xb, 
 	    double *fitted, double *resid, double *weights, 
-	    double *scale, int *df_resid) {
+	    double *scale, int *df_resid, 
+	    int  *P_est, int *which, double *betaQ, double *tri) {
   const double eta = 1.e-8;       /* Singularity threshold */
-  int i = 0, j=0;
+  int Mskip=M-P; /* Number of parameters NOT estimated */
   int Nu, dfr, irls;
   int empty = 0;
 
-  /* Is iteration necessary? */
+  /*  Is iteration necessary? */
 
   irls = (M>0) && !((family==GAUSSIAN) && (link==IDENTITY));
 
@@ -68,7 +79,7 @@ int glm_fit(int family, int link, int N, int M, int S,
 
   Nu = 0;
   int invalid = 0;
-  for (i=0; i<N; i++) {
+  for (int i=0; i<N; i++) {
     double mu = fitted[i];
     double ri, wi;
     double pi = prior? prior[i] : 1.0;
@@ -97,7 +108,7 @@ int glm_fit(int family, int link, int N, int M, int S,
 
   /* If M>0, include covariates */
 
-  int x_rank = 0, convg = 0, iter = 0;
+  int x_rank = 0, skip_rank = 0, convg = 0, iter = 0;
   if (M) {
     convg = 0;
     double wss_last = 0.0;
@@ -105,30 +116,41 @@ int glm_fit(int family, int link, int N, int M, int S,
 
       /* IRLS algorithm */
 
-      double *yw = (double *) calloc(N, sizeof(double));
+      double *yw = (double *) Calloc(N, double);
       while(iter<maxit && !convg) {
-	for (i=0; i<N; i++) 
+	for (int i=0; i<N; i++) 
 	  yw[i] = resid[i] + linkfun(family, fitted[i]);
 	empty = wcenter(yw, N, weights, stratum, S, 1, resid);
 	const double *xi = X;
 	double *xbi = Xb;
-	x_rank = 0;
-	for (i=0; i<M; i++, xi+=N) {
+	x_rank = skip_rank = 0;
+	for (int i=0, ii=0, ij=0; i<M; i++, xi+=N) {
+	  if (i==Mskip)
+	    skip_rank = x_rank;
 	  double ssx = wssq(xi, N, weights);
 	  wcenter(xi, N, weights, stratum, S, 1, xbi);
 	  double *xbj = Xb;
-	  for (j=0; j<x_rank; j++, xbj+=N)
-	    wresid(xbi, N, weights, xbj, xbi);
+	  for (int j=0; j<x_rank; j++, xbj+=N) {
+	    double bij = wresid(xbi, N, weights, xbj, xbi);
+	    if (j>=skip_rank)
+	      tri[ij++] = bij; /* Off-diagonal (upper triangle)  elements */
+	  }
 	  double ssr = wssq(xbi, N, weights);
+	  double bij = 0.0;
 	  if (ssr/ssx > eta) {
-	    wresid(resid, N, weights, xbi, resid);
+	    bij = wresid(resid, N, weights, xbi, resid);
 	    x_rank++;
-	    xbi+=N;
+	    xbi+=N;	
+	    if (i>=Mskip) {
+	      tri[ij++] = ssr; /* Diagonal elements */
+	      which[ii] = i;
+	      betaQ[ii++] = bij;
+	    }
 	  }
 	}
-	double wss=0.0;
+	double wss = 0.0;
 	Nu = 0;
-	for (i=0; i<N; i++) {
+	for (int i=0; i<N; i++) {
 	  double D, Vmu, ri, wi;
 	  double mu = invlink(family, yw[i] - resid[i]);
 	  fitted[i] = mu;
@@ -157,9 +179,9 @@ int glm_fit(int family, int link, int N, int M, int S,
 	wss_last = wss;
 	iter ++;
       }
-      for (i=0; i<N; i++)
+      for (int i=0; i<N; i++)
 	fitted[i] =  invlink(family, yw[i] - resid[i]);
-      free(yw);
+      Free(yw);
     }
     else {  
 
@@ -167,22 +189,32 @@ int glm_fit(int family, int link, int N, int M, int S,
 
       const double *xi = X;
       double *xbi = Xb;
-      x_rank = 0;
-      for (i=0; i<M; i++, xi+=N) {
+      x_rank = skip_rank = 0;
+      for (int i=0, ii=0, ij=0; i<M; i++, xi+=N) {
+	if (i==M)
+	  skip_rank = x_rank;
 	double ssx = wssq(xi, N, weights);
 	wcenter(xi, N, weights, stratum, S, 1, xbi);
 	double *xbj = Xb;
-	for (j=0; j<x_rank; j++, xbj+=N)
-	  wresid(xbi, N, weights, xbj, xbi);
+	for (int j=0; j<x_rank; j++, xbj+=N) {
+	  double bij = wresid(xbi, N, weights, xbj, xbi);
+	  if (j>=skip_rank)
+	    tri[ij++] = bij; /* Off-diagonal  */
+	}
 	double ssr = wssq(xbi, N, weights);
 	if (ssr/ssx > eta) {
-	  wresid(resid, N, weights, xbi, resid);
+	  double bij = wresid(resid, N, weights, xbi, resid);
 	  x_rank++;
 	  xbi+=N;
+	  if (i>=Mskip) {
+	    tri[ij++] = ssr; /* Diagonal */
+	    which[ii] = i;
+	    betaQ[ii++] = bij;
+	  }
 	}
       }
       wss_last = wssq(resid, N, weights);
-      for (i=0; i<N; i++)
+      for (int i=0; i<N; i++)
 	fitted[i] = y[i] - resid[i];
     }
     dfr = Nu  - S + empty - x_rank;
@@ -203,6 +235,9 @@ int glm_fit(int family, int link, int N, int M, int S,
   }
   *df_resid = dfr>0? dfr : 0;
   *rank = x_rank;
+  if (P) {
+    *P_est = x_rank - skip_rank;
+  }
   return(irls && !convg);
 }
 
@@ -228,6 +263,7 @@ double varfun(int family, double mu){
   default: return(0.0);
   }
 }
+
 
 /* Valid values for fitted value, mu. 
 
@@ -326,11 +362,11 @@ void glm_score_test(int N, int M, int S, const int *stratum,
 
   /* Work array */
 
-  Zri = Zr = (double *) calloc(N*P, sizeof(double));
+  Zri = Zr = (double *) Calloc(N*P, double);
   int nc = 0;
   if (C) {
     nc = (C==1)? N: C;
-    Ui = U = (double *) calloc(nc*P, sizeof(double));
+    Ui = U = (double *) Calloc(nc*P, double);
   }
     
 
@@ -391,7 +427,154 @@ void glm_score_test(int N, int M, int S, const int *stratum,
 	score_var[ij++] = 0.0;
     }
   }
-  free(Zr);
+  Free(Zr);
   if (C)
-    free(U);
+    Free(U);
 }
+
+/* Invert diagonal and unit upper triangular matrices stored as one array 
+   Result matrix can overwrite input matrix */
+
+void inv_tri(int N, const double *tri, double *result) {
+  for (int i=0, ij=0; i<N; i++) {
+    for (int j=0, jks=1; j<i; jks+=(3+(j++))) {
+      double w=tri[ij];
+      for (int k=j+1, ik=ij+1, jk=jks; k<i; jk+=(++k), ik++)  
+	w += (tri[ik]*tri[jk]);
+      result[ij++] = (-w); /* Element of upper triangle */
+    }
+    result[ij] = 1/tri[ij]; /* Diagonal element */
+    ij++;
+  } 
+}
+
+/* For packed upper unit triangular matrix, U, and diagonal matrix D 
+   (occupying the same space, tri), calculate U.D.U-transpose and scale 
+   it by a connstatnt multiple. Result matrix can overwite input U/D matrix */
+
+void UDUt(int N, const double *tri, double scale, double *result) {
+  for (int j=0, ij=0, jj=0; j<N; jj+=(1+(++j))) {
+    for (int i=0; i<=j; i++) {
+      double w = 0.0;
+      for (int k=j, jk=jj, ik=ij, kk=jj; k<N;) {
+	int k1 = k + 1;
+	jk+=k1;
+	ik+=k1;
+	double Uik = (i==k)? 1.0: tri[ik];
+	double Ujk = (j==k)? 1.0: tri[jk];
+	double Dk = tri[kk];
+	w += Uik*Ujk*Dk;
+	kk+=(1+k1);
+	k = k1;
+      }
+      result[ij++] = scale*w;
+    }
+  }
+}
+
+/* For packed upper unit triangular matrix, U, and diagonal matrix D 
+   (occupying the same space, tri), and packed symmetric matrix V, 
+   calculate U.D.V.D.U-transpose and multiply by a scale factor.
+   Result matrix can overwite input V */
+
+
+void UDVDUt(int N, const double *tri, const double *V, double scale, 
+	    double *result) {
+  for (int j=0, ij=0, jj=0; j<N; jj+=(2+(j++))) {
+    for (int i=0, ii=0; i<=j; ii+=(2+(i++)), ij++) {
+      double w = 0.0;
+      for (int v=j, vv=jj, jv=jj, uv=ij; v<N; v++, vv+=(2+v), jv+=v) {
+	double Ujv = (v==j)? 1.0: tri[jv];
+	double Dv = tri[vv];
+	for (int u=i, uu=ii, iu=ii; u<N; u++, uu+=(2+u), iu+=u) {
+	  double Uiu = (u==i)? 1.0: tri[iu];
+	  double Du = tri[uu];
+	  w += Du*Dv*Uiu*Ujv*V[uv];
+	  if (u<v)
+	    uv++;
+	  else
+	    uv+=(1+u);
+	}
+	uv = vv+i+1;
+      }
+      result[ij] = scale*w;
+    }
+  }
+}
+
+/* Obtain estimates and variance covariance matrix of estimates from output
+   of glm_fit. Parameter estimates can overwrite betaQ. Robust variance is
+   calculated if the "meat" matrix for the information sandwich is supplied.
+   If robust variance estimate not used, var-cov matrix can overwrite tri; 
+   otherwise it can overwrite meatrix */
+
+void glm_est(int P_est, const double *betaQ, double *tri, 
+	     double scale,  const double *meatrix, 
+	     double *beta, double *var_beta) {
+  
+  /* Invert upper unit triangular and diagonal matrices */
+
+  inv_tri(P_est, tri, tri);
+
+  /* Multiply coefficients by inverse of triangular matrix */
+
+  for (int i=0, ijs=1; i<P_est; ijs+=(2+(++i))) {
+    double w= betaQ[i];
+    for (int j=i+1, ij=ijs; j<P_est; ij+=(++j))
+      w += betaQ[j]*tri[ij];
+    beta[i] = w;
+  }
+
+  /* Variance covariance matrix */
+
+  if (meatrix) 
+    UDVDUt(P_est, tri, meatrix, scale, var_beta);
+  else 
+    UDUt(P_est, tri, scale, var_beta);
+} 
+
+/* Calculate "meat" matrix for information sandwich */
+
+void meat_matrix(int N, int P, int C, const int *cluster,
+		 const double *Xb, const double *resid, const double *weights,
+		 double *meatrix) {
+  if (!C)
+    return;
+  if (C>1) {
+    double *Uc = Calloc(C*P, double);
+    memset(Uc, 0x00, C*P*sizeof(double));
+    for (int i=0; i<N; i++) {
+      double w=resid[i]*weights[i];
+      int ic = cluster[i]-1;
+      for (int j=0, ij=i, ijc=ic; j<P; j++, ij+=N, ijc+=C) 
+	Uc[ijc] += w*Xb[ij];
+    }
+    for (int i=0, ij=0, ik=0; i<P; i++) {
+      for (int j=0, jk=0; j<=i; j++, ij++) {
+	double w=0.0;
+	for (int k=0; k<C; k++)
+	  w+= (Uc[ik++]*Uc[ij++]);
+	meatrix[ij] = w;
+      }
+    }
+    Free(Uc);
+  }
+  else {
+    memset(meatrix,  0x00, sizeof(double)*(P*(P+1))/2);
+    for (int i=0; i<N; i++) {
+      double w=resid[i]*weights[i];
+      w = w*w;
+      for (int j=0, ij=i, jk=0; j<P; j++, ij+=N) {
+	for (int k=0, ik=i; k<=j; k++, ik+=N, jk++) 
+	  meatrix[jk] += w*Xb[ij]*Xb[ik];
+      }
+    }
+  }
+}
+
+
+	  
+
+	
+	
+	

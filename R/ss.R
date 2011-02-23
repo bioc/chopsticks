@@ -919,7 +919,78 @@ pool <- function(..., score=FALSE) {
   r
 }
 
-# To do
 
-# names method for snp and X.snp
+## Parameter estimates
+
+setClass("snp.estimates.glm", contains="list")
+
+setMethod("[", signature("snp.estimates.glm", i="ANY", j="missing",
+                         drop="missing"),
+          function(x, i) {
+            res <- x@.Data[i, drop=FALSE]
+            if (length(res)==0)
+              return(NULL)
+            names(res) <- names(x)[i]
+            new("snp.estimates.glm", res)
+           })
+
+setMethod("show", "snp.estimates.glm",
+          function(object) {
+            len0 <- max(5, nchar(names(object)))
+            len1 <- max(10,
+                        sapply(object, function(x)
+                               max(if(is.null(x)) 0 else nchar(x$Y.var))))
+            len2 <- max(9,
+                        sapply(object, function(x)
+                               max(if(is.null(x)) 0 else nchar(names(x$beta)))))
+            space <- 2
+            nwidth <- 10
+            di <- 5
+            divide <- rep("-", len0+len1+len2+3*nwidth+5*space)
+            cat(format("\nModel", justify="right", width=len0),
+                format("Y-variable", justify="right", width=len1+space),
+                format("Parameter", justify="right", width=len2+space),
+                format("Estimate", justify="right", width=nwidth+space),
+                format("S.E.", justify="right", width=nwidth+space),
+                format("z-value", justify="right", width=nwidth+space),"\n",
+                divide, "\n", sep="")
+            labs <- names(object)
+            for (j in 1:length(object)) {
+              labj <- labs[j]
+              x <- object[[j]]
+              if (is.null(x)) {
+                cat(format(labj, justify="right", width=len1),
+                    "- No estimates available\n") 
+              }
+              else {
+                nyj <- x$Y.var
+                nb <- length(x$beta)
+                namep <- names(x$beta)
+                ii <- 0
+                for (i in 1:nb){
+                  ii <- ii+i
+                  bi <- x$beta[i]
+                  si <- sqrt(x$Var.beta[ii])
+                  zi <- bi/si
+                  cat(format(labj, justify="right", width=len0), sep="")
+                  cat(format(nyj, justify="right", width=len1+space), sep="")
+                  labj <- ""
+                  nyj <- ""
+                  cat(format(namep[i], justify="right", width=len2+space),
+                      format(bi, justify="right", width=nwidth+space,
+                             digits=di),
+                      format(si, justify="right", width=nwidth+space,
+                             digits=di),
+                      formatC(zi, format="f", width=nwidth+space, digits=3),
+                      "\n", sep="")
+                }
+              }
+              cat(divide, "\n", sep="")
+            }
+          }
+          )
+
+## To do
+
+## names method for snp and X.snp
 

@@ -11,8 +11,8 @@ Implements classes and methods for large-scale SNP association studies
 \details{
 \tabular{ll}{
 Package: \tab snpMatrix\cr
-Version: \tab 1.11.3\cr
-Date: \tab 2009-11-06\cr
+Version: \tab 1.11.4\cr
+Date: \tab 2009-12-11\cr
 Depends: \tab R(>= 2.3.0), survival, methods\cr
 Imports: \tab graphics, grDevices, methods, stats, survival, utils\cr
 Suggests: \tab hexbin\cr
@@ -22,7 +22,7 @@ URL: \tab http://www-gene.cimr.cam.ac.uk/clayton/software/\cr
 Collate: \tab ld.with.R ss.R contingency.table.R glm-test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq-chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R tdt-single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
 LazyLoad: \tab yes\cr
 biocViews: \tab Microarray, SNP, GeneticVariability\cr
-Built: \tab R 2.10.0; x86_64-pc-linux-gnu; 2009-12-02 11:57:48 UTC; unix\cr
+Built: \tab R 2.10.0; x86_64-pc-linux-gnu; 2009-12-11 14:33:32 UTC; unix\cr
 }
 
 Index:
@@ -77,7 +77,11 @@ snp.cbind               Bind together two or more snp.matrix objects
 snp.cor                 Correlations with columns of a snp.matrix
 snp.dprime-class        Class "snp.dprime" for Results of LD
                         calculation
+snp.estimates.glm-class
+                        Class "snp.estimates.glm"
 snp.imputation          Calculate imputation rules
+snp.lhs.estimates       Logistic regression with SNP genotypes as
+                        dependent variable
 snp.lhs.tests           Score tests with SNP genotypes as dependent
                         variable
 snp.matrix-class        Class "snp.matrix"
@@ -85,6 +89,8 @@ snp.pre                 Pre- or post-multiply a snp.matrix object by a
                         general matrix
 snp.reg.imputation-class
                         Class "snp.reg.imputation"
+snp.rhs.estimates       Fit GLMs with SNP genotypes as independent
+                        variable(s)
 snp.rhs.tests           Score tests with SNP genotypes as independent
                         variable
 snp.tests.glm-class     Classes "snp.tests.glm" and

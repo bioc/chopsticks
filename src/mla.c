@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <R.h>
+
 
 /* Some very simple linear algebra functions */
 
@@ -84,9 +86,10 @@ int wcenter(const double *y, int n, const double *weight, const int *stratum,
   return(empty);
 }
 
-/* Replace y by residual from (weighted) regression through the origin */
+/* Replace y by residual from (weighted) regression through the origin 
+   Returns regression coefficient */
 
-int wresid(const double *y, int n, const double *weight, const double *x, 
+double wresid(const double *y, int n, const double *weight, const double *x, 
 	   double *ynew) {
   double  swxx, swxy;
   swxy = swxx = 0.0;
@@ -111,10 +114,10 @@ int wresid(const double *y, int n, const double *weight, const double *x,
     swxy /= swxx;
     for (i=0; i<n; i++)
       ynew[i] = y[i] - swxy*x[i];
-    return(n);
+    return(swxy);
   }
   else 
-    return(0);
+    return(NA_REAL);
 }
 
 /* Weighted sum of squares */
