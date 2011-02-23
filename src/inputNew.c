@@ -531,7 +531,7 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 	int which;
 	if (gcoding) {
 	  if (nuc) {
-	    switch (strlen(field)) {
+	    switch (strlen(gtype1)) {
 	    case 0:
 	      allele1 = allele2 = 0;
 	      break;
@@ -541,6 +541,7 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 	    case 2:
 	      allele1 = nucleotide(gtype1[0]);
 	      allele2 = nucleotide(gtype1[1]);
+	      break;
 	    default:
 	      error("Nucleotide coded genotype should be 2 character string: line %d", line);
 	    }
