@@ -54,6 +54,8 @@ misinherits             Find non-Mendelian inheritances in family data
 pair.result.ld.snp      Function to calculate the pairwise D',
                         r-squared, LOD of a pair of specified SNPs
 plot.snp.dprime         Function to draw the pairwise D' in a eps file
+plotUncertainty         Plot posterior probabilities of genotype
+                        assignment
 pool                    Pool test results from several studies or
                         sub-studies
 pool2                   Pool results of tests from two independent
@@ -61,6 +63,9 @@ pool2                   Pool results of tests from two independent
 qq.chisq                Quantile-quantile plot for chi-squared tests
 read.HapMap.data        function to import HapMap genotype data as
                         snp.matrix
+read.beagle             Read genotypes imputed by the BEAGLE program
+read.impute             Read genotypes imputed by the IMPUTE2 program
+read.mach               Read genotypes imputed by the MACH program
 read.pedfile.info       function to read the accompanying info file of
                         a LINKAGE ped file
 read.pedfile.map        function to read the accompanying map file of a
