@@ -75,7 +75,7 @@ static int valid_gtype(char a) {
 }
 
 static int expected_gtype(char a) {
-  if (a == 'N') {
+  if ((a == 'N') || (a == 'D') || (a == 'I')) {
     return 1;
   } else {
     return valid_gtype(a);
@@ -113,7 +113,7 @@ static int guess_genotypes(char *line_ptr, char *alleles, int verbose) {
     char a = *line_ptr++;
     if (valid_gtype(a)) {
       bin[ a - 'A' ] = 0x01;
-    } else if ((a != ' ') && (a != 'N') && (a != '\n')) {
+    } else if ((a != ' ') && (a != 'N') && (a != 'D') && (a != 'I') && (a != '\n')) {
       /* see anything strange, bail out */
       return -1; 
     }
@@ -361,7 +361,7 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
 	(strlen(cur_content_ptr->strand) > 1) || 
         ( (cur_content_ptr->strand[0] != '+') && (cur_content_ptr->strand[0] != '-') )
 	){
-      Rprintf("malformed input line: %s", current_line);
+      Rprintf("malformed input line [%d]: %s", snp_count, current_line);
       break;
     }
 
@@ -378,7 +378,7 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
 	|| (strlen(alleles) != 3)) {
       int guesses = guess_genotypes(line_ptr, alleles, verbose);
       if (guesses < 0) {	
-	Rprintf("snp %s allele field unexpected %s\n", cur_content_ptr->name, alleles);
+	Rprintf("snp entry #%d, %s allele field unexpected %s\n", snp_count, cur_content_ptr->name, alleles);
 	Rprintf(" calls: %s", line_ptr); /* no need to do \n, since it is included */ 
 	break;
       } else {

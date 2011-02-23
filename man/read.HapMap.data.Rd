@@ -30,7 +30,9 @@ read.HapMap.data(url, verbose=FALSE, save=NULL, ...)
   However, about 1 in 1000 entries are more complicated e.g. may involving
   deletion, e.g. "-/A/G" or "-/A/AGT/G/T". Some heuristics are
   used in such cases, in which the observed genotypes in the specific
-  snp of the current batch are examined in two passes. The first time to see which bases are present, excluding "N".
+  snp of the current batch are examined in two passes. The first time to
+  see which bases are present, excluding "N". Deletions and Insertions
+  ('D' and 'I') are currently treated as no-calls.
 
   If more than 2 bases are observed in the batch specified in the url,
   the routine aborts, but so far this possibility has not arisen in tests.
