@@ -1,8 +1,8 @@
 %\documentclass[a4paper,12pt]{article}
 \documentclass[12pt]{article}
 %\usepackage{times}
-\usepackage{mathptmx}
-\renewcommand{\ttdefault}{cmtt}
+%\usepackage{mathptmx}
+%\renewcommand{\ttdefault}{cmtt}
 \usepackage{graphicx}
 
 \usepackage[pdftex,
