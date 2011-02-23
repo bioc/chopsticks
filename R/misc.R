@@ -16,3 +16,6 @@ col.summary <- function(object) {
      stop("not a snp.matrix object")
  }
 
+Fst <- function(snps, group) {
+  .Call("Fst", snps, as.factor(group), PACKAGE="snpMatrix")
+}

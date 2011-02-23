@@ -296,6 +296,8 @@ setMethod("[",
            i <- match(i, names(x), nomatch=0)
          res <- new("snp.reg.imputation", x@.Data[i])
          names(res) <- names(x)[i]
+         attr(res, "Max.predictors") <-
+           max(sapply(res, function(rule) length(rule$snps)))
          res
        })
 
@@ -794,21 +796,35 @@ setMethod("pool2",
             y.only <- setdiff(nm.y, to.pool)
             if (length(x.only)==0 && length(y.only)==0)
               return(res);
-            ix <- match(x.only, x@test.names, nomatch=0)
-            iy <- match(y.only, y@test.names, nomatch=0)
+            ix <- match(x.only, nm.x, nomatch=0)
+            iy <- match(y.only, nm.y, nomatch=0)
+            if (is.null(res)) {
+              res.chisq <- NULL
+              res.df <- NULL
+              res.N <- NULL
+              res.score <- NULL
+            }
+            else {
+              res.chisq <- res@chisq
+              res.df <- res@df
+              res.N <- res@N
+              if (score)
+                res.score <- res@score
+            }
             if (score)
               res <- new("snp.tests.glm.score",
-               test.names=c(res@test.names, x@test.names[ix], y@test.names[iy]),
-               chisq=c(res@chisq, x@chisq[ix], y@chisq[iy]),        
-               df=c(res@df, x@df[ix], y@df[iy]),        
-               N=c(res@N, x@N[ix], y@N[iy]),        
-               score=append(res@score, append(x@score[ix], y@score[iy])))
+                         test.names=c(to.pool, x.only, y.only),
+                         chisq=c(res.chisq, x@chisq[ix], y@chisq[iy]),        
+                         df=c(res.df, x@df[ix], y@df[iy]),        
+                         N=c(res.N, x@N[ix], y@N[iy]),        
+                         score=append(res.score,
+                           append(x@score[ix], y@score[iy])))
             else
                res <- new("snp.tests.glm",
-               test.names=c(res@test.names, x@test.names[ix], y@test.names[iy]),
-               chisq=c(res@chisq, x@chisq[ix], y@chisq[iy]),        
-               df=c(res@df, x@df[ix], y@df[iy]),        
-               N=c(res@N, x@N[ix], y@N[iy]))       
+               test.names=c(to.pool, x.only, y.only),
+               chisq=c(res.chisq, x@chisq[ix], y@chisq[iy]),        
+               df=c(res.df, x@df[ix], y@df[iy]),        
+               N=c(res.N, x@N[ix], y@N[iy]))       
             res
           })
 
