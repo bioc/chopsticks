@@ -135,7 +135,6 @@ summarised. Then summary statistics are calculated for each column
 <<>>=
 summary(snps.10)
 @ 
-
 The row-wise and column-wise summaries are
 calculated with the functions {\tt row.summary} and {\tt col.summary}.
 For example, to calculate summary statistics for each SNP (column):
@@ -145,15 +144,7 @@ summary(snpsum)
 @
 The second command duplicates the latter part of the result of {\tt
   summary(snps.10)}, and the contents of {\tt snpsum} are fairly
-self-explanatory. A word of explanation is necessary concerning the
-column headed ``Certain.calls''. We shall see in another vignette
-that, when SNP genotypes have not been derived by genotyping but by
-{\em imputation} from other SNPs, many imputed values are quite
-uncertain; this column gives the proportion of calls that are
-uncertain. Here all calls were obtained by genotyping and they are
-therefore all denoted as ``certain'', although this does not preclude
-the possibility of genotyping errors!
-
+self-explanatory. 
 We could look at a couple of summary statistics in more detail:
 <<plot-snpsum,fig=TRUE>>=
 par(mfrow = c(1, 2))
@@ -180,7 +171,7 @@ The plot of heterozygosity against call rate is useful in detecting
 poor quality samples:
 <<plot-outliners-qc,fig=TRUE>>=
 par(mfrow = c(1, 1))
-plot(sample.qc$Call.rate, sample.qc$Heterozygosity)
+plot(sample.qc)
 @ 
 There is one clear outlier.
 

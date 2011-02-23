@@ -2,12 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <R.h>
-
-#include "hphase.h"
-
-int ipf(int K, const double *observed, 
-	const int nterms, const unsigned int *terms,  double *expected,
-	const int maxit, const double eps);
+# include "hphase.h"
 
 /* Generate genotype->haplotype lookup table */
 
@@ -127,27 +122,16 @@ void destroy_gtype_table(GTYPE *gtt, const int nsnp){
    maxit   Maximum number of EM iterations
    tol     Tolerance for proportional change in fitted haplotype probabilities
    hprob   Output table of dimension 2^nsnp containing haplotype probabilities
-   nllm    Number of terms in log-linear smoothing model
-   llm     Model terms (as bit patterns)
    
 */
 
 
 int emhap(const int nsnp, const int *gtable, const int *htable, 
 	  GTYPE *gtypes, const int maxit, const double tol,
-	  double *hprob, const int nllm, const unsigned int *llm){
+	  double *hprob){
 
   GTYPE *lookup;
-
-  /* Minimum number of EM steps before warning messages */
-
-  int minit = 3;
   
-  /* IPF control */
-
-  const int ipfsteps = 10; /* Max number of IPF steps in each EM step */
-  const double ipfeps = 0.001; /* IPF criterion (relative change in expected) */
-
   /* If lookup table not supplied, create one */
   
   if(gtypes) 
@@ -188,13 +172,11 @@ int emhap(const int nsnp, const int *gtable, const int *htable,
   if (htable)
     prh = (double *)Calloc(maxhaps, double);
 
-  /* If no starting values, initialize haplotype frequency vector */
+  /* Initialize haplotype frequency vector */
 
-  if (hprob[0]<0.0) {
-    double maxp = 1.0/ (double)nht; 
-    for (int i=0; i<nht; i++)
-      hprob[i] = maxp;
-  }
+  double maxp = 1.0/ (double)nht; 
+  for (int i=0; i<nht; i++)
+    hprob[i] = maxp;
 
   /* EM algorithm */
 
@@ -233,7 +215,6 @@ int emhap(const int nsnp, const int *gtable, const int *htable,
 	  logL += gti*log(psumg);
 	if (hti)
 	  logL += hti*log(psumh);
-
 	/* Increment haplotype table with expected frequencies */
 	
 	double fgi = psumg? gtable[i]/psumg: 0.0;
@@ -258,26 +239,16 @@ int emhap(const int nsnp, const int *gtable, const int *htable,
 
     /* New estimates of haplotype frequencies */
 
-    int ipfault = 0;
-    if (nllm) { /* Log-linear smoothing model */
-      for (int i=0; i<nht; i++) {
-	sum[i] /= total;
-	/* do ipfsteps of IPF algorithm */
-	ipfault = ipf(nsnp, sum, nllm, llm, hprob, ipfsteps, ipfeps);
-      }
-    }
-    else { /* Saturated model */
-      for (int i=0; i<nht; i++) 
+    for (int i=0; i<nht; i++) 
       hprob[i] = sum[i]/total;
-    }
 
     /* Convergence test */
 
     double ctest = logL - logL_prev;
     logL_prev = logL;
     if (it++) {
-      if (it>minit && ctest<0.0) {
-	warning("Log likelihood decreased in EM algorithm at iteration %d", it);
+      if (ctest<0.0) {
+	warning("Log likelihood decreased in EM algorithm");
 	result = -2;
 	break;
       }
@@ -307,15 +278,18 @@ int emhap(const int nsnp, const int *gtable, const int *htable,
 
    npr    number of predictor SNPs
    g      predictor genotype (single code, npr SNPs)
-   mX     1 if male and X chromsome, otherwise 0
    hprob  haplotype probs (table of dimension npr+1 with SNP to be 
           predicted varying fastest)
    gtypes genotype->haplotype lookup table for genotype table of dimension npr
 
-   pred   (length 3) posterior probabilities for genotype == 0, 1, 2
+   pred   2-vector of predicted genotype scores (additive and dominance)
+          Additive score is expected number of times (out of 2) that the 
+	  predicted SNP genotype contains the second allele.
+	  Dominance score is the probability that the predicted genotype
+	  is homozygous for the second allele.
 */
 
-void predict_gt(const int npr, const int g, const int mX, const double *hprob, 
+void predict_gt(const int npr, const int g, const double *hprob, 
 		const GTYPE *gtypes, double *pred) {
   if (!g) {
     pred[0] = pred[1] = pred[2] = NA_REAL;
@@ -323,59 +297,36 @@ void predict_gt(const int npr, const int g, const int mX, const double *hprob,
   }
   int nhaps = gtypes[g-1].nphase;
   int *haps = gtypes[g-1].haps;
-  /* Loop over possible phased haplotype assignments */
   double psum = 0.0, qsum = 0.0, qprod = 0.0;
   for (int i=0, ii=0; i<nhaps; i++) {
     int h1 = 2*haps[ii++];
     int h2 = 2*haps[ii++];
-    if (mX) {
-      if (h1!=h2) 
-	error("BUG: heterozygous haplotype assignment for male on X");
-      double p0 = hprob[h1];
-      double p1 = hprob[h1+1];
-      double p = p0+p1;
-      psum += p;
-      qsum += p1;
-    }
-    else {
-      double p10 = hprob[h1];
-      double p11 = hprob[h1+1];
-      double p1 = p10+p11;
-      double q1 = p11/p1; /* Conditional probability h1 carries 1 */
-      double p20 = hprob[h2];
-      double p21 = hprob[h2+1];
-      double p2 = p20+p21;
-      double q2 = p21/p2;/* Conditional probability h2 carries 1 */
-      /* Probability of this haplotype assignment */
-      double p = p1*p2;
-      if (h1!=h2)
-	p *= 2;
-      psum += p;
-      if (p) {
-	qsum += p*(q1+q2);
-	qprod += p*q1*q2;
-      }
+    double p10 = hprob[h1];
+    double p11 = hprob[h1+1];
+    double p1 = p10+p11;
+    double q1 = p11/p1;
+    double p20 = hprob[h2];
+    double p21 = hprob[h2+1];
+    double p2 = p20+p21;
+    double q2 = p21/p2;
+    double p = p1*p2;
+    if (h1!=h2)
+      p *= 2;
+    psum += p;
+    if (p) {
+      qsum += p*(q1+q2);
+      qprod += p*q1*q2;
     }
   }
-  /* Posterior probabilities of genotypes */
+  pred[0] = psum;
   if (psum > 0.0) {
-    if (mX) {
-      double pg2 = qsum/psum;
-      pred[2] = pg2; 
-      pred[1] = 0.0;
-      pred[0] = 1.0 - pg2;
-    }
-    double pg1 = (qsum - 2.0*qprod)/psum;
-    double pg2 =  qprod/psum;
-    pred[0] = 1.0 - pg1 - pg2;
-    pred[1] = pg1;
-    pred[2] = pg2;
+    pred[1] = (qsum - 2.0*qprod)/psum;
+    pred[2] = qprod/psum;
   }
   else {
-    pred[0] = pred[1] = pred[2] = NA_REAL;
+    pred[1] = pred[2] = NA_REAL;
   }
 }
-
 
 /* Predict allele on a haplotype 
 
@@ -391,9 +342,9 @@ void predict_gt(const int npr, const int g, const int mX, const double *hprob,
 
 double predict_ht(const int h, const double *hprob) {
   int h0 = 2*h;
+  double p0 = hprob[h0];
   double p1 = hprob[h0+1];
-  double den = hprob[h0] + p1;
-  return den>0? p1/den: NA_REAL;
+  return p1/(p0+p1);
 }
 
 /* r^2 for prediction of first SNP. hprob is assumed to sum to 1.0 */
@@ -432,7 +383,7 @@ double gen_r2(const int npr, double *hprob, const GTYPE *gtypes) {
   double sp = 0.0, mu =0.0, vp=0.0;
   double pr[3];
   while(1) {    
-    predict_gt(npr, g, 0, hprob, gtypes, pr);
+    predict_gt(npr, g, hprob, gtypes, pr);
     double yp = pr[1] + 2.0*pr[2];
     double p = pr[0];
     sp += p;

@@ -9,15 +9,13 @@
 #include "hash_index.h"
 #include "imputation.h"
 #include "invert.h"
-#include "uncertain.h"
-
 
 #define MAX_NAME_LENGTH 81
 
 SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum, 
 		   const SEXP Z, const SEXP Snp_subset, 
-		   const SEXP Robust, const SEXP Cluster, const SEXP Uncertain,
-		   const SEXP Control, const SEXP If_score) {
+		   const SEXP Robust, const SEXP Cluster, const SEXP Control,
+		   const SEXP If_score) {
 
   /* Y should be a snp.matrix or an X.snp.matrix */
   const char *classY = NULL;
@@ -138,16 +136,6 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
   }
   else if (TYPEOF(Cluster)!=NILSXP)
     error("Argument error - Cluster");
-
-
-  /* Handling of uncertain genotypes */
-
-  if (TYPEOF(Uncertain) != LGLSXP)
-    error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
-  /* Force robust variance if uncertain option used */
-  robust = robust || uncert; 
-
   
   /* Control object */
 
@@ -236,25 +224,38 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
 
     /* Load SNP as Binomial y-variate, with prior weights */
 
-    for (int i=0; i<N; i++) {
-      int yij = (int) yj[i];
-      if (yij && (uncert||yij<4)) {
-	if (mono) {
-	  if (yij<4) {
-	    mono = !yv || (yij==yv);
+    if (ifX) {
+      for (int i=0; i<N; i++) {
+	int yij = (int) yj[i];
+	if (yij) {
+	  if (!yv)
 	    yv = yij;
-	  }
-	  else 
-	    mono = 0;
+	  else if (mono) 
+	    mono = (yv == yij);
+	  prior[i] = (!female || female[i])? 2.0: 1.0;
+	  yd[i] = ((double) (yij - 1))/2.0;
 	}
-	prior[i] = (!female || female[i])? 2.0: 1.0;
-	yd[i] = g2mean(yij)/2.0;
-      }
-      else {
-	prior[i] = yd[i] = 0.0;
+	else {
+	  prior[i] = yd[i] = 0.0;
+	}
       }
     }
-    
+    else {
+      for (int i=0; i<N; i++) {
+	int yij = (int) yj[i];
+	if (yij) {
+	  if (!yv)
+	    yv = yij;
+	  else if (mono) 
+	    mono = (yv == yij);
+	  prior[i] = 2.0;
+	  yd[i] = ((double) (yij - 1))/2.0;
+	}
+	else {
+	  prior[i] = yd[i] = 0.0;
+	}	
+      }
+    }
     if (mono) { /* Monomorphic SNP */
       memset(u, 0x00, P*sizeof(double));
       memset(v, 0x00, sizeof(double)*(P*(P+1))/2); 
@@ -354,7 +355,6 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
 SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link, 
 		   SEXP X, SEXP Stratum, SEXP Z, SEXP Rules, 
 		   SEXP Prior, SEXP Tests, SEXP Robust, SEXP Cluster, 
-		   SEXP Uncertain, 
 		   SEXP Control, SEXP MissAllow, SEXP If_score) {
 
   char testname[MAX_NAME_LENGTH];
@@ -543,14 +543,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   else if (TYPEOF(Cluster)!=NILSXP)
     error("Argument error - Cluster");
   
-  /* Handling of uncertain genotypes */
-
-  if (TYPEOF(Uncertain) != LGLSXP)
-    error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
-
-  
-/* Control object */
+  /* Control object */
 
   if (TYPEOF(Control)!=VECSXP || LENGTH(Control)!=3) 
     error("Argument error - Control");
@@ -716,8 +709,8 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 	const unsigned char *zj = z + N*snpsj;
 	for (int i=0; i<N; i++, ij++) {
 	  unsigned char zij = zj[i];
-	  if (zij && (uncert||(zij<4))) {
-	    zw[ij] = g2mean(zij);
+	  if (zij) {
+	    zw[ij] = (double) (zij - 1);
 	  }
 	  else {
 	    zw[ij] = 0.0;
@@ -737,8 +730,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 	  strncpy(testname+len, CHAR(Rule_namej), space);	
 	SEXP Rule =  VECTOR_ELT(Rules, snpsj);
 	if (!isNull(Rule)){ /* Not monomorphic */
-	  do_impute(z, N, female, NULL, N, name_index, Rule, gt2ht, zw+ij, 
-		    NULL);
+	  do_impute(z, N, NULL, N, name_index, Rule, gt2ht, zw+ij, NULL);
 	  for (int i=0; i<N; i++, ij++) {
 	    if (ISNA(zw[ij])) {
 	      zw[ij] = 0.0;

@@ -5,7 +5,7 @@
 tdt.snp <- function(ped, id, father, mother, affected,
                          data=sys.parent(), snp.data, rules=NULL,
                          snp.subset=NULL,
-                         check.inheritance=TRUE, robust=FALSE, uncertain=FALSE,
+                         check.inheritance=TRUE, robust=FALSE,
                          score=FALSE) {
   if (!is.null(rules) || !check.inheritance) 
     robust <- TRUE
@@ -121,7 +121,7 @@ tdt.snp <- function(ped, id, father, mother, affected,
 
   scores <- .Call("score_tdt", pd.snps[cord], fr.snps[cord], mr.snps[cord],
                   clust[cord], snp.data, rules, snp.subset,
-                  check.inheritance, robust, uncertain, PACKAGE="snpMatrix")
+                  check.inheritance, robust, PACKAGE="snpMatrix")
   chisq <- .Call("chisq_single", scores, PACKAGE="snpMatrix")
   if (is.null(rules)) {
     if (is.null(snp.subset))
@@ -239,10 +239,6 @@ misinherits <- function(ped, id, father, mother, data=sys.parent(), snp.data){
     fr.raw[!snp.data@Female[pd.snps]] <- as.raw(4)
   mr.raw <- as.raw(snp.data[mr.snps,])
   pd.raw <- as.raw(snp.data[pd.snps,])
-  ## Treat any uncertain genotypes as missing 
-  fr.raw[fr.raw>3] <- as.raw(0)
-  mr.raw[mr.raw>3] <- as.raw(0)
-  pd.raw[pd.raw>3] <- as.raw(0)
   code <- 1 + as.numeric(
                 rawShift(fr.raw, 4) |
                 rawShift(mr.raw, 2) |

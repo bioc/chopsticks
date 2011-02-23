@@ -8,10 +8,8 @@
   sqrt(2*p*(1-p)). For male samples and the X chromosome, codes are 
   0 and 2 so that the mean is again 2*p, but the SD is now 2*sqrt(p*(1-p)).
   Missing genotypes score zero (equivalent to replacing missing values by 
-  the mean in the original matrix. Missing genotypes are replaced
-  by their (marginal) expectations - i.e. twice the allele frequency. 
-  Uncertain genotypes are either replaced by posterion means 
-  (Uncertain==TRUE) or treated as missing (Uncertain==FALSE).
+  the mean in the original matrix. Missing genotypes are replaced by 
+  their (marginal) expectations - i.e. twice the allele frequency
 
   Allele frequencies may be taken from the data or supplied as an argument
 */
@@ -24,10 +22,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "Rmissing.h"
-#include "uncertain.h"
 
-SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
-	     const SEXP Uncertain) {
+SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency) {
   
   int *ifFemale = NULL;
   SEXP cl = GET_CLASS(Snps);
@@ -75,12 +71,6 @@ SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
   else if (TYPEOF(Frequency) != NILSXP)
     error("Argument error: Frequency is wrong type");
      
-  /* Handling of uncertain genotypes */
-
-  if (TYPEOF(Uncertain) != LGLSXP)
-    error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
-
   /* Result matrix */
 
   SEXP Result, Dimnames;
@@ -101,39 +91,41 @@ SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
     double afk = NA_REAL;
     if (frequency) 
       afk = frequency[k];
-    else {
-      int s1=0;
-      double s2=0.0;
+    else {     
+      int s1=0, s2=0;
       for (int ki=ik, i=0; i<N; i++) {
-	unsigned char w = (int) snps[ki++];
-	if (w && ((w<4)|uncert)) {
-	  double gm = g2mean(w);
+	int w = (int) snps[ki++];
+	if (w) {
+	  w--;
 	  if (ifFemale && !ifFemale[i]) {
 	    s1++;
-	    s2 += gm/2.0;
+	    s2 += w/2;
 	  }
 	  else {
 	    s1 += 2;
-	    s2 += gm;
+	    s2 += w;
 	  }
 	}
       }
       if (s1)
-	afk =  s2 / ((double) s1);
+	afk = ((double) s2) / ((double) s1);
     }
     
     /* If polymorphic, add contribution */
 
     if (afk!=NA_REAL && afk>0.0 && afk<1.0) {
-      double mean = 2.0*afk;
+      double mean = 2.0*afk + 1.0;
       double sd2 = sqrt(2.0*afk*(1.0-afk));
       double sd1 = 2.0*sqrt(afk*(1.0-afk));
 
       for (int i=0, jis=0; i<N; i++, ik++, jis+=P) {
 	int sik = (int) snps[ik];
-	if (sik && ((sik<4)|uncert)) {
-	  double xik = g2mean(sik) - mean;
-	  xik /= (ifFemale && !ifFemale[i])? sd1: sd2;
+	if (sik) {
+	  double xik;
+	  if (ifFemale && !ifFemale[i])
+	    xik = ((double) sik - mean)/sd1;
+	  else
+	    xik = ((double) sik - mean)/sd2;
 	  for (int j=0, jk=jks, ji=jis; j<P; j++, jk++, ji++) {
 	    result[jk] += xik*mat[ji];
 	  }
@@ -149,8 +141,7 @@ SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
   return(Result);
 }
 
-SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency, 
-	      const SEXP Uncertain) {
+SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency) {
   
   int *ifFemale = NULL;
   SEXP cl = GET_CLASS(Snps);
@@ -198,13 +189,7 @@ SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
   else if (TYPEOF(Frequency) != NILSXP)
     error("Argument error: Frequency is wrong type");
      
-   /* Handling of uncertain genotypes */
-
-  if (TYPEOF(Uncertain) != LGLSXP)
-    error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
-
- /* Result matrix */
+  /* Result matrix */
 
   SEXP Result, Dimnames;
   PROTECT(Result = allocMatrix(REALSXP, N, P));
@@ -225,38 +210,40 @@ SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
     if (frequency) 
       afk = frequency[k];
     else {     
-      int s1=0;
-      double s2=0.0;
+      int s1=0, s2=0;
       for (int ki=ik, i=0; i<N; i++) {
-	unsigned char w = (int) snps[ki++];
-	if (w && ((w<4)|uncert)) {
-	  double gm = g2mean(w);
+	int w = (int) snps[ki++];
+	if (w) {
+	  w--;
 	  if (ifFemale && !ifFemale[i]) {
 	    s1++;
-	    s2 += gm/2.0;
+	    s2 += w/2;
 	  }
 	  else {
 	    s1 += 2;
-	    s2 += gm;
+	    s2 += w;
 	  }
 	}
       }
       if (s1)
-	afk =  s2 / ((double) s1);
+	afk = ((double) s2) / ((double) s1);
     }
     
     /* If polymorphic, add contribution */
 
     if (afk!=NA_REAL && afk>0.0 && afk<1.0) {
-      double mean = 2.0*afk;
+      double mean = 2.0*afk + 1.0;
       double sd2 = sqrt(2.0*afk*(1.0-afk));
       double sd1 = 2.0*sqrt(afk*(1.0-afk));
 
       for (int i=0; i<N; i++, ik++) {
 	int sik = (int) snps[ik];
-	if (sik&&((sik<4)|uncert)) {
-	  double xik = g2mean(sik) - mean;
-	  xik /= (ifFemale && !ifFemale[i])? sd1: sd2;
+	if (sik) {
+	  double xik;
+	  if (ifFemale && !ifFemale[i])
+	    xik = ((double) sik - mean)/sd1;
+	  else
+	    xik = ((double) sik - mean)/sd2;
 	  for (int j=0, ij=i, kj=k; j<P; j++, ij+=N, kj+=M) {
 	    result[ij] += xik*mat[kj];
 	  }

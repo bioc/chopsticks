@@ -3,7 +3,6 @@
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>
-#include "uncertain.h"
 
 /* Fst calculation -- as used in HapMap */
 
@@ -105,8 +104,7 @@ SEXP Fst(SEXP Snps, SEXP Group) {
     for (int i=0; i<N; i++, ij++) {
       int gi = group[i];
       int sij = (int) snps[ij];
-      /* Uncertain genotypes treated as missing */
-      if (gi != NA_INTEGER && sij && (sij<4)) {
+      if (gi != NA_INTEGER && sij) {
 	gi--;
 	if (ifX) {
 	  int fi = female[i];

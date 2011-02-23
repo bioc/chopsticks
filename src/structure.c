@@ -35,8 +35,7 @@
 
   mu*alpha_i*beta_k = T_i.*T_.k/T_..
 
-  If Uncertain==TRUE, uncertain genotypes are replace by posterior 
-  expectations. Otherwise they are treated as missing.
+  
 
 */
 
@@ -48,10 +47,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "Rmissing.h"
-#include "uncertain.h"
 
 SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing, 
-	 const SEXP Lower_only, const SEXP Uncertain) {
+	 const SEXP Lower_only) {
   
   if (TYPEOF(Correct_for_missing)!=LGLSXP)
     error("Argument error - Correct_for_missing wrong type");
@@ -84,8 +82,7 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
 
   int *strata = NULL;
   double *mu = NULL, *sd = NULL;
-  int *count = NULL; 
-  double *acount = NULL;
+  int *count = NULL, *acount = NULL;
   int nstrata = 0;
   if (!isNull(Strata)) {
     if (LENGTH(Strata)!=N)
@@ -93,7 +90,7 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
     strata = INTEGER(Strata);
     nstrata = nlevels(Strata);
     count = Calloc(nstrata, int);
-    acount = (double *)Calloc(nstrata, double);
+    acount = Calloc(nstrata, int);
     mu = Calloc(nstrata, double);
     sd = Calloc(nstrata, double);
   }
@@ -121,13 +118,6 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
     } 
   }
 
-
-  /* Handling of uncertain genotypes */
-
-  if (TYPEOF(Uncertain) != LGLSXP)
-    error("Argument error: Uncertainty is wrong type");
-  int uncert = *LOGICAL(Uncertain);
-
   /* Result matrix */
 
   SEXP Result;
@@ -146,28 +136,26 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
     int s1=0, s2=0, polymorphic=0;
     if (strata) {
       memset(count, 0x00, nstrata*sizeof(int));
-      memset(acount, 0x00, nstrata*sizeof(double));
+      memset(acount, 0x00, nstrata*sizeof(int));
       for (int ki=ik, i=0; i<N; i++) {
-	unsigned char w = snps[ki++];
-	if (w&&((w<4)|uncert)) {
+	int w = (int) snps[ki++];
+	if (w) {
 	  int si = strata[i]-1;
-	  double gm = g2mean(w);
 	  if (ifFemale && !ifFemale[i]) {
 	    count[si]++;
-	    acount[si] += gm/2.0;
+	    acount[si] += (w-1)/2;
 	  }
 	  else {
 	    count[si] += 2;
-	    acount[si] += gm;
+	    acount[si] += (w-1);
 	  }
 	}
       }
       for (int i=0; i<nstrata; i++) {
-	int s1 = count[i];
-	double s2 = acount[i];
-	if (s1 && (s2>0.0) && (s2<s1)){
+	int s2 = acount[i], s1 = count[i];
+	if ((s1>0) && (s2>0) && (s2<s1)){
 	  polymorphic = 1;
-	  double afk = s2/(double) s1;
+	  double afk = (double) s2/(double) s1;
 	  mu[i] = 2.0*afk + 1.0;
 	  sd[i] = sqrt(2.0*afk*(1.0-afk));
 	}
@@ -177,23 +165,23 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
     }
     else {
       for (int ki=ik, i=0; i<N; i++) {
-	unsigned char w =  snps[ki++];
-	if (w&&((w<4)|uncert)) {
-	  double gm = g2mean(w);
+	int w = (int) snps[ki++];
+	if (w) {
+	  w--;
 	  if (ifFemale && !ifFemale[i]) {
 	    s1++;
-	    s2 += gm/2.0;
+	    s2 += w/2;
 	  }
 	  else {
 	    s1 += 2;
-	    s2 += gm;
+	    s2 += w;
 	  }
 	}
       }
-      polymorphic = (s1 && (s2>0.0) && (s2<s1));
+      polymorphic = ((s1>0) && (s2>0) && (s2<s1));
       if (polymorphic){
 	double afk = ((double) s2) / ((double) s1);
-	mean = 2.0*afk;
+	mean = 2.0*afk + 1.0;
 	sd2 = sqrt(2.0*afk*(1.0-afk));
       }
       else
@@ -215,10 +203,13 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
 	  mean = mu[si];
 	  sd2 = sd[si];
 	}
-	unsigned char sik = snps[ik];
+	int sik = (int) snps[ik];
 	if (sik && sd2!=0.0) {
-	  double xik = g2mean(sik) - mean;
-	  xik /= (ifFemale && !ifFemale[i])? (rt2*sd2): sd2;
+	  double xik;
+	  if (ifFemale && !ifFemale[i])
+	    xik = ((double) sik - mean)/(rt2*sd2);
+	  else
+	    xik = ((double) sik - mean)/sd2;
 	  if (correct) {
 	    ipw = 1.0/(1.0 - tk*(double)Ti[i]); /* IPW for diagonal */
 	  }
@@ -229,10 +220,13 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
 	      mean = mu[sj];
 	      sd2 = sd[sj];
 	    }
-	    unsigned char sjk = snps[jk++]; 
+	    int sjk = (int) snps[jk++]; 
 	    if (sjk && sd2!=0.0) {
-	      double xjk = g2mean(sjk) - mean;
-	      xjk/=  (ifFemale && !ifFemale[j])? (rt2*sd2): sd2;
+	      double xjk;
+	      if (ifFemale && !ifFemale[j])
+		xjk =  ((double) sjk - mean)/(rt2*sd2);
+	      else
+		xjk =  ((double) sjk - mean)/sd2;
 	      if (correct) 
 		result[ij] += xik*xjk*((i==j)?ipw: ipw/(1.0-tk*(double)Ti[j]));
 	      else 
@@ -284,7 +278,7 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
 */
 
  
-SEXP corsm(const SEXP Snps, const SEXP X, const SEXP Uncertain) { 
+SEXP corsm(const SEXP Snps, const SEXP X) { 
 
   if (!inherits(Snps, "snp.matrix"))
     error("Argument error - Snps wrong type");
@@ -305,11 +299,6 @@ SEXP corsm(const SEXP Snps, const SEXP X, const SEXP Uncertain) {
   }
   int P = dim[1];
 
-  /* Handling of uncertain genotypes */
-
-  if (TYPEOF(Uncertain) != LGLSXP)
-    error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
 
   SEXP Result;
   PROTECT(Result = allocMatrix(REALSXP, M, P));
@@ -320,16 +309,15 @@ SEXP corsm(const SEXP Snps, const SEXP X, const SEXP Uncertain) {
       double sg=0.0, sgg=0, sx=0.0, sxx=0.0, sgx=0.0;
       int s=0;
       for (int k=0, jk=jks; k<N; k++) {
-	unsigned char g = snps[ik++];
+	int g = (int) snps[ik++];
 	double xk = x[jk++];
-	if (g && ((g<4)|uncert) && !ISNA(xk)) {
-	  double gm = g2mean(g);
+	if (g && !ISNA(xk)) {
 	  s++;
-	  sg += gm;
-	  sgg += gm*gm;
+	  sg += g;
+	  sgg += g*g;
 	  sx += xk;
 	  sxx += xk*xk;
-	  sgx += gm*xk;
+	  sgx += g*xk;
 	}
       }
       if (s) {
@@ -371,15 +359,11 @@ SEXP corsm(const SEXP Snps, const SEXP X, const SEXP Uncertain) {
     AY  1  0      or    AY  2  1  0
     BY  0  1            BY  0  1  2
 
-  If Uncertain==TRUE, contributions are weighted by posterior probability.
-  Otherwise they are treated as missing.
+  However this version does not currently does not deal with X.snp.matrices
 
 */
 
-
-SEXP ibs_count(const SEXP Snps, const SEXP Uncertain) { 
-
-  double lutab[3][3] = {{4., 2., 0.}, {2., 2., 2.}, {0., 2., 4.}};
+SEXP ibs_count(const SEXP Snps) { 
 
   int *ifFemale = NULL;
   SEXP cl = GET_CLASS(Snps);
@@ -410,22 +394,17 @@ SEXP ibs_count(const SEXP Snps, const SEXP Uncertain) {
   N = dim[0];
   M = dim[1];
 
-  /* Handling of uncertain genotypes */
-
-  if (TYPEOF(Uncertain) != LGLSXP)
-    error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
 
   /* Result matrix */
 
   SEXP Result, dimnames;
-  PROTECT(Result = allocMatrix(REALSXP, N, N));
+  PROTECT(Result = allocMatrix(INTSXP, N, N));
   PROTECT(dimnames = allocVector(VECSXP, 2));
   SET_VECTOR_ELT(dimnames, 0, duplicate(rowNames));    
   SET_VECTOR_ELT(dimnames, 1, duplicate(rowNames));    
   setAttrib(Result, R_DimNamesSymbol, dimnames);    
-  double *result = REAL(Result);
-  memset(result, 0x00, N*N*sizeof(double));
+  int *result = INTEGER(Result);
+  memset(result, 0x00, N*N*sizeof(int));
 
   /* Update result matrix for each locus in turn */
 
@@ -440,31 +419,18 @@ SEXP ibs_count(const SEXP Snps, const SEXP Uncertain) {
 	base_div = 2;
       else
 	base_div = 1;
-      unsigned char sik = snps[ik++];
-      if (sik&&((sik<4)|uncert)) {
+      int sik = (int) snps[ik++];
+      if (sik) {
 	result[ii]++;
-	double pi[3];
-	g2post(sik, pi, pi+1, pi+2);
 	for (int j=i+1, jk=ik, ji=ii+1, ij=ii+N; 
 	     j<N; j++, ji++, ij+=N) {
 	  int div = base_div ;
 	  if (ifFemale && !ifFemale[j])
 	    div *= 2;
-	  unsigned char sjk = snps[jk++]; 
-	  if (sjk&&((sjk<4)|uncert)) {
-	    double pj[3];
-	    g2post(sjk, pj, pj+1, pj+2);
-	    double add = 0;
-	    for (int ii=0; ii<2; ii++) {
-	      double pii = pi[ii];
-	      if (pii) {
-		for (int jj=0; jj<3; jj++) {
-		  double pjj = pj[jj];
-		  if (pjj)
-		    add += pii*pjj*lutab[ii][jj];
-		}
-	      }
-	    }
+	  int sjk = (int) snps[jk++]; 
+	  if (sjk) {
+   	    int add = sjk==sik?
+	      (sik==2 ? 2: 4) : (4-2*abs(sik-sjk));
 	    result[ij] += add/div;
 	    result[ji] += 4/div;
 	  }
@@ -483,10 +449,10 @@ SEXP ibs_count(const SEXP Snps, const SEXP Uncertain) {
 
 SEXP ibs_dist(const SEXP Ibsc) {
   
-  if (!isReal(Ibsc))
-    error("Input object is not a real array");
+  if (!IS_INTEGER(Ibsc))
+    error("Input object is not an integer array");
 
-  const double *ibsc = REAL(Ibsc);
+  const int *ibsc = INTEGER(Ibsc);
   int N, M;
   int *dim = INTEGER(getAttrib(Ibsc, R_DimSymbol));
   N = dim[0];
@@ -518,7 +484,7 @@ SEXP ibs_dist(const SEXP Ibsc) {
   memset(result, 0x00, Nout*sizeof(double));
   for (int i=1, ii=0, k=0; i<N; i++, ii+=(N+1)) {
     for (int j=i, ji=ii+1, ij=ii+N; j<N; j++, ji++, ij+=N){
-      result[k++] = (ibsc[ji]-ibsc[ij])/ibsc[ji];
+      result[k++] = (double) (ibsc[ji]-ibsc[ij])/(double) ibsc[ji];
     }
   }
 

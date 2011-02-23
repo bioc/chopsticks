@@ -138,8 +138,7 @@ geno_cptr get_geno_count(unsigned char *pos1, unsigned char *pos2, int length)
 
   while (run < length)
     {
-      /* Modified by DC, July 2010, to ignore uncertain genotypes */
-      if ((*pos1) && (*pos1<4) && (*pos2) && (*pos2<4))
+      if ((*pos1) && (*pos2))
 	{
 	  count[ ((*pos1) -1) * 3 + (*pos2) -1] ++;
 	}

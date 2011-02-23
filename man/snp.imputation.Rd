@@ -13,15 +13,15 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try=50, stopping=c(0.95, 4, 0.05
 \arguments{
   \item{X}{An object of class \code{"snpMatrix"} or
     \code{"X.snp.matrix"} containing observations
-    of the SNPs to be used for imputation ("predictor SNPs")}
+    of the SNPs to be used for imputation ("regressor SNPs")}
   \item{Y}{An object of same class as \code{X} containing observations
   of the SNPs to be imputed in a future sample ("target SNPs")}
-  \item{pos.X}{The positions of the  predictor SNPs}
+  \item{pos.X}{The positions of the regressor SNPs}
   \item{pos.Y}{The positions of the target SNPs}
   \item{phase}{See "Details" below}
-  \item{try}{The number of potential predictor SNPs to be
+  \item{try}{The number of potential regressor SNPs to be
     considered in the stepwise regression procedure around each target
-    SNP . The nearest \code{try} predictor SNPs to each target SNP
+    SNP . The nearest \code{try} regressor SNPs to each target SNP
     will be considered}
   \item{stopping}{Parameters of the stopping rule for the stepwise
     regression (see below)}
@@ -34,7 +34,7 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try=50, stopping=c(0.95, 4, 0.05
 }
 \details{
   The routine first carries out a series of step-wise regression analyses in
-  which each Y SNP is regressed on the nearest \code{try} predictor (X)
+  which each Y SNP is regressed on the nearest \code{try} regressor (X)
   SNPs. If
   \code{phase} is \code{TRUE}, the regressions will be calculated at the
   chromosome (haplotype) level, variances being simply  \eqn{p(1-p)} and
@@ -51,20 +51,17 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try=50, stopping=c(0.95, 4, 0.05
   \code{stopping}, or (c) the change in \eqn{R^2} does not achieve the
   target set by the third parameter of \code{stopping}. If the third
   parameter of \code{stopping} is \code{NA}, this last test is replaced
-  by a test for improvement in the Akaike information criterion
-  (AIC). After choosing the set of "tag" SNPs in this way, haplotypes of
-  the target and tag SNPs are phased, simultaneously fitting a logistic
-  regression of the target on the tags. 
+  by a test for improvement in the Akaike information criterion (AIC). 
 
   If the prediction  as measure by  \eqn{R^2}, has not achieved a
   threshold (the first parameter of \code{use.hap})
-  using more than one tag SNP, then the logistic regression assumption
-  is relaxed, phased haplotype frequencies being estimated under the
-  fully saturated model. a second imputation method is
-  tried. The  \eqn{R^2} for prediction of the Y SNP using these
+  using more than one tag SNP, then a second imputation method is
+  tried. Phased
+  haplotype frequencies are estimated for the Y SNP plus the
+  tag SNPs. The  \eqn{R^2} for prediction of the Y SNP using these
   haplotype frequencies is then calculated. If the \eqn{(1-R^2)} is reduced
   by a proportion exceeding the second parameter of \code{use.hap}, then
-  the saturated imputation rule is saved in preference to the logistic
+  the haplotype imputation rule is saved in preference to the faster
   regression rule. The argument \code{em.cntrl} controls convergence
   testing for the EM algorithm for fitting haplotype frequencies. The
   first parameter is the maximum number of iterations, and the second

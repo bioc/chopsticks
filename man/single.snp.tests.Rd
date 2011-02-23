@@ -14,7 +14,7 @@
 }
 \usage{
 single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data,
-   rules=NULL, subset, snp.subset, uncertain = FALSE, score=FALSE)
+   rules=NULL, subset, snp.subset, score=FALSE)
 }
 \arguments{
   \item{phenotype}{A vector containing the values of the phenotype}
@@ -37,11 +37,7 @@ single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data,
   \item{snp.subset}{A vector describing the subset of SNPs to be
     considered. Default action is to test all SNPs in \code{snp.data}
     or, in imputation mode,  as specified by \code{rules}}
-  \item{uncertain}{If TRUE, uncertain genotypes are handed by replacing
-    score contributions by their posterior expectations. Otherwise these
-    are treated as missing. Setting this option authomatically invokes
-    use of \code{robust} variance estimates}
-   \item{score}{If \code{TRUE}, the output object will contain, for each
+  \item{score}{If \code{TRUE}, the output object will contain, for each
     SNP,  the score vector and its variance-covariance matrix}
 }
 \details{

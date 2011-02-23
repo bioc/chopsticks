@@ -25,7 +25,8 @@ Fst(snps, group)
     \item{weight}{The weights for combining these into a single index}
     }
 }
-\note{Uncertain genotypes are treated as missing
+\references{
+
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}
 }

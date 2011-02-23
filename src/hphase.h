@@ -27,9 +27,9 @@ void destroy_gtype_table(GTYPE *gtt, const int nsnp);
 /* EM algorithm */
 int emhap(const int nsnp, const int *gtable, const int *htable, 
 	  GTYPE *gtypes, const int maxit, const double tol,
-	  double *hprob, const int nllm, const unsigned int *llm);
+	  double *hprob);
 /* Predicted genotype scores */
-void predict_gt(const int npr, const int g, const int mX, const double *hprob, 
+void predict_gt(const int npr, const int g, const double *hprob, 
 		const GTYPE *gtypes, double *pred);
 /* Predict allele on a haplotype */
 double predict_ht(const int h, const double *hprob);

@@ -19,10 +19,3 @@ read.snps.long <-function(files, sample.id=NULL, snp.id=NULL, female=NULL,
         simplify, verbose, in.order, as.integer(every), PACKAGE="snpMatrix")
 }
 
-read.mach <- function(file, colnames=NULL, nrow=NULL) {
-  .Call("read_mach", file, colnames, nrow, PACKAGE="snpMatrix")
-}
-
-read.impute <- function(file, rownames=NULL, nsnp=NULL, snpcol=2) {
-  .Call("read_impute", file, rownames, nsnp, snpcol,  PACKAGE="snpMatrix")
-}

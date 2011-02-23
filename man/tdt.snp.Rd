@@ -12,7 +12,7 @@ Tests based on imputation rules can also be carried out.
 \usage{
 tdt.snp(ped, id, father, mother, affected, data = sys.parent(), snp.data, 
     rules = NULL, snp.subset, check.inheritance = TRUE, robust = FALSE,
-    uncertain = FALSE, score = FALSE)
+    score = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -37,10 +37,6 @@ tdt.snp(ped, id, father, mother, affected, data = sys.parent(), snp.data,
     forced}
   \item{robust}{If TRUE, forces the robust (Huber-White) variance option 
     (with \code{ped} determining independent "clusters")}
-  \item{uncertain}{If TRUE, uncertain genotypes are handed by replacing
-    score contributions by their posterior expectations. Otherwise these
-    are treated as missing. Setting this option authomatically invokes
-    use of \code{robust} variance estimates}
   \item{score}{If \code{TRUE}, the output object will contain, for each
     SNP,  the score vector and its variance-covariance matrix}
 }

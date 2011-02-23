@@ -36,10 +36,8 @@ Objects can be created by calls of the form \code{new("snp.matrix", x)}
 	 \describe{
     \item{\code{.Data}:}{Object of class \code{"matrix"} and storage
       mode \code{raw}  
-    Internally, missing data are coded 0 and SNP genotypes are coded
-    1, 2 or 3. Imputed values may not be known exactly. Such
-    uncertain calls are grouped by probability and represented by codes
-    4 to 253}
+    Internally, missing data are coded 00 and SNP genotypes are coded
+    01, 02 or 03. }
   }
 }
 \section{Extends}{
@@ -60,8 +58,7 @@ Class \code{"vector"}, by class "matrix", with explicit coerce.
       \code{\link{X.snp.matrix-class}}, the \code{Female} slot values must also
       agree}
     \item{coerce}{\code{signature(from = "snp.matrix", to = "numeric")}:
-      map to numeric values 0, 1, 2 or, for uncertain assignments, to
-      the posterior expectation of the 0, 1, 2 code}
+      map to codes 0, 1, 2, or NA}
     \item{coerce}{\code{signature(from = "snp.matrix", to =
 	"character")}: map to codes "A/A", "A/B", "B/B", ""}
     \item{coerce}{\code{signature(from = "matrix", to = "snp.matrix")}:

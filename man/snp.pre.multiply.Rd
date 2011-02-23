@@ -11,8 +11,8 @@
   but, otherwise, are calculated from the input snp.matrix
 }
 \usage{
-snp.pre.multiply(snps, mat, frequency=NULL, uncertain = FALSE)
-snp.post.multiply(snps, mat, frequency=NULL, uncertain = FALSE)
+snp.pre.multiply(snps, mat, frequency=NULL)
+snp.post.multiply(snps, mat, frequency=NULL)
 }
 \arguments{
   \item{snps}{An object of class \code{"snp.matrix"} or \code{"X.snp.matrix"}}
@@ -22,8 +22,6 @@ snp.post.multiply(snps, mat, frequency=NULL, uncertain = FALSE)
     If \code{NULL}, allele frequencies will be calculated
     internally. Frequencies should refer to the second (\code{B}) allele
   }
-  \item{uncertain}{If \code{TRUE}, uncertain genotypes are replaced by
-    posterior expectations. Otherwise these are treated as missing values}
 }
 \details{
 The two matrices must be conformant, as with standard matrix
