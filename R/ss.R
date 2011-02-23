@@ -960,7 +960,7 @@ setMethod("show", "snp.estimates.glm",
             nwidth <- 10
             di <- 5
             divide <- rep("-", len0+len1+len2+3*nwidth+5*space)
-            cat(format("\nModel", justify="right", width=len0),
+            cat("\n", format("Model", justify="right", width=len0),
                 format("Y-variable", justify="right", width=len1+space),
                 format("Parameter", justify="right", width=len2+space),
                 format("Estimate", justify="right", width=nwidth+space),
