@@ -31,6 +31,13 @@ write.snp.matrix(x, file, as.alleles= FALSE, append = FALSE, quote = TRUE, sep =
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
 \seealso{\code{\link[utils]{write.table}}, \code{\link{snp.matrix-class}},
   \code{\link{X.snp.matrix-class}}}
+\examples{
+data(for.exercise)
+#write to temp file for testing, delete afterwards
+test.output.file <- tempfile()
+write.snp.matrix(snps.10,file=test.output.file)
+unlink(test.output.file)
+}
 \keyword{manip}
 \keyword{IO}
 \keyword{file}
