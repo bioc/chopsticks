@@ -938,6 +938,8 @@ setClass("snp.estimates.glm", contains="list")
 setMethod("[", signature("snp.estimates.glm", i="ANY", j="missing",
                          drop="missing"),
           function(x, i) {
+            if (is.character(i))
+              i <- match(i, names(x))
             res <- x@.Data[i, drop=FALSE]
             if (length(res)==0)
               return(NULL)
