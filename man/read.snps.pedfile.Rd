@@ -34,10 +34,8 @@ read.snps.pedfile(file, snp.names=NULL, assign=NULL, missing=NULL, X=FALSE, sep=
     the listed order of samples.}
 }
 \details{
-  Input variables are assumed to take the usual codes, with
-  the restriction that the family (or pedigree) identifiers will be held
-  as strings, but identifiers for members within families must be coded
-  as integers. Genotype should be coded as pairs of single character
+  Input variables are assumed to take the usual codes.
+  Genotype should be coded as pairs of single character
   allele codes (which can be alphanumeric or numeric), from either 'A',
   'C', 'G', 'T' or '1', '2', '3', '4', with 'N', '-' and '0' denoting a
   missing; everything else is considered invalid and would invalidate
@@ -64,8 +62,6 @@ cat input.ped | perl -n -e \
  '($a, $b, $c) = split /\s/,$_, 3; print $a, "_", $b, " 1 ", $c;' > output.ped
   }
 
-  Also, note that the member field is limited to numeric. This is a
-  documented limitation above.
 }
 \value{
   \item{snps}{The output \code{"snp.matrix"} or \code{"X.snp.matrix"}}
