@@ -24,11 +24,12 @@
 #include "read_pedfile_priv.h"
 
 #define MAX_FAMILY_NAME 64
+#define MAX_MEMBER_ID 20
 
 typedef struct linecontent {
   struct linecontent *next;
   char family[MAX_FAMILY_NAME];
-  int member;
+  char member[MAX_MEMBER_ID];
   int father;
   int mother;
   int sex;
@@ -196,9 +197,9 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
     cur_content_ptr->snps = (char *)calloc(sizeof(char), n_snps + 3);
     char *snps = cur_content_ptr->snps; /* short hand */
     linecontent_ptr l = cur_content_ptr ; /* just a lazy short hand */
-    int i = sscanf(current_line, "%s %d %d %d %d %d",
+    int i = sscanf(current_line, "%s %s %d %d %d %d",
 		   l->family,
-		   &(l->member),
+		   l->member,
 		   &(l->father),
 		   &(l->mother),
 		   &(l->sex),
@@ -281,7 +282,7 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
   /* sample support data */
   PROTECT(family   = allocVector(STRSXP, n_samples));
 
-  PROTECT(member   = allocVector(INTSXP, n_samples));
+  PROTECT(member   = allocVector(STRSXP, n_samples));
   PROTECT(father   = allocVector(INTSXP, n_samples));
   PROTECT(mother   = allocVector(INTSXP, n_samples));
   PROTECT(sex      = allocVector(INTSXP, n_samples));
@@ -294,11 +295,11 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
   int i_sample = 0;
   for(cur_content_ptr = listhead.next; cur_content_ptr ; cur_content_ptr = cur_content_ptr->next) {
     char samplename_buffer[2*MAX_FAMILY_NAME]; /* 2 times for family + individual */
-    snprintf(samplename_buffer, 2*MAX_FAMILY_NAME, "Family.%s.Individual.%d", cur_content_ptr->family, 
+    snprintf(samplename_buffer, 2*MAX_FAMILY_NAME, "Family.%s.Individual.%s", cur_content_ptr->family,
 	     cur_content_ptr->member);
     SET_STRING_ELT(sample_names, i_sample, mkChar(samplename_buffer));
     SET_STRING_ELT(family, i_sample, mkChar(cur_content_ptr->family));
-    INTEGER(member  )[i_sample] = NA_IF_ZERO(cur_content_ptr->member  );
+    SET_STRING_ELT(member, i_sample, mkChar(cur_content_ptr->member));
     INTEGER(father  )[i_sample] = NA_IF_ZERO(cur_content_ptr->father  );
     INTEGER(mother  )[i_sample] = NA_IF_ZERO(cur_content_ptr->mother  );
     INTEGER(sex     )[i_sample] = NA_IF_ZERO(cur_content_ptr->sex     );
