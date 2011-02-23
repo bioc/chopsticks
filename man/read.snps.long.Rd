@@ -108,7 +108,7 @@ read.snps.long(files, sample.id = NULL, snp.id = NULL, female = NULL,
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
 \seealso{\code{\link{read.HapMap.data}}\code{\link{read.snps.pedfile}},
-  \code{\link{read.snps.chiamo}},\code{\link{read.snps.long}},
+  \code{\link{read.snps.chiamo}}, \code{\link{read.plink}}, 
   \code{\link{snp.matrix-class}}, \code{\link{X.snp.matrix-class}}}
 \keyword{manip}
 \keyword{IO}

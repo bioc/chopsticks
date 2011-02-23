@@ -11,18 +11,18 @@ Implements classes and some basic methods for large-scale SNP association studie
 \details{
 \tabular{ll}{
 Package: \tab snpMatrix\cr
-Version: \tab 1.5.3\cr
-Date: \tab 2008-08-11\cr
+Version: \tab 1.5.4\cr
+Date: \tab 2008-08-21\cr
 Depends: \tab R(>= 2.3.0), survival, methods\cr
 Suggests: \tab hexbin\cr
 Enhances: \tab genetics\cr
 License: \tab GNU General Public Licence (GPLv3)\cr
 URL: \tab http://www-gene.cimr.cam.ac.uk/clayton/software/\cr
-Collate: \tab ld.with.R ss.R contingency.table.R glm\_test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R qc.R qq\_chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
+Collate: \tab ld.with.R ss.R contingency.table.R glm\_test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq\_chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R tdt\_single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
 LazyLoad: \tab yes\cr
 biocViews: \tab Microarray, SNPsAndGeneticVariability\cr
-Packaged: \tab Mon Aug 11 14:32:17 BST 2008; david\cr
-Built: \tab R 2.7.1; x86\_64-redhat-linux-gnu; 2008-08-05 15:53:57; unix\cr
+Packaged: \tab Thu Aug 21 12:41:45 BST 2008\cr
+Built: \tab R 2.7.1; x86\_64-pc-linux-gnu; 2008-08-21 13:17:24; unix\cr
 }
 
 Index:
@@ -60,6 +60,7 @@ read.pedfile.info       function to read the accompanying info file of
                         a LINKAGE ped file
 read.pedfile.map        function to read the accompanying map file of a
                         LINKAGE ped file
+read.plink              Read a PLINK binary data file as a snp.matrix
 read.snps.chiamo        Read genotype data from the output of Chiamo
 read.snps.long          Read SNP data in long format
 read.snps.long.old      Read SNP input data in "long" format (old
@@ -91,6 +92,8 @@ snp.tests.single-class
 snpMatrix-package       The snp.matrix and X.snp.matrix classes
 switch.alleles          Switch alleles in columns of a snp.matrix
 switch.alleles.single   Switch alleles in test results
+tdt.snp                 1-df and 2-df tests for genetic associations
+                        with SNPs (or imputed SNPs) in family data
 test.allele.switch      Test for switch of alleles between two
                         collections
 testdata                Test data for the snpMatrix package
@@ -102,8 +105,8 @@ xxt                     X.X-transpose for a standardized snp.matrix
 
 Further information is available in the following vignettes:
 \tabular{ll}{
-\code{imputation-vignette} \tab imputation (source, pdf)\cr
-\code{snpMatrix-vignette} \tab snpMatrix (source, pdf)\cr
+\code{imputation-vignette} \tab imputation (source)\cr
+\code{snpMatrix-vignette} \tab snpMatrix (source)\cr
 }
 }
 \author{

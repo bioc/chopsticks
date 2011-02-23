@@ -74,7 +74,7 @@ single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data,
   Chapman J.M., Cooper J.D., Todd J.A. and Clayton D.G. (2003)
   \emph{Human Heredity}, \bold{56}:18-31.\cr
   Clayton (2008) Testing for association on the X chromosome
-  \emph{Biostatistics} \emph{Biostatistics}, In press)
+  \emph{Biostatistics}, In press)
 }
 \note{
   The 1 df imputation tests are described by Chapman et al. (2008)

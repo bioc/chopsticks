@@ -148,9 +148,9 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
       PROTECT(Rule = allocVector(VECSXP, 3));
       
       PROTECT(Rlnames = allocVector(STRSXP, 3));
-      SET_VECTOR_ELT(Rlnames, 0, mkChar("r.squared"));
-      SET_VECTOR_ELT(Rlnames, 1, mkChar("snps"));
-      SET_VECTOR_ELT(Rlnames, 2, mkChar("coefficients"));
+      SET_STRING_ELT(Rlnames, 0, mkChar("r.squared"));
+      SET_STRING_ELT(Rlnames, 1, mkChar("snps"));
+      SET_STRING_ELT(Rlnames, 2, mkChar("coefficients"));
       setAttrib(Rule, R_NamesSymbol, Rlnames);
       
       PROTECT(R2 = allocVector(REALSXP, 1));
@@ -160,7 +160,7 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
       double intcpt = snpmean(yi, female, nsubject);
       for (int j=0, ic=(nregr*(nregr-1))/2; j<nregr; j++, ic++) {
 	int xsnp = xord[start+sel[j]]-1;
-	SET_VECTOR_ELT(Pnames, j, VECTOR_ELT(Xsnpnames, xsnp));
+	SET_STRING_ELT(Pnames, j, STRING_ELT(Xsnpnames, xsnp));
 	double beta =  (-coef[ic]);
 	REAL(Coefs)[j+1] = beta;
 	intcpt -= beta*snpmean(x+nsubject*xsnp, female, nsubject);

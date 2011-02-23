@@ -3,6 +3,7 @@
 \alias{X.snp.matrix-class}
 \alias{initialize,X.snp.matrix-method}
 \alias{[,X.snp.matrix-method}
+\alias{[,X.snp.matrix,ANY,ANY,ANY-method}
 \alias{[<-,X.snp.matrix,ANY,ANY,X.snp.matrix-method}
 \alias{coerce,X.snp.matrix,character-method}
 \alias{coerce,snp.matrix,X.snp.matrix-method}

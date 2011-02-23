@@ -294,10 +294,10 @@ setMethod("plot", signature(x="snp.reg.imputation", y="missing"),
      m <- ncol(mat)
      val <- barplot(t(mat[n:1,]), legend.text=paste(1:m, "tag SNPs"),
                     beside=F, col=heat.colors(m),
-                    xlab="r-squared", ylab="Number of SNPs",
-                    names.arg=rep("", n), ...)
-     mtext(rownames(mat)[n:1], at=val, side=1, las=2, line=0.5)
-   })
+                    xlab=expression(r^2), ylab="Number of SNPs",
+                    names.arg=rep("", n), cex.lab=1.3, ...)
+     mtext(rownames(mat)[n:1], at=val, side=1, las=2, line=0.5, cex=0.8)
+    })
 
 setMethod("show", "X.snp.matrix",
    function(object) {

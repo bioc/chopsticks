@@ -6,10 +6,11 @@ export(epsout.ld.snp, filter.rules, glm.test.control, ibs.stats, ibsCount,
        ibsDist, impute.snps,
        ld.snp, ld.with, niceprint, pair.result.ld.snp, plot.snp.dprime, pool,
        print.snp.dprime, qq.chisq, read.HapMap.data, read.pedfile.info,
+       read.plink, 
        read.snps.chiamo, read.snps.long, read.snps.long.old, read.snps.pedfile,
        read.wtccc.signals, row.summary, single.snp.tests, snp.cbind, snp.rbind,
        snp.cor, snp.imputation, snp.lhs.tests, snp.post, snp.pre,
-       snp.rhs.tests, switch.alleles, switch.alleles.single,
+       snp.rhs.tests, switch.alleles, switch.alleles.single, tdt.snp,
        test.allele.switch, write.snp.matrix,
        xxt)
 importFrom(graphics, plot)
