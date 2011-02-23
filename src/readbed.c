@@ -19,7 +19,7 @@ SEXP readbed(SEXP Bed, SEXP Id, SEXP Snps) {
   int nrow = LENGTH(Id);
   int ncol = LENGTH(Snps);
   const char *file = CHAR(STRING_ELT(Bed, 0));
-  FILE *in = fopen(file, "r");
+  FILE *in = fopen(file, "rb");
   if (!in)
     error("Couln't open input file: %s", file);
   unsigned char start[3];

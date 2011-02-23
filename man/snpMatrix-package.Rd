@@ -12,17 +12,18 @@ Implements classes and methods for large-scale SNP association studies
 \details{
 \tabular{ll}{
 Package: \tab snpMatrix\cr
-Version: \tab 1.9.3\cr
-Date: \tab 2009-09-14\cr
+Version: \tab 1.9.6\cr
+Date: \tab 2009-10-23\cr
 Depends: \tab R(>= 2.3.0), survival, methods\cr
+Imports: \tab graphics, grDevices, methods, stats, survival, utils\cr
 Suggests: \tab hexbin\cr
 Enhances: \tab genetics\cr
-License: \tab GNU General Public Licence (GPLv3)\cr
+License: \tab GPL-3\cr
 URL: \tab http://www-gene.cimr.cam.ac.uk/clayton/software/\cr
 Collate: \tab ld.with.R ss.R contingency.table.R glm-test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq-chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R tdt-single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
 LazyLoad: \tab yes\cr
-biocViews: \tab Microarray, SNPsAndGeneticVariability\cr
-Built: \tab R 2.9.1; x86_64-pc-linux-gnu; 2009-09-14 09:24:41 UTC; unix\cr
+biocViews: \tab Microarray, SNP, GeneticVariability\cr
+Built: \tab R 2.9.2; x86_64-pc-linux-gnu; 2009-10-23 08:27:39 UTC; unix\cr
 }
 
 Index:

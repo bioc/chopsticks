@@ -247,7 +247,6 @@ function (formula, family="binomial", link, weights, subset,
   dropx <- NULL
   if (length(clust)) {
     # Some check on valid clusters?
-    warning("cluster(...) not yet implemented")
     if (missing(robust))
       robust <- TRUE
     tempc <- untangle.specials(Terms, "cluster", 1)
