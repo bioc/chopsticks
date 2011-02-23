@@ -1,6 +1,7 @@
 %\documentclass[a4paper,12pt]{article}
 \documentclass[12pt]{article}
-%\usepackage{times}
+\usepackage{fullpage}
+% \usepackage{times}
 %\usepackage{mathptmx}
 %\renewcommand{\ttdefault}{cmtt}
 \usepackage{graphicx}
@@ -11,14 +12,6 @@ bookmarksopen,
 pdfauthor={David Clayton and Chris Wallace},
 pdftitle={snpMatrix Vignette}]
 {hyperref}
-
-\setlength{\topmargin}{-20mm}
-\setlength{\headheight}{5mm}
-\setlength{\headsep}{15mm}
-\setlength{\textheight}{245mm}
-\setlength{\oddsidemargin}{10mm}
-\setlength{\evensidemargin}{0mm}
-\setlength{\textwidth}{150mm}
 
 \title{snpMatrix vignette\\Example of genome-wide association testing}
 \author{David Clayton and Chris Wallace}

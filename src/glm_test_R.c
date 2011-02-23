@@ -172,7 +172,8 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
 
   /* Output arrays */
 
-  SEXP Result, Rnames, Chisq, Df, Nused, Score, UVnames;
+  SEXP Result, Rnames, Chisq, Df, Nused, 
+    Score = R_NilValue, UVnames = R_NilValue;
   PROTECT(Result = allocS4Object());
 
   SEXP snpNames = VECTOR_ELT(getAttrib(Y, R_DimNamesSymbol), 1);
@@ -202,7 +203,7 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
 
   for (int t=0; t<ntest; t++) {
 
-    SEXP U, V;
+    SEXP U = R_NilValue, V = R_NilValue;
     double *u, *v;
     if (if_score) {
       PROTECT(U = allocVector(REALSXP, P));
@@ -282,7 +283,7 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
       }
     }
     int nunit = 0;
-    for (int i; i<N; i++) 
+    for (int i=0; i<N; i++) 
       if (weights[i]) nunit++;
     nused[t] = nunit;
         
@@ -465,7 +466,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 
   index_db name_index = NULL;
   SEXP Snp_names =  VECTOR_ELT(getAttrib(Z, R_DimNamesSymbol), 1);
-  SEXP Rule_names;			    
+  SEXP Rule_names = R_NilValue;			    
   if (TYPEOF(Rules)!=NILSXP) {
     name_index = create_name_index(Snp_names);
     Rule_names = getAttrib(Rules, R_NamesSymbol);
@@ -589,7 +590,8 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 
   /* Output list */
 
-  SEXP Result, TestNames, Chisq, Df, Nused, Score, UVnames;
+  SEXP Result, TestNames = R_NilValue, Chisq, Df, Nused, Score = R_NilValue, 
+    UVnames = R_NilValue;
   PROTECT(Result = allocS4Object());
   PROTECT(Chisq = allocVector(REALSXP, ntest));
   double *chisq = REAL(Chisq);
@@ -648,7 +650,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 
     /* Arrays to hold score and score variance */
 
-    SEXP U, V, Snames;
+    SEXP U = R_NilValue, V = R_NilValue, Snames = R_NilValue;
     double *u, *v;
     if (if_score) {
       PROTECT(U = allocVector(REALSXP, nsnpt));
@@ -669,9 +671,9 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 
     /* Set up Z matrix, tracking incomplete cases  */
 
-    int missing = 0, err=0;
+    int missing = 0;
     for (int j=0, ij=0; j<nsnpt; j++) {
-      int len;
+      int len = 0;
       if (gen_names) {
 	if (j){
 	  len = strlen(testname);
@@ -744,15 +746,6 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
       memset(u, 0x00, nsnpt*sizeof(double));
       memset(v, 0x00, sizeof(double)*(nsnpt*(nsnpt+1))/2);
 
-    }
-    else if (!nsnpt) {
-      
-      /* No polymorphic data */
-
-      warning("No polymorphic markers for test %d", test+1);
-      memset(u, 0x00, nsnpt*sizeof(double));
-      memset(v, 0x00, sizeof(double)*(nsnpt*(nsnpt+1))/2);
- 
     }
     else if (missing > mallowed) {
 
@@ -864,7 +857,7 @@ SEXP pool2_glm(SEXP X, SEXP Y, SEXP If_score) {
     error("pool2_glm: unequal length arguments");
   int if_score = *LOGICAL(If_score);
 
-  SEXP Result, Chisq, Df, Nused, Score, UVnames;
+  SEXP Result, Chisq, Df, Nused, Score = R_NilValue, UVnames = R_NilValue;
   PROTECT(Result = allocS4Object());
   PROTECT(Chisq = allocVector(REALSXP, N));
   double *chisq = REAL(Chisq);
@@ -898,7 +891,7 @@ SEXP pool2_glm(SEXP X, SEXP Y, SEXP If_score) {
     int nv = LENGTH(XiV);
     if (LENGTH(YiU)!=nu)
       error("attempt to pool tests on unequal numbers of parameters");
-    SEXP RU, RV;
+    SEXP RU = R_NilValue, RV = R_NilValue;
     double *ru, *rv;
     if (if_score) {
       PROTECT(RU = allocVector(REALSXP, nu));

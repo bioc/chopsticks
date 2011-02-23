@@ -1,5 +1,6 @@
 \documentclass[12pt]{article}
-%\usepackage{times}
+\usepackage{fullpage}
+% \usepackage{times}
 %\usepackage{mathptmx}
 %\renewcommand{\ttdefault}{cmtt}
 \usepackage{graphicx}
@@ -11,14 +12,6 @@ pdfauthor={David Clayton},
 pdftitle={PCA-snpMatrix Vignette}]
 {hyperref}
 
-\setlength{\topmargin}{-20mm}
-\setlength{\headheight}{5mm}
-\setlength{\headsep}{15mm}
-\setlength{\textheight}{245mm}
-\setlength{\oddsidemargin}{10mm}
-\setlength{\evensidemargin}{0mm}
-\setlength{\textwidth}{150mm}
-%\newcommand{\R}{\includegraphics[height=2ex]{/home/david/TeX/graphics/Rlogo.eps}}
 \title{PCA vignette\\Principal components analysis with snpMatrix}
 \author{David Clayton}
 \date{\today}
@@ -133,8 +126,8 @@ The first principal component has a markedly larger eigenvalue and we
 might hope that this reflects population structure. In fact these data
 were drawn from two very different populations, as indicated by the
 {\tt stratum} variable in the subject support frame. The next set of
-commands extract this variable for the controls and plot a box plot
-for the first component by stratum.
+commands extract this variable for the controls and plot box plots
+for the first two components by stratum.
 <<pc-one,fig=TRUE>>=
 pop <- subject.support[controls,"stratum"]
 par(mfrow=c(1,2))

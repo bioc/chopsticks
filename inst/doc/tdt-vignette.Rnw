@@ -1,6 +1,7 @@
 %\documentclass[a4paper,12pt]{article}
 \documentclass[12pt]{article}
-%\usepackage{times}
+\usepackage{fullpage}
+% \usepackage{times}
 %\usepackage{mathptmx}
 %\renewcommand{\ttdefault}{cmtt}
 \usepackage{graphicx}
@@ -8,18 +9,10 @@
 \usepackage[pdftex,
 bookmarks,
 bookmarksopen,
-pdfauthor={David Clayton and Chris Wallace},
+pdfauthor={David Clayton},
 pdftitle={TDT and snpMatrix Vignette}]
 {hyperref}
 
-\setlength{\topmargin}{-20mm}
-\setlength{\headheight}{5mm}
-\setlength{\headsep}{15mm}
-\setlength{\textheight}{245mm}
-\setlength{\oddsidemargin}{10mm}
-\setlength{\evensidemargin}{0mm}
-\setlength{\textwidth}{150mm}
-%\newcommand{\R}{\includegraphics[height=2ex]{/home/david/TeX/graphics/Rlogo.eps}}
 \title{TDT vignette\\Use of snpMatrix in family--based studies}
 \author{David Clayton}
 \date{\today}

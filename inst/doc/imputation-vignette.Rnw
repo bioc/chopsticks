@@ -1,6 +1,7 @@
 %\documentclass[a4paper,12pt]{article}
 \documentclass[12pt]{article}
-%\usepackage{times}
+\usepackage{fullpage}
+% \usepackage{times}
 %\usepackage{mathptmx}
 %\renewcommand{\ttdefault}{cmtt}
 \usepackage{graphicx}
@@ -12,13 +13,6 @@ pdfauthor={David Clayton},
 pdftitle={Imputed SNP analyses with snpMatrix}]
 {hyperref}
 
-\setlength{\topmargin}{-20mm}
-\setlength{\headheight}{5mm}
-\setlength{\headsep}{15mm}
-\setlength{\textheight}{245mm}
-\setlength{\oddsidemargin}{10mm}
-\setlength{\evensidemargin}{0mm}
-\setlength{\textwidth}{150mm}
 \title{Imputed SNP analyses and meta-analysis with snpMatrix}
 \author{David Clayton}
 \date{\today}

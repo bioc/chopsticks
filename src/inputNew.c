@@ -115,18 +115,32 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
   }
   if (verbose) {
     Rprintf("Reading one call per input line\n");
-    if (fsamp)
-      Rprintf("   Sample id read from field %d\n", fsamp);
-    if (fsnp)
-      Rprintf("   SNP id read from field %d\n", fsnp);
+    if (fsamp) {
+      Rprintf("   Sample id is in field %d", fsamp);
+      if (file_is==1) {
+	Rprintf(" (ignored)\n");
+	fsamp = 0;
+      }
+      else
+	Rprintf("\n");
+    }
+    if (fsnp) {
+      Rprintf("   SNP id is in field %d", fsnp);
+      if (file_is==2) {
+	Rprintf(" (ignored)\n");
+	fsnp = 0;
+      }
+      else
+	Rprintf("\n");
+    }
     if (fgt)
-      Rprintf("   Genotype read from field %d\n", fgt);
+      Rprintf("   Genotype is in field %d\n", fgt);
     if (fa1)
-      Rprintf("   Allele 1 read from field %d\n", fa1);
+      Rprintf("   Allele 1 is in field %d\n", fa1);
     if (fa2)
-      Rprintf("   Allele 2 read from field %d\n", fa2);
+      Rprintf("   Allele 2 is in field %d\n", fa2);
     if (fconf)
-      Rprintf("   Confidence score read from field %d\n", fconf);
+      Rprintf("   Confidence score is in field %d\n", fconf);
   }
 
 
@@ -144,17 +158,6 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
     if (!(fa1 && fa2)) 
       error("Field positions for both alleles must be specified"); 
     gcoding = 0;
-  }
-
-  /* Skip unnecessary id fields */
-
-  if (fsamp && (file_is==1)) {
-    warning("Sample IDs are taken from filenames; this field skipped");
-    fsamp = 0;
-  }
-  if (fsnp && (file_is==2)) {
-    warning("SNP IDs are taken from filenames; this field skipped");
-    fsnp = 0;
   }
 
   int nuc = 0;
@@ -308,30 +311,24 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 
   char field[MAX_FLD];
   int Naccept = 0, Nreject = 0, Nocall = 0, Nskipped = 0, Nxerror = 0;
-  int duplicates = 0, first = 1;
   int i_this = 0, j_this = 0;
-  int i_next = Nsample>1? 1: 0;
-  int j_next = Nsnp>1? 1: 0;
-  const char *this_sample=NULL, *next_sample=NULL, *this_snp=NULL, *next_snp=NULL;
-  if (file_is!=1) {
-    this_sample = CHAR(STRING_ELT(Sample_id, i_this)); 
-    next_sample = CHAR(STRING_ELT(Sample_id, i_next));
+  const char *this_sample=NULL, *this_snp=NULL;
+  if (fsamp) {
+    this_sample = CHAR(STRING_ELT(Sample_id, 0)); 
   }
-  if (file_is!=2) {
-    this_snp = CHAR(STRING_ELT(Snp_id, j_this));
-    next_snp = CHAR(STRING_ELT(Snp_id, j_next));
+  if (fsnp) {
+    this_snp = CHAR(STRING_ELT(Snp_id, 0));
   }
-  char *first_sample = NULL, *first_snp = NULL;
   if (verbose) {
     Rprintf("                             Cumulative totals\n");
     Rprintf("                    -----------------------------------\n");
     Rprintf("    File     Line   Accepted Rejected  No call  Skipped    File name\n");
   }
   
-/* slowest varying 0 = don't know, 1 = sample, 2 = snp */
+  /* slowest varying 0 = don't know, 1 = sample, 2 = snp */
 
-  int slowest = file_is, finished=0, last=Nsample*Nsnp-1;
-
+  int slowest = file_is, last=Nsample*Nsnp-1;
+  int advance = 0, finished=0;
 
   for (int f=0; f<Nfile; f++) {
     /* Open input file */
@@ -339,18 +336,14 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
     if (verbose) {
       int lfn = strlen(filename); 
       if (lfn > 20) {
-	Rprintf("%57s...%17s\r", "", filename+lfn-17);
+	Rprintf("%59s...%-17s\r", "", filename+lfn-17);
       }
       else
-	Rprintf("%60s%20s\r", "", filename);
+	Rprintf("%59s%-20s\r", "", filename);
     }
     gzFile infile = gzopen(filename, "rb");
     if (!infile) {
       warning("Failure to open input file: %s", filename);
-      if (file_is==1)  
-	i_this++;
-      if (file_is==2) 
-	j_this++;
       continue;
     }
     int fterm = 2, line = 0, found_in_file = 0;
@@ -362,8 +355,11 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
     }
     Nskipped += skip;
     /* Read data lines */
+ 
     while (fterm!=3) {
+
       /* Read a line */
+
       line++;
       if (verbose && every && !(line % every)) 
 	Rprintf("%8d %8d %10d %8d %8d %8d\r", 
@@ -426,89 +422,73 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
       if (fterm<2) {
 	fterm = skip_to_eol(infile);
       }
-      /* Check sort order */
-      if (!slowest) {
-	if (line==(1+skip)){
-	  first_sample = malloc(strlen(sampid)+1);
-	  strcpy(first_sample, sampid);
-	  first_snp = malloc(strlen(snpid)+1);
-	  strcpy(first_snp, snpid);
-	}
-	else {
-	  if (strcmp(first_sample, sampid))
-	    slowest = 2;
-	  if (strcmp(first_snp, snpid)) {
-	    if (slowest)
-	      error("Something's wrong; is input file sorted?");
-	    slowest = 1;
-	  }
-	  if (slowest) {
-	    free(first_sample);
-	    free(first_snp);
-	  }
-	}
-      }
+
       
-      if ((file_is!=1) && strcmp(this_sample, sampid)) {
-  
-        /* Check sample id against current and next targets */
-      
-	if (strcmp(next_sample, sampid)) {
-	  wanted = 0;
+      /* If required, advance to next target read */
+
+      if (advance) {
+
+	/* 
+	   If unknown, determine sort order by seeing which indicator 
+	   has changed
+	*/
+
+	if (!slowest) {
+	  if (strcmp(this_sample, sampid)) 
+	    slowest = 2; /* sample fastest, SNP slowest */
+	  else if (strcmp(this_snp, snpid))
+	    slowest = 1; /* SNP fastest, sample slowest */
+	  else
+	    error("Error in input file sort order");
 	}
-	else {
-	  i_this = i_next;
-	  this_sample = next_sample;
-	  i_next++;
-	  if (i_next==Nsample)
-	    i_next = 0;
-	  next_sample = CHAR(STRING_ELT(Sample_id, i_next));
-	  if (slowest==1){
+
+	/* Now advance fastest varying indicator */
+
+	if (slowest==1) {
+	  j_this++;
+	  if (j_this==Nsnp) {
 	    j_this = 0;
-	    j_next = 1;
-	    this_snp = CHAR(STRING_ELT(Snp_id, 0));
-	    next_snp = CHAR(STRING_ELT(Snp_id, 1));
-	  }	
-	}
-      } 
-      else if ((file_is!=2) && strcmp(this_snp, snpid)) {
-
-        /* Check snp id against current and next targets */
-
-	if (strcmp(next_snp, snpid)) {
-	  wanted = 0;
+	    if (fsamp) { 
+	      i_this++;
+	      if (i_this==Nsample) {
+		finished = 1;
+		break;
+	      }
+	      else
+		this_sample =  CHAR(STRING_ELT(Sample_id, i_this)); 
+	    }
+	  }
+	  this_snp =  CHAR(STRING_ELT(Snp_id, j_this));
 	}
 	else {
-	  j_this = j_next; 
-	  j_next++;
-	  if (j_next==Nsnp)
-	    j_next = 0;
-	  this_snp = next_snp;
-	  next_snp = CHAR(STRING_ELT(Snp_id, j_next));
-	  if (slowest==2) {
+	  i_this++;
+	  if (i_this==Nsample) {
 	    i_this = 0;
-	    i_next = 1;
-	    this_sample =  CHAR(STRING_ELT(Sample_id, 0));
-	    next_sample =  CHAR(STRING_ELT(Sample_id, 1));
+	    if (fsnp) {
+	      j_this++;
+	      if (j_this==Nsnp) {
+		finished = 1;
+		break;
+	      }
+	      else 
+		this_snp =  CHAR(STRING_ELT(Snp_id, j_this));
+	    }
 	  }
+	  this_sample =  CHAR(STRING_ELT(Sample_id, i_this));
 	}
       }
-      else {
-	if (!first) {
-	  wanted = 0;
-	  duplicates++;
-	}
-      }
-      first = 0;
+      
+      /* Does current line match current target? */
 
-      if (!wanted) { 
-	Nskipped++;
-      }
-      else {
+      int match_sample = file_is==1 || !strcmp(this_sample, sampid);
+      int match_snp = file_is==2 || !strcmp(this_snp, snpid);
+
+      if (match_sample && match_snp) {
+
+	/* Next target read found in file(s) */
+
 	found_in_file++;
-
 	int ij_this = j_this*Nsample + i_this;
-	finished = (ij_this==last); /* Have we read the last cell? */
 	
 	/* Check confidence score */
 	
@@ -575,8 +555,8 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 	    allele2 = allele1;
 	    allele1 = genotype;
 	  }
-	  if (allele1 && allele2)
-	    genotype = allele1 + allele2 - 1 + ((allele1-1)*(allele1-2))/2;
+	  if (allele1 && allele2) 
+	    genotype = allele1 + (allele2*(allele2-1))/2;	
 	  else
 	    genotype = 0;
 	}
@@ -592,6 +572,19 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 	  wanted = -2;
 	  Nocall++;
 	}
+	finished = (ij_this==last);
+	
+	/* Flag need to advance to next target */
+
+	advance = 1;
+      }
+      else {
+
+	Nskipped++;
+
+	/* Flag no advance to next target */
+
+	advance = 0;	
       }
       if (finished)
 	break;
@@ -609,17 +602,21 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
     if (finished)
       break;
   }
+
+  /* Warnings */
+
   if (!finished) 
     warning("End of data reached before search completed");
   if (Nxerror) 
     warning("%d males were coded as heterozygous; set to NA", Nxerror);
-  if (duplicates) 
-    warning("%d duplicated calls were skipped", duplicates);
+  if (Nskipped)
+    warning("%d lines of input file(s) were skipped", Nskipped);
 
-  Rprintf("\n%d genotypes successfully read\n", Naccept);
-  if (Nxerror)
-    Rprintf("\n%d males were coded as heterozygous and have been set to NA\n",
-	  Nxerror);
+  /* Report */
+
+  if (verbose)
+    Rprintf("\n");
+  Rprintf("%d genotypes successfully read\n", Naccept);
   if (Nreject)
     Rprintf("%d genotypes were rejected due to low confidence\n", Nreject);
   if (Nocall)
@@ -632,7 +629,8 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
       Rprintf("Recasting and checking nucleotide coding\n");
     int none_snps = recode_snp(result, Nsample, Nsnp);
     if (none_snps) {
-      Rprintf("%d polymorphisms were not SNPs and have been set to NA ");
+      Rprintf("%d polymorphisms were not SNPs and have been set to NA ", 
+	      none_snps);
       Rprintf("(see warnings for details)\n");
     }
   }
@@ -842,42 +840,48 @@ int skip_to_eol(const gzFile infile){
 
 int recode_snp(unsigned char *matrix, const int N, const int M) {
   int none_snps = 0;
-  for (int j=0; j<M; j++, matrix+=N) {
+  for (int s=0; s<M; s++, matrix+=N) {
     int count[11], lookup[11];
-    int hom[11] = {0,1,0,1,0,0,1,0,0,0,1};
     memset(count, 0x00, 11*sizeof(int));
     memset(lookup, 0x00, 11*sizeof(int));
     for (int i=0; i<N; i++) {
       int m = (int) matrix[i];
       count[m]++;
     }
-    int ncodes = 0, not_snp = 0;
-    for (int i=1; i<11; i++) {
-      if (count[i]) {
-	ncodes++;
-	if (ncodes>3) {
-	  not_snp = 1;
-	  break;
-	}
-	if (hom[i]) {
-	  if (ncodes==2)
-	    ncodes = 3;
-	}
-	else {
-	  if (ncodes==1)
-	    ncodes = 2;
-	  else if (ncodes==3) {
-	    not_snp = 1;
+    int first=0, second=0, error=0;
+    for (int j=1, ij=1; j<5; j++, ij++) {
+      for (int i=1; i<j; i++, ij++) {
+	if (count[ij]) { /* Hets observed */
+	  if (second || (first && (first!=i))) {
+	    error = 1;
 	    break;
 	  }
+	  first = i;
+	  second = j;
+	  lookup[ij] = 2;
 	}
       }
-      lookup[i] = ncodes;
+      if (error)
+	break;
+      if (count[ij]) {  /* Homs observed */
+	if (!first) {
+	  first = j;
+	  lookup[ij] = 1;
+	}
+	else {
+	  if (second && (second!=j)) {
+	    error = 1;
+	    break;
+	  }
+	  second = j;
+	  lookup[ij] = 3;
+	}
+      }
     }
-    if (not_snp) {
+    if (error) {
       memset(matrix, 0x00, N*sizeof(unsigned char));
       none_snps++;
-      warning("None-SNP at locus %d", j+1);
+      warning("None-SNP in column %d", s+1);
     }
     else {
       for (int i=0; i<N; i++) {

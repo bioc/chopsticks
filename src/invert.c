@@ -60,7 +60,7 @@ int syminv(double a[], int nrow, double c[], double w[], int *nullty,
 /* Based on Algorithm AS7 J.R.S.S.(C), 1968, Vol 17, No 2. */
 {
     double x;
-    int nn,  i, j, k, l, irow, icol, jcol, mdiag, ndiag, last_cell, last_row;
+    int i, j, k, l, irow, icol, jcol, mdiag, ndiag, last_cell, last_row;
 
     if (nrow<=0)
         return(1);

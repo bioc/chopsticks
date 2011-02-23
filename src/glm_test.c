@@ -323,7 +323,6 @@ void glm_score_test(int N, int M, int S, const int *stratum,
   const double *Zi = Z;
   double *Zr, *Zri;
   double *U = NULL, *Ui = NULL;
-  double test = 0.0;
 
   /* Work array */
 

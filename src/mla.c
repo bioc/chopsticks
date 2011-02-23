@@ -151,7 +151,6 @@ double wspr(const double *y, const double *x, int n, const double *weights) {
 
 double wsum(const double *y, int n, const double *weights) {
   double res=0.0;
-  int i;
   if (weights) 
     for (int i=0; i<n; i++) res += weights[i]*y[i];
   else
