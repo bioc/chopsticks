@@ -132,7 +132,7 @@ have been chosen, the haplotypes of the target SNP plus tags was phased
 \footnote{For imputation from small samples, some smoothing of these
   haplotype frequencies would be advantageous and some ability to do
   this has been included. The {\tt use.haps} argument to {\tt
-    snp.imputation} controls this. But invoking this option 
+    snp.imputtaion} controls this. But invoking this option 
   slows down the algorithm and it is not
   advised other than for very small sample sizes.}
 
@@ -269,7 +269,7 @@ assignments. Thus, the SNP {\tt rs4880568} is accurately imputed
 plotUncertainty(imputed[, "rs4880568"])
 @ 
 while {\tt rs2050968} is rather less so ($R^2 = 0.77$
-<<<uncert2,fig=TRUE>>=
+<<<uncert1,fig=TRUE>>=
 plotUncertainty(imputed[, "rs2050968"])
 @ 
 
