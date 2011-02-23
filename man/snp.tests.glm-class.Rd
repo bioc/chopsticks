@@ -7,6 +7,7 @@
 \alias{effect.sign,snp.tests.glm,logical-method}
 \alias{pool2,snp.tests.glm,snp.tests.glm,logical-method}
 \alias{p.value,snp.tests.glm,missing-method}
+\alias{sample.size,snp.tests.glm-method}
 \alias{show,snp.tests.glm-method}
 \alias{summary,snp.tests.glm-method}
 \alias{switch.alleles,snp.tests.glm,character-method}
@@ -47,6 +48,8 @@ Class \code{"\linkS4class{vector}"}, by class "list", distance 2.
       sets of tests}
     \item{p.value}{\code{signature(x = "snp.tests.glm", df =
 	"missing")}: Extract \emph{p}-values}
+    \item{sample.size}{\code{signature(object = "snp.tests.glm")}:
+      Extract sample sizes for tests}
     \item{show}{\code{signature(object = "snp.tests.glm")}: Show method}
     \item{summary}{\code{signature(object = "snp.tests.glm")}: Summary
       method}

@@ -4,6 +4,7 @@
 \alias{[,snp.tests.single,ANY,missing,missing-method}
 \alias{chi.squared,snp.tests.single,numeric-method}
 \alias{p.value,snp.tests.single,numeric-method}
+\alias{sample.size,snp.tests.single-method}
 \alias{show,snp.tests.single-method}
 \alias{summary,snp.tests.single-method}
 
@@ -66,6 +67,8 @@ provide methods for pooling results from several studies or parts of a study
       Evaluate 1- and 2-df test p-values}
     \item{show}{\code{signature(object = "snp.tests.single")}:
       List all tests and p-values}
+    \item{sample.size}{\code{signature(object = "snp.tests.single")}:
+      Extract sample sizes for tests}
     \item{summary}{\code{signature(object = "snp.tests.single")}:
       Summarize all tests and p-values}
     \item{pool2}{\code{signature(x = "snp.tests.single.score",

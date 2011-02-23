@@ -123,7 +123,6 @@ function(snp.data, base.formula, add.formula, subset, snp.subset,
 
   if (missing(snp.subset)) {
     snp.subset <- NULL
-    test.names <- colnames(snp.data)
   }
   else {
     if (is.character(snp.subset)) {
@@ -142,16 +141,10 @@ function(snp.data, base.formula, add.formula, subset, snp.subset,
     }
     else 
       stop("illegal type for snp.subset")
-    test.names <- colnames(snp.data)[snp.subset]
   }
-  res <- .Call("snp_lhs_score",
-           snp.data, X, strats, Z, snp.subset, robust, clust,
-           control, PACKAGE="snpMatrix")
-  names(res) <- test.names
-  cl <- "snp.tests.glm"
-  attr(cl, "package") <- "snpMatrix"
-  class(res) <- cl
-  asS4(res)
+  .Call("snp_lhs_score",
+        snp.data, X, strats, Z, snp.subset, robust, clust,
+        control, PACKAGE="snpMatrix")
 }
 
 # GLM tests with SNPs on RHS
@@ -320,67 +313,56 @@ function (formula, family="binomial", link, weights, subset,
 
   # Coerce tests argument to correct form #
 
-  # Private utility function to 
-  # match character array  to list of (first) names
-  # or (optionally) to second names if that fails
-  
-  .col.numbers <- function(inc, first.names, second.names=NULL) {
-    if (is.character(inc)) {
-      res <- match(inc, first.names, nomatch=NA)
-      missing <- is.na(res)
-      if (any(missing)) {
-        if (!is.null(second.names)) {
-          res[missing] <- - match(inc[missing], second.names, nomatch=NA)
-          missing <- is.na(res)
-          if (any(missing)) {
-            warning("Unmatched SNP names in tests argument")
-            res <- res[!missing]
-          }
-        } else {
-          warning("Unmatched SNP names in tests argument")
-          res <- res[!missing]
-        }
-      }
-    }
-    else if (is.numeric(inc)) {
-      res <- inc
-    }
-    else stop("Illegal multiple SNP test definition")
-      
-    as.integer(res)
-  }
-  
   if(is.null(tests)) {
     if (is.null(rules)) {
       tests <- as.integer(1:ncol(snp.data))
-      test.names <- colnames(snp.data)
     } else {
       tests <- as.integer(-(1:length(rules)))
-      test.names <- names(rules)
     }
   } 
   else if (is.character(tests)) {
-    test.names <- tests
     tests <- .col.numbers(tests, colnames(snp.data), names(rules))
   }
   else if (is.numeric(tests)) {
     tests <- as.integer(tests)
-    test.names <- colnames(snp.data)[tests]
   }
   else if(is.list(tests)) {
-    test.names <- names(tests)
     tests <- lapply(tests, .col.numbers, colnames(snp.data), names(rules))
   } else {
     stop("illegal tests argument")
   }
   
-  res <- .Call("snp_rhs_score", Y, fam, lnk, X, strats, snp.data, rules,
-            weights, tests, robust, clust, control, allow.missing,
-            PACKAGE="snpMatrix")
-  names(res) <- test.names
-  cl <- "snp.tests.glm"
-  attr(cl, "package") <- "snpMatrix"
-  class(res) <- cl
-  asS4(res)
+  .Call("snp_rhs_score", Y, fam, lnk, X, strats, snp.data, rules,
+        weights, tests, robust, clust, control, allow.missing,
+        PACKAGE="snpMatrix")
 }  
 
+# Private utility function to 
+# match character array  to list of (first) names
+# or (optionally) to second names if that fails
+  
+.col.numbers <- function(inc, first.names, second.names=NULL) {
+  if (is.character(inc)) {
+    res <- match(inc, first.names, nomatch=NA)
+    missing <- is.na(res)
+    if (any(missing)) {
+      if (!is.null(second.names)) {
+        res[missing] <- - match(inc[missing], second.names, nomatch=NA)
+        missing <- is.na(res)
+        if (any(missing)) {
+          warning("Unmatched SNP names in tests argument")
+          res <- res[!missing]
+        }
+      } else {
+        warning("Unmatched SNP names in tests argument")
+        res <- res[!missing]
+      }
+    }
+  }
+  else if (is.numeric(inc)) {
+    res <- inc
+  }
+  else stop("Illegal multiple SNP test definition")
+  
+  as.integer(res)
+}

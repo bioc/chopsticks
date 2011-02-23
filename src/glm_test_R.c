@@ -58,7 +58,7 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
   SEXPTYPE sstype = TYPEOF(Snp_subset);
   if (sstype==INTSXP) {
     if (LENGTH(Snp_subset)>nsnp)
-      error("Dimenion error - Snp_subset");
+      error("Dimension error - Snp_subset");
     snp_subset = INTEGER(Snp_subset);
     ntest = LENGTH(Snp_subset);
   }
@@ -167,8 +167,12 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
 
   /* Output arrays */
 
-  SEXP Result;
+  SEXP Result, Rnames;
   PROTECT(Result = allocVector(VECSXP, ntest));
+
+  SEXP snpNames = VECTOR_ELT(getAttrib(Y, R_DimNamesSymbol), 1);
+  SEXPTYPE sntype = TYPEOF(snpNames);
+  PROTECT(Rnames = allocVector(sntype, ntest));
 
   /* Do calculations */
 
@@ -247,36 +251,71 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
 	memset(v, 0x00, sizeof(double)*(P*(P+1))/2);
       }
     }
-    SEXP Score, Chi2, Df;
-    PROTECT(Score = allocVector(VECSXP, 5));
+    SEXP Score, Chi2, Df, Nunit;
+    PROTECT(Score = allocVector(VECSXP, 6));
     PROTECT(Chi2 = allocVector(REALSXP, 1));
     PROTECT(Df = allocVector(INTSXP, 1));
+    PROTECT(Nunit = allocVector(INTSXP, 1));
+    int *nunit = INTEGER(Nunit);
+    for (int i; i<N; i++) 
+      if (weights[i]) (*nunit)++;
+	    
     double *chi2 = REAL(Chi2);
     int *df = INTEGER(Df);
-    if (qform(P, u, v, NULL, chi2, df)) {
-      warning("Matrix not positive semi-definite in test ", t+1);
-      *chi2 = NA_REAL;
-      *df = NA_INTEGER;
+    if (P>1) {
+      if (qform(P, u, v, NULL, chi2, df)) {
+	warning("Matrix not positive semi-definite in test ", t+1);
+	*chi2 = NA_REAL;
+	*df = NA_INTEGER;
+      }
+    }
+    else {
+      if ((*v)>0) {
+	*chi2 = (*u)*(*u)/(*v);
+	*df = 1;
+      }
+      else {
+	*chi2 = NA_REAL;
+	*df = NA_INTEGER;
+      }
     }
     SEXP Names;
-    PROTECT(Names = allocVector(STRSXP, 5));
+    PROTECT(Names = allocVector(STRSXP, 6));
     SET_STRING_ELT(Names, 0, mkChar("parameters"));
     SET_STRING_ELT(Names, 1, mkChar("chi.squared"));
     SET_STRING_ELT(Names, 2, mkChar("df"));
     SET_STRING_ELT(Names, 3, mkChar("U"));
     SET_STRING_ELT(Names, 4, mkChar("V"));
+    SET_STRING_ELT(Names, 5, mkChar("N"));
     setAttrib(Score, R_NamesSymbol, Names);
     SET_VECTOR_ELT(Score, 0, R_NilValue); /* Placeholder */
     SET_VECTOR_ELT(Score, 1, Chi2);
     SET_VECTOR_ELT(Score, 2, Df);
     SET_VECTOR_ELT(Score, 3, U);
     SET_VECTOR_ELT(Score, 4, V);
+    SET_VECTOR_ELT(Score, 5, Nunit);
     SET_VECTOR_ELT(Result, t, Score);
-     UNPROTECT(6);
-  }
-  
+    UNPROTECT(7);
+    
+    /* Name of list element */
+    if (sntype==INTSXP) 
+      INTEGER(Rnames)[t] = INTEGER(snpNames)[j];
+    else 
+      SET_STRING_ELT(Rnames, t, mkChar(CHAR(STRING_ELT(snpNames,j))));
 
-  UNPROTECT(1);
+  }
+  setAttrib(Result, R_NamesSymbol,  Rnames);
+  
+  SEXP Class, Package;
+  PROTECT(Class = allocVector(STRSXP, 1));
+  SET_STRING_ELT(Class, 0, mkChar("snp.tests.glm"));
+  PROTECT(Package = allocVector(STRSXP, 1));
+  SET_STRING_ELT(Package, 0, mkChar("snpMatrix"));
+  setAttrib(Class, install("package"), Package);
+  classgets(Result, Class);
+  SET_S4_OBJECT(Result);
+
+  UNPROTECT(4);
 
   return(Result);
 }
@@ -519,9 +558,12 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 
   /* Output list */
 
-  SEXP Result;
+  SEXP Result, TestNames;
   PROTECT(Result = allocVector(VECSXP, ntest));
-    
+  SEXP NameTests = getAttrib(Tests, R_NamesSymbol);
+  int gen_names = TYPEOF(NameTests)==NILSXP;
+  if (gen_names)
+    PROTECT(TestNames =  allocVector(STRSXP, ntest));
 	  
   /* Do tests */
 
@@ -550,14 +592,31 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 
     SEXP Tnames;
     PROTECT(Tnames = allocVector(STRSXP, nsnpt));
+
     /* Set up Z matrix, tracking incomplete cases  */
 
     int missing = 0, err=0;
-     for (int j=0, ij=0; j<nsnpt; j++) {
+    for (int j=0, ij=0; j<nsnpt; j++) {
+      int len;
+      if (gen_names) {
+	if (j){
+	  len = strlen(testname);
+	  if (len<max_name_length) {
+	    testname[len] = '+';
+	    len++;
+	  }
+	  else
+	    len=0;
+	}
+      }
+      int space = max_name_length - len;
       int snpsj = snps[j];
       if (snpsj>0) {
 	snpsj--;
-	SET_STRING_ELT(Tnames, j, STRING_ELT(Snp_names, snpsj));
+	SEXP Snp_namej =  STRING_ELT(Snp_names, snpsj);
+	SET_STRING_ELT(Tnames, j, Snp_namej);
+	if (gen_names && space>0)
+	  strncpy(testname+len, CHAR(Snp_namej), space);
 	const unsigned char *zj = z + N*snpsj;
 	for (int i=0; i<N; i++, ij++) {
 	  unsigned char zij = zj[i];
@@ -575,7 +634,10 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
       }
       else {
 	snpsj = -(1+snpsj);
-	SET_STRING_ELT(Tnames, j, STRING_ELT(Rule_names, snpsj));
+	SEXP Rule_namej = STRING_ELT(Rule_names, snpsj);
+	SET_STRING_ELT(Tnames, j, Rule_namej);
+	if (gen_names && space>0)
+	  strncpy(testname+len, CHAR(Rule_namej), space);	
 	SEXP Rule =  VECTOR_ELT(Rules, snpsj);
 	if (!isNull(Rule)){ /* Not monomorphic */
 	  do_impute(z, N, NULL, N, name_index, Rule, zw+ij, NULL);
@@ -595,7 +657,9 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 	}
       }
     }
-	
+    if (gen_names)
+      SET_STRING_ELT(TestNames, test, mkChar(testname));
+   	
     SEXP U, V;
     PROTECT(U = allocVector(REALSXP, nsnpt));
     PROTECT(V = allocVector(REALSXP, (nsnpt*(nsnpt+1))/2));
@@ -649,45 +713,80 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 		     resid_all, weights, xb_all, scale_all,
 		     r2Max, u, v);
     }
-    SEXP Score, Chi2, Df;
-    PROTECT(Score = allocVector(VECSXP, 5));
+    SEXP Score, Chi2, Df, Nused;
+    PROTECT(Score = allocVector(VECSXP, 6));
     PROTECT(Chi2 = allocVector(REALSXP, 1));
     PROTECT(Df = allocVector(INTSXP, 1));
+    PROTECT(Nused = allocVector(INTSXP, 1));
+    int *nused = INTEGER(Nused);
+    *nused = 0;
+    for (int i=0; i<N; i++)
+      if(weights[i]) (*nused)++;
     double *chi2 = REAL(Chi2);
     int *df = INTEGER(Df);
-    if (qform(nsnpt, u, v, NULL, chi2, df)) {
-      warning("Matrix not positive semi-definite in test ", test+1);
-      *chi2 = NA_REAL;
-      *df = NA_INTEGER;
+    if (nsnpt>1) {
+      if (qform(nsnpt, u, v, NULL, chi2, df)) {
+	warning("Matrix not positive semi-definite in test ", test+1);
+	*chi2 = NA_REAL;
+	*df = NA_INTEGER;
+      }
+    }
+    else {
+      if ((*v)>0.0) {
+	*chi2 = (*u)*(*u)/(*v);
+	*df = 1;
+      }
+      else {
+	*chi2 = NA_REAL;
+	*df = NA_INTEGER;
+      }
     }
     SEXP Names;
-    PROTECT(Names = allocVector(STRSXP, 5));
+    PROTECT(Names = allocVector(STRSXP, 6));
     SET_STRING_ELT(Names, 0, mkChar("parameters"));
     SET_STRING_ELT(Names, 1, mkChar("chi.squared"));
     SET_STRING_ELT(Names, 2, mkChar("df"));
     SET_STRING_ELT(Names, 3, mkChar("U"));
     SET_STRING_ELT(Names, 4, mkChar("V"));
+    SET_STRING_ELT(Names, 5, mkChar("N"));
     setAttrib(Score, R_NamesSymbol, Names);
     SET_VECTOR_ELT(Score, 0, Tnames);
     SET_VECTOR_ELT(Score, 1, Chi2);
     SET_VECTOR_ELT(Score, 2, Df);
     SET_VECTOR_ELT(Score, 3, U);
     SET_VECTOR_ELT(Score, 4, V);
+    SET_VECTOR_ELT(Score, 5, Nused);
     SET_VECTOR_ELT(Result, test, Score);
     setAttrib(Result, R_NamesSymbol, Names);
-    UNPROTECT(7);
+    UNPROTECT(8);
   }
-  
-  UNPROTECT(1);
 
   /* Return hash table memory */
 
   if (name_index)
     index_destroy(name_index);
 
-  return(Result);
-}
+  SEXP Class, Package;
+  PROTECT(Class = allocVector(STRSXP, 1));
+  SET_STRING_ELT(Class, 0, mkChar("snp.tests.glm"));
+  PROTECT(Package = allocVector(STRSXP, 1));
+  SET_STRING_ELT(Package, 0, mkChar("snpMatrix"));
+  setAttrib(Class, install("package"), Package);
+  classgets(Result, Class);
+  SET_S4_OBJECT(Result);
 
+  if (gen_names) {
+    setAttrib(Result, R_NamesSymbol,  TestNames);
+    UNPROTECT(4);
+  }
+  else {
+    setAttrib(Result, R_NamesSymbol, NameTests);
+    UNPROTECT(3);
+  }
+
+  return(Result);
+  
+}
 
 /* Pooling two objects */
 
@@ -713,7 +812,7 @@ SEXP pool2_glm(SEXP X, SEXP Y) {
     int nv = LENGTH(XiV);
     if (LENGTH(YiU)!=nu)
       error("attempt to pool tests on unequal numbers of parameters");
-    SEXP RU, RV, Rchi2, Rdf;
+    SEXP RU, RV, Rchi2, Rdf, Rnused;
     PROTECT(RU = allocVector(REALSXP, nu));
     double *ru = REAL(RU);
     PROTECT(RV = allocVector(REALSXP, nv));
@@ -733,23 +832,29 @@ SEXP pool2_glm(SEXP X, SEXP Y) {
       *chi2 = NA_REAL;
       *df = NA_INTEGER;
     }
+    PROTECT(Rnused = allocVector(INTSXP, 1));
+    *(INTEGER(Rnused)) = *(INTEGER(VECTOR_ELT(X, 5))) + 
+			 *(INTEGER(VECTOR_ELT(Y, 5)));
     SEXP Resi, Names;
-    PROTECT(Resi = allocVector(VECSXP, 5));
-    PROTECT(Names = allocVector(STRSXP, 5));
+    PROTECT(Resi = allocVector(VECSXP, 6));
+    PROTECT(Names = allocVector(STRSXP, 6));
     SET_STRING_ELT(Names, 0, mkChar("parameters"));
     SET_STRING_ELT(Names, 1, mkChar("chi.squared"));
     SET_STRING_ELT(Names, 2, mkChar("df"));
     SET_STRING_ELT(Names, 3, mkChar("U"));
     SET_STRING_ELT(Names, 4, mkChar("V"));
+    SET_STRING_ELT(Names, 5, mkChar("N"));
     setAttrib(Resi, R_NamesSymbol, Names);
     SET_VECTOR_ELT(Resi, 0, VECTOR_ELT(Xi, 0));
     SET_VECTOR_ELT(Resi, 1, Rchi2);
     SET_VECTOR_ELT(Resi, 2, Rdf);
     SET_VECTOR_ELT(Resi, 3, RU);
     SET_VECTOR_ELT(Resi, 4, RV);
+    SET_VECTOR_ELT(Resi, 5, Rnused);
     SET_VECTOR_ELT(Result, i, Resi);
-    UNPROTECT(6);
+    UNPROTECT(7);
   }
+
   UNPROTECT(1);
 
   return(Result);

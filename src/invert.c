@@ -137,6 +137,7 @@ int qform(int N, double *U, double *V, double *W, double *quad, int *rank)
   }
   int nullty;
   double log_det;
+  
   int ifault = chol(V, N, W, &nullty, &log_det);
   if (ifault)
     return(ifault);

@@ -559,6 +559,9 @@ setGeneric("deg.freedom", function(x) standardGeneric("deg.freedom"),
 setGeneric("effect.sign", function(x, simplify) standardGeneric("effect.sign"),
            useAsDefault=FALSE)
 
+setGeneric("sample.size", function(x) standardGeneric("sample.size"),
+           useAsDefault=FALSE)
+
 setGeneric("pool2", function(x, y, score) standardGeneric("pool2"),
            useAsDefault=FALSE)
 
@@ -624,13 +627,31 @@ setMethod("deg.freedom", signature(x="snp.tests.glm"),
 
 setMethod("effect.sign", signature(x="snp.tests.glm", simplify="logical"),
           function(x, simplify=TRUE) {
-            sapply(x, function(x) sign(x$U))
-          })
+            res <- sapply(x, function(x) sign(x$U))
+            names(res) <- names(x)
+            res
+         })
 
 setMethod("effect.sign",
           signature(x="snp.tests.single.score", simplify="missing"),
           function(x, simplify) {
-            sign(x@U[,1])
+            res <- sign(x@U[,1])
+            names(res) <- names(x)
+            res
+          })
+
+setMethod("sample.size", signature(x="snp.tests.glm"),
+          function(x) {
+            res <- sapply(x, '[[', "N")
+            names(res) <- names(x)
+            res
+          })
+
+setMethod("sample.size", signature(x="snp.tests.single"),
+          function(x) {
+            res <- x@N
+            names(res) <- names(x)
+            res
           })
 
 setMethod("pool2",
@@ -724,11 +745,16 @@ setMethod("pool2",
             }
             else {
               to.pool <- intersect(nm.x, nm.y)
-              res <- .Call("pool2_glm",
-                           x[to.pool],
-                           y[to.pool],
-                           PACKAGE="snpMatrix")
-              names(res) <- to.pool
+              if (!is.null(to.pool)) {
+                res <- .Call("pool2_glm",
+                             x[to.pool],
+                             y[to.pool],
+                             PACKAGE="snpMatrix")
+                names(res) <- to.pool
+              }
+              else {
+                res <- NULL
+              }
               x.only <- setdiff(nm.x, to.pool)
               y.only <- setdiff(nm.y, to.pool)
               if (!is.null(x.only))

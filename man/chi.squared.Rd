@@ -3,16 +3,18 @@
 \alias{deg.freedom}
 \alias{effect.sign}
 \alias{p.value}
+\alias{sample.size}
 \title{Extract test statistics and p-values}
 \description{
-Generic functions to extract chi-squared values and p-values from SNP
-association test objects
+Generic functions to extract values from the SNP
+association test objects returned by various testing functions
 }
 \usage{
 chi.squared(x, df)
 deg.freedom(x)
 effect.sign(x, simplify)
 p.value(x, df)
+sample.size(x)
 }
 \arguments{
   \item{x}{An object of class \code{"snp.tests.single"}, 
@@ -25,16 +27,19 @@ p.value(x, df)
      list}
 }
 \details{
-  Currently these function are only available for objects output by
-  \code{\link{single.snp.tests}}. \code{\link{snp.lhs.tests}}, and
-  \code{\link{snp.lhs.tests}}. The argument \code{df} is only used for
+  These functions operate on objects created by 
+  \code{\link{single.snp.tests}}, \code{\link{snp.lhs.tests}}, and
+  \code{\link{snp.lhs.tests}}.
+
+  The functions \code{chi.squared} and \code{p.value} return the
+  chi-squared statistic and the corresponding \emph{p}-value.
+  The argument \code{df} is only used for
   output from \code{single.snp.tests}, since this function calculates
   both 1 df and 2 df tests for each SNP. The functions
   \code{snp.lhs.tests} and \code{snp.rhs.tests} potentially calculate
   chi-squared tests on varying degrees of freedom, which can be
-  extracted with \code{deg.freedom}.
-
-  The function \code{effect.sign} indicates the direction of
+  extracted with \code{deg.freedom}. The function \code{effect.sign}
+  indicates the direction of 
   associations. When applied to an output object from
   \code{snp.single.tests}, it returns \code{+1} if the association, as
   measured by the 1 df test, is positive and \code{-1} if the
@@ -42,7 +47,10 @@ p.value(x, df)
   are potentially tests of several parameters so that the effect sign
   can be a vector. Thus \code{effect.sign} returns a list of sign
   vectors unless, if \code{simplify=TRUE}, and it can be simplified as a
-  single vector with one sign for each test. 
+  single vector with one sign for each test.
+  The function \code{sample.size} returns the number of observations
+  actually used in the test, after exclusions due to missing data have
+  been applied.
 }
 \value{
   A numeric vector containing the
