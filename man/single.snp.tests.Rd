@@ -1,6 +1,7 @@
 \name{single.snp.tests}
 \alias{single.snp.tests}
-\title{1-df and 2-df tests for genetic associations with SNPs}
+\title{1-df and 2-df tests for genetic associations with SNPs (or
+  imputed SNPs)}
 \description{
   This function carries out tests for association between phenotype and
   a series of single nucleotide polymorphisms (SNPs), within strata
@@ -8,10 +9,12 @@
   considered one at a time and both 1-df and 2-df tests are
   calculated. For a binary phenotype, the
   1-df test is the Cochran-Armitage test (or, when
-  stratified, the Mantel-extension test).
+  stratified, the Mantel-extension test). The function will also calculate
+  the same tests for SNPs imputed by regression analysis.
 }
 \usage{
-single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data, subset, snp.subset)
+single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data,
+   rules=NULL, subset, snp.subset, score=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -25,11 +28,18 @@ single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data, subset, snp.
     environment and should be in the same order as rows of \code{snps}}
   \item{snp.data}{An object of class \code{"snp.matrix"} containing the SNP
     genotypes to be tested}
+  \item{rules}{An object of class
+    \code{"snp.reg.imputation"}. If
+    supplied, the rules coded in this object are used, together with
+    \code{snp.data}, to calculate tests for imputed SNPs}
   \item{subset}{A vector or expression describing the subset of subjects
-    to be used in teh analysis. This is evaluated in the same
+    to be used in the analysis. This is evaluated in the same
     environment as the \code{phenotype} and \code{stratum} arguments}
   \item{snp.subset}{A vector describing the subset of SNPs to be
-    considered. Default action is to test all SNPs.} 
+    considered. Default action is to test all SNPs in \code{snp.data}
+    or, in imputation mode,  as specified by \code{rules}}
+  \item{score}{If \code{TRUE}, the output object will contain, for each
+    SNP,  the score vector and its variance-covariance matrix}
 }
 \details{
   Formally, the test statistics are score tests for generalized linear
@@ -39,6 +49,11 @@ single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data, subset, snp.
   permutation distribution obtained by randomly permuting phenotype
   within stratum.
 
+  When the function is used to calculate tests for imputed SNPs, the
+  test is still a score test. The score statistics are calculated from
+  the expected value, given observed SNPs, of the score statistic if the
+  SNP to be tested were itself observed.
+  
   The \code{subset} argument can either be a logical vector of length
   equal to the length of the vector of  phenotypes, an integer vector
   specifying positions in the \code{data} frame, or a character vector
@@ -47,30 +62,43 @@ single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data, subset, snp.
   integer, or character vector.
 }
 \value{
-  A dataframe, with columns
-  \item{chi2.1df}{Cochran-Armitage type test for additive genetic component}
-  \item{chi2.2df}{Chi-squared test for both additive and dominance
-    components}
-  \item{N}{The number of valid data points used}
+  An object of class
+  \code{"snp.tests.single"}. 
+  If \code{score=TRUE}, the output object will be of the extended class
+  \code{"snp.tests.single.score"}
+  containing additional slots holding the score statistics and their
+  variances (and covariances). This allows meta-analysis using the
+  \code{\link{pool}} function.
 }
-\references{Clayton (2008) Testing for association on the X chromosome
-  \emph{Biostatistics} (In press)}
+\references{
+  Chapman J.M., Cooper J.D., Todd J.A. and Clayton D.G. (2003)
+  \emph{Human Heredity}, \bold{56}:18-31.\cr
+  Clayton (2008) Testing for association on the X chromosome
+  \emph{Biostatistics} \emph{Biostatistics}, In press)
+}
 \note{
+  The 1 df imputation tests are described by Chapman et al. (2008)
+  and the 2 df imputation tests are a simple extension of these.
   The behaviour of this function for objects of class
   \code{X.snp.matrix} is as described by Clayton (2008). Males are
   treated as homozygous females and corrected variance estimates are
   used.
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
-\seealso{\code{\link{snp.lhs.tests}}, \code{\link{snp.rhs.tests}}}
+\seealso{\code{\link{snp.lhs.tests}}, \code{\link{snp.rhs.tests}},
+  \code{\link{impute.snps}}, \code{\link{pool}}, 
+      \code{\link{snp.reg.imputation-class}},
+	\code{\link{snp.tests.single-class}},
+    \code{\link{snp.tests.single.score-class}}
+}
 \examples{
 data(testdata)
 results <- single.snp.tests(cc, stratum=region, data=subject.data,
    snp.data=Autosomes, snp.subset=1:10)
 summary(results)
 # QQ plot - see \code{\link{qq.chisq}}
-qq.chisq(results$chi2.1df)
-qq.chisq(results$chi2.2df)
+qq.chisq(chi.squared(results, 1), 1)
+qq.chisq(chi.squared(results, 2), 2)
 }
 \keyword{htest}
 

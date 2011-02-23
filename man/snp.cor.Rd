@@ -16,7 +16,7 @@ snp.cor(x, y)
 }
 \details{
   This can be used together with \code{\link{xxt}} and
-  \code{\link{eigen}} to calculate standardized loadings in the principal
+  \code{\link[base]{eigen}} to calculate standardized loadings in the principal
   components
 }
 \value{

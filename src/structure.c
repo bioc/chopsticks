@@ -48,7 +48,7 @@
 #include <string.h>
 #include "Rmissing.h"
 
-SEXP xxt(const SEXP Snps, const SEXP Correct_for_missing, 
+SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing, 
 	 const SEXP Lower_only) {
   
   if (TYPEOF(Correct_for_missing)!=LGLSXP)
@@ -80,15 +80,31 @@ SEXP xxt(const SEXP Snps, const SEXP Correct_for_missing,
   N = dim[0];
   M = dim[1];
 
+  int *strata = NULL;
+  double *mu = NULL, *sd = NULL;
+  int *count = NULL, *acount = NULL;
+  int nstrata = 0;
+  if (!isNull(Strata)) {
+    if (LENGTH(Strata)!=N)
+      error("Argument error - Strata argument wrong length");
+    strata = INTEGER(Strata);
+    nstrata = nlevels(Strata);
+    count = Calloc(nstrata, int);
+    acount = Calloc(nstrata, int);
+    mu = Calloc(nstrata, double);
+    sd = Calloc(nstrata, double);
+  }
+  double mean=0.0, sd2=0.0; 
+
   /* Weights for missing data correction */
 
   int *Ti=NULL, *Tk=NULL, T=0;
   if (correct) {
     warning("With correct.for.missing option set, result may not be a positive semi-definite matrix");
     T = 0;
-    Ti = (int *) calloc(N, sizeof(int));
+    Ti = Calloc(N, int);
     memset(Ti, 0x00, N*sizeof(int));
-    Tk = (int *) calloc(M, sizeof(int));
+    Tk = Calloc(M, int);
     memset(Tk, 0x00, M*sizeof(int));
     for (int k=0, ik=0; k<M; k++) {
       for (int i=0; i<N; i++) {
@@ -111,46 +127,87 @@ SEXP xxt(const SEXP Snps, const SEXP Correct_for_missing,
 
   /* Update result matrix for each locus in turn */
 
+  const double rt2 = sqrt(2.0);
+
   for (int ik=0, k=0; k<M; k++) {
 
     /* Calculate allele frequency */
 
-    int s1=0, s2=0;
-    for (int ki=ik, i=0; i<N; i++) {
-      int w = (int) snps[ki++];
-      if (w) {
-	w--;
-	if (ifFemale && !ifFemale[i]) {
-	  s1++;
-	  s2 += w/2;
-	}
-	else {
-	  s1 += 2;
-	  s2 += w;
+    int s1=0, s2=0, polymorphic=0;
+    if (strata) {
+      memset(count, 0x00, nstrata*sizeof(int));
+      memset(acount, 0x00, nstrata*sizeof(int));
+      for (int ki=ik, i=0; i<N; i++) {
+	int w = (int) snps[ki++];
+	if (w) {
+	  int si = strata[i]-1;
+	  if (ifFemale && !ifFemale[i]) {
+	    count[si]++;
+	    acount[si] += (w-1)/2;
+	  }
+	  else {
+	    count[si] += 2;
+	    acount[si] += (w-1);
+	  }
 	}
       }
+      for (int i=0; i<nstrata; i++) {
+	int s2 = acount[i], s1 = count[i];
+	if ((s1>0) && (s2>0) && (s2<s1)){
+	  polymorphic = 1;
+	  double afk = (double) s2/(double) s1;
+	  mu[i] = 2.0*afk + 1.0;
+	  sd[i] = sqrt(2.0*afk*(1.0-afk));
+	}
+	else 
+	  mu[i] = sd[i] = 0.0;
+      }
+    }
+    else {
+      for (int ki=ik, i=0; i<N; i++) {
+	int w = (int) snps[ki++];
+	if (w) {
+	  w--;
+	  if (ifFemale && !ifFemale[i]) {
+	    s1++;
+	    s2 += w/2;
+	  }
+	  else {
+	    s1 += 2;
+	    s2 += w;
+	  }
+	}
+      }
+      polymorphic = ((s1>0) && (s2>0) && (s2<s1));
+      if (polymorphic){
+	double afk = ((double) s2) / ((double) s1);
+	mean = 2.0*afk + 1.0;
+	sd2 = sqrt(2.0*afk*(1.0-afk));
+      }
+      else
+	mean = sd2 = 0.0;
     }
     
     /* If polymorphic, add contribution */
 
-    if ((s1>0) && (s2>0) && (s2<s1)) {
-
-      double afk = ((double) s2) / ((double) s1);
-      double mean = 2.0*afk + 1.0;
-      double sd2 = sqrt(2.0*afk*(1.0-afk));
-      double sd1 = 2.0*sqrt(afk*(1.0-afk));
+    if (polymorphic) {
       double tk=0.0, ipw=0.0;
       if (correct)
 	tk = T? (double) Tk[k] / (double) T: 0.0;
-
+    
       /* Update X.X-transpose matrix */
 
       for (int i=0, ij=0; i<N; i++, ik++) {
+	if (strata) {
+	  int si = strata[i]-1;
+	  mean = mu[si];
+	  sd2 = sd[si];
+	}
 	int sik = (int) snps[ik];
-	if (sik) {
+	if (sik && sd2!=0.0) {
 	  double xik;
 	  if (ifFemale && !ifFemale[i])
-	    xik = ((double) sik - mean)/sd1;
+	    xik = ((double) sik - mean)/(rt2*sd2);
 	  else
 	    xik = ((double) sik - mean)/sd2;
 	  if (correct) {
@@ -158,11 +215,16 @@ SEXP xxt(const SEXP Snps, const SEXP Correct_for_missing,
 	  }
 	  ij += i;
 	  for (int jk=ik, j=i; j<N; j++, ij++) {
+	    if (strata) {
+	      int sj = strata[j]-1;
+	      mean = mu[sj];
+	      sd2 = sd[sj];
+	    }
 	    int sjk = (int) snps[jk++]; 
-	    if (sjk) {
+	    if (sjk && sd2!=0.0) {
 	      double xjk;
 	      if (ifFemale && !ifFemale[j])
-		xjk =  ((double) sjk - mean)/sd1;
+		xjk =  ((double) sjk - mean)/(rt2*sd2);
 	      else
 		xjk =  ((double) sjk - mean)/sd2;
 	      if (correct) 
@@ -196,10 +258,15 @@ SEXP xxt(const SEXP Snps, const SEXP Correct_for_missing,
   /* Return work space */
 
   if (correct) {
-    free(Tk);
-    free(Ti);
+    Free(Tk);
+    Free(Ti);
   }
-
+  if (strata) {
+    Free(acount);
+    Free(count);
+    Free(mu);
+    Free(sd);
+  }
       
   UNPROTECT(1);
   return(Result);

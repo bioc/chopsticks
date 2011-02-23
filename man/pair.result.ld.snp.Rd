@@ -1,7 +1,7 @@
 \name{pair.result.ld.snp}
 \alias{pair.result.ld.snp}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{ Function to calculate the pairwise  D', $r^2$, LOD of
+\title{ Function to calculate the pairwise  D', r-squared, LOD of
   a pair of specified SNPs}
 \description{
   \code{pair.result.ld.snp.Rd} calculates the pairwise D', $r^2$, LOD of

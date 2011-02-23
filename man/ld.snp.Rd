@@ -1,7 +1,7 @@
 \name{ld.snp}
 \alias{ld.snp}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{ Function to calculate pairwise D', $r^2$}
+\title{ Function to calculate pairwise D', r-squared}
 \description{
   \code{ld.snp} takes an object of \code{snp.matrix} class and suitable
   range and depth and calculation the pairwise D', $r^2$, LOD and return

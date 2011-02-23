@@ -28,8 +28,7 @@ pdftitle={snpMatrix Vignette}]
 \SweaveOpts{echo=TRUE, pdf=TRUE, eps=FALSE}
 
 \begin{document}
-\setkeys{Gin}{width=0.9\textwidth}
-
+\setkeys{Gin}{width=1.0\textwidth}
 %\VignetteIndexEntry{snpMatrix}
 %\VignettePackage{snpMatrix}
 
@@ -157,7 +156,6 @@ manner in which this synthetic dataset was created.
 A useful tool to detect samples that have genotyped poorly is
 {\tt row.summary()}. This calculates call rate and mean heterozygosity
 across all SNPs for each subject in turn:
-
 <<sample-qc>>=
 sample.qc <- row.summary(snps.10)
 summary(sample.qc)
@@ -198,7 +196,7 @@ superimposing a line of slope 1 through the origin:
 <<plot-summaries,fig=TRUE>>=
 hb <- hexbin(sum.controls$Call.rate, sum.cases$Call.rate, xbin=50)
 sp <- plot(hb)
-hexVP.abline(sp$plot.vp, a=0, b=1, col="black")
+hexVP.abline(sp$plot.vp, 0, 1, col="black")
 @
 There is no obvious difference in call rates. This is not a surprise,
 since  no such difference was built into the simulation. In the same
@@ -206,7 +204,7 @@ way we could look for differences between
 allele frequencies, superimposing a line of slope 1 through the origin:
 <<plot-freqs,fig=TRUE>>=
 sp <- plot(hexbin(sum.controls$MAF, sum.cases$MAF, xbin=50))
-hexVP.abline(sp$plot.vp, a=0, b=1, col="white") 
+hexVP.abline(sp$plot.vp, 0, 1, col="white")
 @
 
 This is not a very effective way to look for associations, but if
@@ -267,7 +265,7 @@ sum(use)
 We will now throw way the discarded test results and save the positions
 of the remaining SNPs
 <<subset-tests>>=
-tests <- tests[use, ]
+tests <- tests[use]
 position <- snp.support[use, "position"]
 @
 
@@ -275,14 +273,15 @@ We now calculate $p$-values  for the
 Cochran-Armitage tests and plot minus logs (base 10) of the $p$-values
 against position, with a horizontal line corresponding to $p = 10^{-6}$:
 <<plot-tests,fig=TRUE>>=
-p1 <- pchisq(tests$chi2.1df, df = 1, lower.tail = FALSE)
+p1 <- p.value(tests, df=1)
 plot(hexbin(position, -log10(p1), xbin=50))
 @
 
 Clearly there are far too many ``significant'' results, an impression
 which is made even clearer by the quantile-quantile (QQ) plot:
 <<qqplot,fig=TRUE>>=
-qq.chisq(tests$chi2.1df, df = 1)
+chi2 <- chi.squared(tests, df=1)
+qq.chisq(chi2,  df = 1)
 @
 
 
@@ -306,12 +305,13 @@ achieved by adding the {\tt stratum} argument to the call to {\tt
 <<more-tests,fig=TRUE>>=
 tests <- single.snp.tests(cc, stratum, data = subject.support,
      snp.data = snps.10)
-tests <- tests[use, ]
-p1 <- pchisq(tests$chi2.1df, df = 1, lower.tail = FALSE)
+tests <- tests[use]
+p1 <- p.value(tests, df = 1)
 plot(hexbin(position, -log10(p1), xbin=50))
 @
 <<more-tests-qq,fig=TRUE>>=
-qq.chisq(tests$chi2.1df, df = 1)
+chi2 <- chi.squared(tests, df=1)
+qq.chisq(chi2, df = 1)
 @
 
 
@@ -332,7 +332,7 @@ top10
 We now list the 1 df $p$-values, the corresponding SNP names and their
 positions on the chromosome:
 <<top-10>>=
-names <- rownames(tests)
+names <- tests@snp.names
 p1[top10]
 names[top10]
 position[top10]
@@ -390,9 +390,9 @@ glm(cc ~ top + stratum, family = "binomial")
 @
 
 
-The coefficient of {\tt top} in this regression is estimated as 0.5048,
-equivalent to a relative equivalent to a relative risk of $\exp() = 1.657$.  
-For the other top SNPs we have:
+The coefficient of {\tt top} in this regression is estimated as 0.4293,
+equivalent to a relative equivalent to a relative risk of $\exp(0.4293) =
+1.536182$.  For the other top SNPs we have:
 <<top2-3>>=
 top2 <- snps.10[, "rs7088765"]
 top2 <- as.numeric(top2)
@@ -403,8 +403,10 @@ glm(cc ~ top3 + stratum, family = binomial)
 @
 
 
-So the relative risks are, respectively, $\exp(-0.4097) = 0.664$ and
-$\exp(0.3783) = 1.460$. 
+So the relative risks are, respectively, $\exp(-0.4124)=0.6620594$ and
+$\exp(0.3979)=1.488695$.  Note that for rs7088765, the relative risk associated
+with the risk allele is $\exp(0.4124)=1.510438$, all close to the
+values used to simulate the data.
 
 Finally you might like to repeat the analysis above using the 2 df
 tests. The conclusion would have been much the same. A word of caution
@@ -486,7 +488,6 @@ chi-squared on 2 df:
 <<qqplot-mtests,fig=TRUE>>=
 qq.chisq(-2 * log(pm), df = 2)
 @
-
 
 \end{document}
 

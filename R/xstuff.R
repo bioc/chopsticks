@@ -10,7 +10,7 @@
     fd <- (het-fm)^2/(fm*(1-fm))
     md <- (het-mm)^2/((mm+0.001)*(1-mm))
     fem <- (fd<md)
-    if (all(fem==female))
+    if (all(fem==female, na.rm=T))
       break
   }
   list(Female=female, Heterozygosity=het)

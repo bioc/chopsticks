@@ -1,7 +1,10 @@
 # Routines for structure analyses
 
-xxt <- function(snps, correct.for.missing=FALSE, lower.only=FALSE) {
-  .Call("xxt", snps, correct.for.missing, lower.only,
+xxt <- function(snps, strata=NULL,
+                correct.for.missing=FALSE, lower.only=FALSE) {
+  if (!is.null(strata) && !is.factor(strata))
+    strata <- as.factor(strata)
+  .Call("xxt", snps, strata, correct.for.missing, lower.only,
         PACKAGE="snpMatrix")
 }
 

@@ -295,8 +295,8 @@ geno_cptr do_geno_cal(geno_cptr res)
 	  x[0] = 0;
 	}
       /* just try the edge cases for completeness */
-      x[2] = 1;
-      x[3] = 0;
+      x[1] = 1;
+      x[2] = 0;
       pick_best_p(res, x, 3);
       /* haploview skip this case */
       my_warning("case 5\n");

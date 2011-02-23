@@ -1,5 +1,5 @@
-single.snp.tests <- function(phenotype, stratum, data=sys.parent(),
-                             snp.data, subset, snp.subset) {
+single.snp.tests <- function(phenotype, stratum, data=sys.parent(), snp.data,
+                             rules=NULL, subset, snp.subset, score=FALSE) {
   m <- match.call()
   smiss <- missing(stratum)
   ssmiss <- missing(subset)
@@ -81,25 +81,121 @@ single.snp.tests <- function(phenotype, stratum, data=sys.parent(),
       complt <- complt & inss
     }
   }
+  if (class(snp.data)=="X.snp.matrix" && any(is.na(snp.data@Female))) {
+    warning("There are ", sum(is.na(snp.data@Female)),
+            " subjects with NA for sex. These were ignored")
+    complt <- complt & !is.na(snp.data@Female)
+  }
   subset <- (1:nr.snps)[complt]
+
+
   if (missing(snp.subset))
     snp.subset <- NULL
-  else if (is.character(snp.subset)) {
-    snp.subset <- match(snp.subset, colnames(snp.data))
-    if (any(is.na(snp.subset)))
-      stop("unmatched snps in snp.subset argument")
+  else {
+    if (is.null(rules))
+      n.targ <- nc.snps
+    else
+      n.targ <- length(rules)
+    if (is.character(snp.subset)) {
+      if (is.null(rules))
+        snp.subset <- match(snp.subset, colnames(snp.data))
+      else
+        snp.subset <- match(snp.subset, names(rules))
+      if (any(is.na(snp.subset)))
+        stop("unmatched snps in snp.subset argument")
+    }
+    else if (is.logical(snp.subset)){
+      if (length(snp.subset)!=n.targ)
+        stop("snp.subset array has incorrect length")
+      snp.subset <- (1:n.targ)[snp.subset]
+    }
+    else if (is.integer(snp.subset)) {
+      if (any(snp.subset<1 | snp.subset>n.targ))
+        stop("snp.subset element(s) out of range")
+    }
+    else 
+      stop("illegal type for snp.subset")
   }
-  else if (is.logical(snp.subset)){
-    if (length(snp.subset)!=nc.snps)
-      stop("snp.subset element(s) out of range")
-    snp.subset <- (1:nc.snps)[snp.subset]
+  scores <- .Call("score_single", phenotype, stratum, snp.data, rules, subset,
+                  snp.subset, PACKAGE="snpMatrix")
+  chisq <- .Call("chisq_single", scores, PACKAGE="snpMatrix")
+  if (is.null(rules)) {
+    if (is.null(snp.subset))
+      tested <- colnames(snp.data)
+    else
+      tested <- colnames(snp.data)[snp.subset]
+  } else {
+    if (is.null(snp.subset))
+      tested <- names(rules)
+    else
+      tested <- names(rules)[snp.subset]
   }
-  else if (is.integer(snp.subset)) {
-    if (any(snp.subset<1 | snp.subset>nc.snps))
-      stop("snp.subset element(s) out of range")
+  if (score)
+    res <- new("snp.tests.single.score", snp.names=tested,
+               chisq=chisq, N=scores$N, N.r2=scores$N.r2,
+               U=scores$U, V=scores$V)
+  else
+    res <- new("snp.tests.single", snp.names=tested, chisq=chisq,
+               N=scores$N,  N.r2=scores$N.r2)
+  res
+}
+
+pool <- function(..., score=FALSE) {
+  argl <- list(...)
+  na <- length(argl)
+  while (na > 0 && is.null(argl[[na]])) {
+    argl <- argl[-na]
+    na <- na - 1
   }
-  else 
-    stop("illegal type for snp.subset")
-  .Call("one_at_a_time", phenotype, stratum, snp.data, subset, snp.subset,
-        PACKAGE="snpMatrix")
+  if (na<2)
+    stop("need at least two test sets to pool")
+  if (na>2) {
+    p2 <- pool2(..1, ..2, score=TRUE)
+    r <- do.call(pool, c(p2, argl[3:na], score=score))
+  }
+  else
+    r <- pool2(..1, ..2, score=score)
+  r
+}
+
+switch.alleles.single <- function(tests, switch) {
+  if (class(tests)!="snp.tests.single.score") 
+    stop("Object should be of class snp.tests.single.score")
+  if (is.character(switch)) {
+    switch <- match(switch, tests@snp.names)
+    if (any(is.na(switch)))
+      warning(sum(is.na(switch)), " SNP names were not found in tests object")
+    switch <- switch[!is.na(switch)]
+  } 
+  ntest <- length(tests@snp.names)
+  if (is.logical(switch)) {
+    if (length(switch)!=ntest)
+      stop("incompatible arguments")
+    if (sum(switch)==0)
+      return(tests)
+  } else if (is.numeric(switch)) {
+    if (length(switch)==0)
+      return(tests)
+    if (max(switch)>ntest || min(switch)<1)
+      stop("incompatible arguments")
+  } else {
+    stop("SNPs to be switched must be indicated by name, position, or by a logical vector")
+  }
+  res <- tests
+  res@U[switch,1] <- - tests@U[switch,1]
+  if (ncol(tests@U)==3) {
+    # X chromosome tests
+    res@U[switch,2] <- - tests@U[switch,2]
+    res@U[switch,3] <- tests@U[switch,3] - tests@U[switch,2]
+    res@V[switch,4] <- tests@V[switch,4] - 2*tests@V[switch,3] +
+                       tests@V[switch,2]
+    res@V[switch,3] <- tests@V[switch,3] - tests@V[switch,2]
+  } else {
+    # Autosome tests
+    res@U[switch,2] <- tests@U[switch,2] - tests@U[switch,1]
+    res@V[switch,3] <- tests@V[switch,3] - 2*tests@V[switch,2] +
+                       tests@V[switch,1]
+    res@V[switch,2] <- tests@V[switch,2] - tests@V[switch,1]
+  }
+  res
 }

@@ -365,10 +365,13 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
       char snp_sum = snp_summary[i_snps + 3];
       int idx = i_snps * n_samples + i_samples;
       if(( snp_sum & (INVALID_MASK|MULTIALLELIC_MASK) ) ||
-	 ( (snps[i_snps] & MISSING_MASK) && ((!is_X) || (cur_content_ptr->sex != 1)) )
+	 ( (snps[i_snps] & MISSING_MASK) && ((!is_X) || (cur_content_ptr->sex != 1)) ) ||
+	 ( !(snps[i_snps] & ~MISSING_MASK) )
 	 ) {
 	/* (snp is invalid/multiallelic) or
-	   (sample has some missingness and (chrom is non-X or sample is non-male) */
+	   (sample has some missingness and (chrom is non-X or sample is non-male) or
+	   (sample is all missing regardless)
+        */
 	if ( (!( snp_sum & (INVALID_MASK|MULTIALLELIC_MASK) )) &&  
 	     (snps[i_snps] & ~MISSING_MASK)) {
 	  /* snp is not invalid, and sample has non-missing parts */

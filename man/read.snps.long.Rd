@@ -77,7 +77,9 @@ read.snps.long(files, sample.id = NULL, snp.id = NULL, female = NULL,
   it will often be preferable to read such data as a \code{"snp.matrix"}
   (i.e. as autosomal) and to coerce it to an object of type
   \code{"X.snp.matrix"} later using \code{as(..., "X.snp.matrix")} or
-  \code{new("X.snp.matrix", ..., female=...)}.
+  \code{new("X.snp.matrix", ..., female=...)}. If sex is coded \code{NA}
+  for any subject the latter course \emph{must} be followed, since
+  \code{NA}s are not accepted in the \code{female} argument.
 
   The vectors \code{sample.id} and \code{snp.id} must be in the same
   order as they  vary on the input file(s) and this ordering must be
@@ -97,6 +99,12 @@ read.snps.long(files, sample.id = NULL, snp.id = NULL, female = NULL,
   This function has replaced and earlier version which was much less
   flexible. Because all features have not been fully tested, the older
   version has been retained as \code{\link{read.snps.long.old}}.
+
+  Every combination of sample and snp listed in the
+  \code{sample.id} and \code{snp.id} arguments  \emph{must} be present in the
+  input file(s). Otherwise the function will search for any missing
+  observation until reaching the end of the data, ignoring everything
+  else on the way. 
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
 \seealso{\code{\link{read.HapMap.data}}\code{\link{read.snps.pedfile}},

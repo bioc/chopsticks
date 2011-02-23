@@ -13,14 +13,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+#include "hash_index.h"
+#include "imputation.h"
 #include "Rmissing.h"
 
-SEXP one_at_a_time(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps, 
-		   const SEXP Subset, const SEXP Snp_subset) {
-  const double tol=1.e-2;
+SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps, 
+		  const SEXP Rules, const SEXP Subset, const SEXP Snp_subset){
   double vec[4] = {1.0, 0.0, 0.0, 0.0};
-  int i, j, k, km, m, t, su;
+  /* int i, j, k, km, m, t, su; */
 
   /* Phenotype */
 
@@ -38,7 +38,7 @@ SEXP one_at_a_time(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
     if (LENGTH(Stratum)!=n)
       error("Dimension error - Stratum");
     stratum = INTEGER(Stratum);
-    for (i=0; i<n; i++) {
+    for (int i=0; i<n; i++) {
       int si = stratum[i];
       if (si>nstrata) nstrata = si;
     }
@@ -82,6 +82,8 @@ SEXP one_at_a_time(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
   }
   if (N!=n)
     error("Dimension error - Snps");
+  SEXP snp_names = VECTOR_ELT(getAttrib(Snps, R_DimNamesSymbol), 1);
+  index_db name_index = create_name_index(snp_names);
 
   /* Subset */
 
@@ -97,15 +99,27 @@ SEXP one_at_a_time(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
   else if (sutype!=NILSXP)
     error("Argument error - Subset");
 
-  
+  /* Rules */
+
+  int nrules = 0;
+  if (!isNull(Rules)) {
+    const char *classR = NULL;
+    if (TYPEOF(R_data_class(Rules, FALSE)) == STRSXP) {
+      classR = CHAR(STRING_ELT(R_data_class(Rules, FALSE), 0));
+    } else {
+      classR = CHAR(STRING_ELT(getAttrib(Rules, R_ClassSymbol), 0));
+    }
+    if (strcmp(classR, "snp.reg.imputation")!=0) 
+      error("Argument error - Rules");
+    nrules = LENGTH(Rules);
+  }
+
   /* SNP subset */
 
   int *snp_subset = NULL;
-  int ntest = nsnp;
+  int ntest = nrules? nrules: nsnp;
   SEXPTYPE sstype = TYPEOF(Snp_subset);
   if (sstype==INTSXP) {
-    if (LENGTH(Snp_subset)>nsnp)
-      error("Dimenion error - Snp_subset");
     snp_subset = INTEGER(Snp_subset);
     ntest = LENGTH(Snp_subset);
   }
@@ -119,25 +133,47 @@ SEXP one_at_a_time(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
     SEXP Female = R_do_slot(Snps, mkString("Female")); 
     female = LOGICAL(Female);
   }
-   
 
   /* Output objects */
  
-  SEXP Result, Chi_1df, Chi_2df, p_1df, p_2df, Used;
-  PROTECT(Result = allocVector(VECSXP, 5));
-  PROTECT(Chi_1df =  allocVector(REALSXP, ntest) ); /* Chi-squared(1) */
-  SET_VECTOR_ELT(Result, 0, Chi_1df);
-  double *chi_1df = REAL(Chi_1df); 
-  PROTECT(Chi_2df =  allocVector(REALSXP, ntest) ); /* Chi-squared(2) */
-  SET_VECTOR_ELT(Result, 1, Chi_2df);
-  double *chi_2df = REAL(Chi_2df);
-  PROTECT(p_1df =  allocVector(REALSXP, ntest) ); /* p.1df */
-  PROTECT(p_2df =  allocVector(REALSXP, ntest) ); /* p.2df */
-  SET_VECTOR_ELT(Result, 2, p_1df);
-  SET_VECTOR_ELT(Result, 3, p_2df);
+  SEXP Result, Used, U, V;
+  PROTECT(Result = allocVector(VECSXP, 4));
+  
+  if (female) {
+    PROTECT(U =  allocMatrix(REALSXP, ntest, 3) ); /* Scores */
+    PROTECT(V =  allocMatrix(REALSXP, ntest, 4) ); /* Score variances */
+  }
+  else {
+    PROTECT(U =  allocMatrix(REALSXP, ntest, 2) ); /* Scores */
+    PROTECT(V =  allocMatrix(REALSXP, ntest, 3) ); /* Score variances */
+  }
+  SET_VECTOR_ELT(Result, 0, U);
+  double *umat = REAL(U); 
+  SET_VECTOR_ELT(Result, 1, V);
+  double *vmat = REAL(V);
   PROTECT(Used =  allocVector(INTSXP, ntest) ); /* N used */
-  SET_VECTOR_ELT(Result, 4, Used);
+  SET_VECTOR_ELT(Result, 2, Used);
+  SEXP Nr2;
+  double *nr2 = NULL;
+  if (isNull(Rules)) 
+    PROTECT(Nr2 = allocVector(REALSXP, 0));
+  else {
+    PROTECT(Nr2 = allocVector(REALSXP, ntest)); /* N used x R-squared */
+    nr2 = REAL(Nr2);
+  }
+  SET_VECTOR_ELT(Result, 3, Nr2);
+
   int *Nused = INTEGER(Used);
+
+  /* Space to hold imputed values */
+
+  double *xadd = NULL;
+  double *xdom = NULL;
+  if (nrules) {
+    xadd = (double *) Calloc(nsubj, double);
+    xdom = (double *) Calloc(nsubj, double);
+  }
+
 
 
   /* Do calculations */
@@ -147,39 +183,75 @@ SEXP one_at_a_time(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 
     /* Work arrays */
     
-    double **UV = (double **) calloc(nstrata, sizeof(double *));
-    for (i=0; i<nstrata; i++) 
+    double **UV = (double **) Calloc(nstrata, double *);
+    for (int i=0; i<nstrata; i++) 
       UV[i] = (double *) calloc(10, sizeof(double));
-    
-    for (t=0; t<ntest; t++) {
+
+    for (int t=0; t<ntest; t++) {
       int i = snp_subset? snp_subset[t] - 1: t; 
-      const unsigned char *snpsi = snps + n*i;
+      const unsigned char *snpsi = NULL;
+      double r2 = 0.0;
+      if (nrules) {
+	if (i >= nrules)
+	  error("snp_subset out of range");
+	SEXP Rule =  VECTOR_ELT(Rules, i);
+	if (isNull(Rule)){ /* Monomorphic */
+	  for (int j; j<nsubj; j++)
+	    xadd[j] = xdom[j] = 0.0;
+	}
+	else {
+	  do_impute(snps, n, subset, nsubj, name_index, Rule, xadd, xdom);
+	  r2 = *REAL(VECTOR_ELT(Rule, 0));
+	}
+      }
+      else {
+	if (i >= nsnp)
+	  error("snp_subset out of range");
+	snpsi = snps + n*i;
+      }
       /* Initialise score and score variance array */
-      for (j=0; j<nstrata; j++) {
+      for (int j=0; j<nstrata; j++) {
 	double *uvj = UV[j];
-	for (k=0; k<10; k++)
+	for (int k=0; k<10; k++)
 	  uvj[k] = 0.0;
       }
+
       int nu = 0;
-      for (su=0; su<nsubj; su++) {
+      for (int su=0; su<nsubj; su++) {
 	int j = subset? subset[su] - 1: su;
-	unsigned char zij = snpsi[j];
-	if (zij) {
-	  nu++;
-	  vec[1] = phenotype[j];
-	  vec[2] = zij - 1;
-	  vec[3] = (zij==2);
-	  int strat = (nstrata==1)? 0: (stratum[j]-1);
-	  double *uv = UV[strat];
-	  for (k=0, km=0; k<4; k++) {
-	    double vk = vec[k];
-	    for (m=0; m<=k; m++)
-	      uv[km++] += vk*vec[m];
+	if (j>=n) 
+	  error("subset out of range");
+	int strat = (nstrata==1)? 0: (stratum[j]-1);
+	vec[1] = phenotype[j];
+	double *uv = UV[strat];
+	if (nrules) {
+	  vec[2] = xadd[su];
+	  if (!ISNA(vec[2])) {
+	    nu++;
+	    vec[3] = xdom[su];
+	    for (int k=0, km=0; k<4; k++) {
+	      double vk = vec[k];
+	      for (int m=0; m<=k; m++)
+		uv[km++] += vk*vec[m];
+	    }
+	  }
+	}
+	else {
+	  unsigned char zij = snpsi[j];
+	  if (zij) {
+	    nu++;
+	    vec[2] = zij - 1;
+	    vec[3] = (zij==3);
+	    for (int k=0, km=0; k<4; k++) {
+	      double vk = vec[k];
+	      for (int m=0; m<=k; m++)
+		uv[km++] += vk*vec[m];
+	    }
 	  }
 	}
       }
       double u1=0.0, u2=0.0, v11=0.0, v12=0.0, v22=0.0; 
-      for (j=0; j<nstrata; j++) {
+      for (int j=0; j<nstrata; j++) {
 	double *uvj = UV[j];
 	double N = uvj[0];
 	if (N>1.0) {
@@ -191,67 +263,99 @@ SEXP one_at_a_time(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	  v22 += vy*(uvj[9] - uvj[6]*uvj[6]/N);
 	}
       }
-      /* 1 df test */
-      double u = u1;
-      double v = v11;
-      chi_1df[t] =  v>0.0? u*u/v: NA_REAL;
-      /* 2 df test */
-      double r2 = v12*v12/(v11*v22);
-      if (v11 <= 0.0 || v22 <= 0.0 || (1.0-r2) < tol) 
-	chi_2df[t] = NA_REAL; /* Not positive definite --- enough! */
-      else 
-	chi_2df[t] = (u1*u1/v11 + u2*u2/v22 - 2.0*r2*u1*u2/v12)/(1.0-r2);
       Nused[t] = nu;
+      if (nrules)
+	nr2[t] = nu*r2;
+      umat[t] = u1;
+      umat[ntest+t] = u2;
+      vmat[t] = v11;
+      vmat[ntest+t] = v12;
+      vmat[2*ntest+t] = v22;
     }
 
     /* Return work arrays */
 
-    for (i=0; i<nstrata; i++) 
-      free(UV[i]);
-    free(UV);
+    for (int i=0; i<nstrata; i++) 
+      Free(UV[i]);
+    Free(UV);
   }
   else {
 
     /* Work arrays */
     
-    double **UVM = (double **) calloc(nstrata, sizeof(double *));
-    double **UVF = (double **) calloc(nstrata, sizeof(double *));
-    for (i=0; i<nstrata; i++) {
-      UVM[i] = (double *) calloc(10, sizeof(double));
-      UVF[i] = (double *) calloc(10, sizeof(double));
+    double **UVM = (double **) Calloc(nstrata, double *);
+    double **UVF = (double **) Calloc(nstrata, double *);
+    for (int i=0; i<nstrata; i++) {
+      UVM[i] = (double *) Calloc(10, double);
+      UVF[i] = (double *) Calloc(10, double);
     }
     
-    for (t=0; t<ntest; t++) {
+    for (int t=0; t<ntest; t++) {
       int i = snp_subset? snp_subset[t] - 1: t; 
-      const unsigned char *snpsi = snps + n*i;
+      const unsigned char *snpsi = NULL;
+      double r2 = 0.0;
+      if (nrules) {
+	if (i >= nrules)
+	  error("snp_subset out of range");
+	SEXP Rule = VECTOR_ELT(Rules, i);
+	if (isNull(Rule)) {
+	  for (int j=0; j<nsubj; j++)
+	    xadd[j] = xdom[j] = 0.0;
+	}
+	else {
+	  do_impute(snps, n, subset, nsubj, name_index, Rule, xadd, xdom);
+	  r2 = *REAL(VECTOR_ELT(Rule, 0));
+	}
+      }
+      else {
+	if (i >= nsnp)
+	  error("snp_subset out of range");
+	snpsi = snps + n*i;
+      }
       /* Initialise score and score variance arrays */
-      for (j=0; j<nstrata; j++) {
+      for (int j=0; j<nstrata; j++) {
 	double *uvmj = UVM[j];
 	double *uvfj = UVF[j];
-	for (k=0; k<10; k++)
+	for (int k=0; k<10; k++)
 	  uvmj[k] = uvfj[k] = 0.0;
       }
       int nu = 0;
-      for (su=0; su<nsubj; su++) {
+      for (int su=0; su<nsubj; su++) {
 	int j = subset? subset[su] - 1: su;
-	unsigned char zij = snpsi[j];
-	if (zij) {
-	  nu++;
-	  vec[1] = phenotype[j];
-	  vec[2] = zij - 1;
-	  vec[3] = (zij==2);
-	  int strat = (nstrata==1)? 0: (stratum[j]-1);
-	  double *uv = female[j] ? UVF[strat]: UVM[strat];
-	  for (k=0, km=0; k<4; k++) {
-	    double vk = vec[k];
-	    for (m=0; m<=k; m++)
-	      uv[km++] += vk*vec[m];
+	if (j>=n) 
+	  error("subset out of range");
+	int strat = (nstrata==1)? 0: (stratum[j]-1);
+	vec[1] = phenotype[j];
+	double *uv = female[j] ? UVF[strat]: UVM[strat];
+	if (nrules) {
+	  vec[2] = xadd[su];
+	  if (!ISNA(vec[2])) {
+	    nu++;
+	    vec[3] = xdom[su];
+	    for (int k=0, km=0; k<4; k++) {
+	      double vk = vec[k];
+	      for (int m=0; m<=k; m++)
+		uv[km++] += vk*vec[m];
+	    }
+	  }
+	}
+	else {
+	  unsigned char zij = snpsi[j];
+	  if (zij) {
+	    nu++;
+	    vec[2] = zij - 1;
+	    vec[3] = (zij==3);
+	    for (int k=0, km=0; k<4; k++) {
+	      double vk = vec[k];
+	      for (int m=0; m<=k; m++)
+		uv[km++] += vk*vec[m];
+	    }
 	  }
 	}
       }
       /* rewrite this loop */
       double u=0, v=0, u1=0.0, u2=0.0, v11=0.0, v12=0.0, v22=0.0;
-      for (j=0; j<nstrata; j++) {
+      for (int j=0; j<nstrata; j++) {
 	double *uvmj = UVM[j];
 	double Nm = uvmj[0];
 	double *uvfj = UVF[j];
@@ -260,12 +364,18 @@ SEXP one_at_a_time(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	if (Nt>0) {
 	  double ybar = (uvmj[1] + uvfj[1])/Nt;
 	  double yb2 = ybar*ybar;
-	  double af = (uvfj[3] + uvmj[3]/2)/(2*Nf+Nm);
 	  u += uvmj[4] + uvfj[4] - ybar*(uvmj[3]+uvfj[3]);
 	  /* Variance of male contribution (Bernoulli) */
 	  if (Nm>0) {
 	    double ssy = uvmj[2] - 2*ybar*uvmj[1] + Nm*yb2;
-	    v += 4*af*(1.0-af)*ssy;
+	    if (nrules) {
+	      /* I think this should be right but needs checking */
+	      v += ssy*(uvmj[5] - uvmj[3]*uvmj[3]/Nm)/(Nm - 1.0);
+	    }
+	    else {
+	      double af = (uvfj[3] + uvmj[3]/2)/(2*Nf+Nm);
+	      v += 4*af*(1.0-af)*ssy;
+	    }
 	  }
 	  /* Female contribution */
 	  if (Nf>1) {
@@ -281,60 +391,102 @@ SEXP one_at_a_time(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	  }
 	}
       }
-      /* 1 df test */
-      chi_1df[t] =  v>0.0? u*u/v: NA_REAL;
-      /* 2 df test */
-      double r2 = v12*v12/(v11*v22);
-      if (v11 <= 0.0 || v22 <= 0.0 || (1.0-r2) < tol) 
-	chi_2df[t] = NA_REAL; /* Not positive definite --- enough! */
-      else 
-	chi_2df[t] = chi_1df[t] + 
-	  (r2*u1*u1/v11 + u2*u2/v22 - 2.0*r2*u1*u2/v12)/(1.0-r2);
       Nused[t] = nu;
+      if (nrules)
+	nr2[t] = nu*r2;
+      umat[t] = u;
+      umat[ntest+t] = u1;
+      umat[2*ntest+t] = u2;
+      vmat[t] = v;
+      vmat[ntest+t] = v11;
+      vmat[2*ntest+t] = v12;
+      vmat[3*ntest+t] = v22;
     }
 
     /* Return work arrays */
 
-    for (i=0; i<nstrata; i++) {
-      free(UVM[i]);
-      free(UVF[i]);
+    for (int i=0; i<nstrata; i++) {
+      Free(UVM[i]);
+      Free(UVF[i]);
     }
-    free(UVM);
-    free(UVF);
+    Free(UVM);
+    Free(UVF);
   }
 
-  /* calculating the p-values */
-  for (t=0; t<ntest; t++) {
-    REAL(p_1df)[t] = pchisq(chi_1df[t], 1.0, 0,0);
-    REAL(p_2df)[t] = pchisq(chi_2df[t], 2.0, 0,0);
+  /* Tidy up */
+
+  index_destroy(name_index);
+  if (nrules) {
+    Free(xadd);
+    Free(xdom);
   }
 
   /* Attributes of output object */
 
-  SEXP cNames, rnames, dfClass;
-  SEXP snpNames = VECTOR_ELT(getAttrib(Snps, R_DimNamesSymbol), 1);
-  SEXPTYPE sntype = TYPEOF(snpNames);
-  PROTECT(rnames = allocVector(sntype, ntest));
-  for (t=0; t<ntest; t++) {
-    int i = snp_subset? snp_subset[t] - 1: t; 
-    if (sntype==INTSXP) 
-      INTEGER(rnames)[t] = INTEGER(snpNames)[i];
-    else 
-      SET_STRING_ELT(rnames, t, mkChar(CHAR(STRING_ELT(snpNames,i))));
-  } 
-  setAttrib(Result, R_RowNamesSymbol,  rnames);
+  SEXP Names;
+  PROTECT(Names = allocVector(STRSXP, 4));
+  SET_STRING_ELT(Names, 0, mkChar("U"));
+  SET_STRING_ELT(Names, 1, mkChar("V"));
+  SET_STRING_ELT(Names, 2, mkChar("N"));
+  SET_STRING_ELT(Names, 3, mkChar("N.r2"));
 
-  PROTECT(cNames = allocVector(STRSXP, 5));
-  SET_STRING_ELT(cNames, 0, mkChar("chi2.1df"));
-  SET_STRING_ELT(cNames, 1, mkChar("chi2.2df"));
-  SET_STRING_ELT(cNames, 2, mkChar("p.1df"));
-  SET_STRING_ELT(cNames, 3, mkChar("p.2df"));
-  SET_STRING_ELT(cNames, 4, mkChar("N"));
-  setAttrib(Result, R_NamesSymbol, cNames);
-  PROTECT(dfClass = allocVector(STRSXP, 1));
-  SET_STRING_ELT(dfClass, 0, mkChar("data.frame"));
-  setAttrib(Result, R_ClassSymbol, dfClass);
-  UNPROTECT(9);
+  setAttrib(Result, R_NamesSymbol, Names);
+  UNPROTECT(6);
 
   return(Result);
 }
+
+SEXP chisq_single(const SEXP Scores) {
+  const double tol=1.e-2;
+  SEXP U = VECTOR_ELT(Scores, 0);
+  SEXP V = VECTOR_ELT(Scores, 1);
+  int ntest = nrows(U);
+  double *umat = REAL(U);
+  double *vmat = REAL(V);
+  SEXP Result;
+  PROTECT(Result = allocMatrix(REALSXP, ntest, 2));
+  double *chisq = REAL(Result);
+  if (ncols(U)==3) { /* X chromosome */
+    for (int i=0; i<ntest; i++) {
+     /* 1 df test */
+      double u = umat[i], u1 = umat[ntest+i], u2 = umat[2*ntest+i];
+      double v = vmat[i], v11 = vmat[ntest+i], v12 = vmat[2*ntest+i],
+	v22 = vmat[3*ntest+i];
+      chisq[i] =  v>0.0? u*u/v: NA_REAL;
+      /* 2 df test */
+      double r2 = v12*v12/(v11*v22);
+      if (v11 <= 0.0 || v22 <= 0.0 || (1.0-r2) < tol) 
+	chisq[ntest+i] = NA_REAL; /* Not positive definite --- enough! */
+      else 
+	chisq[ntest+i] = chisq[i] + 
+	  (r2*u1*u1/v11 + u2*u2/v22 - 2.0*r2*u1*u2/v12)/(1.0-r2);
+    }
+  }
+  else { /* Autosome */
+    for (int i=0; i<ntest; i++) {
+      double u1 = umat[i], u2 = umat[ntest+i];
+      double v11 = vmat[i], v12 = vmat[ntest+i], v22 = vmat[2*ntest+i];    
+      /* 1 df test */
+      chisq[i] =  v11>0.0? u1*u1/v11: NA_REAL;
+      /* 2 df test */
+      double r2 = v12*v12/(v11*v22);
+      if (v11 <= 0.0 || v22 <= 0.0 || (1.0-r2) < tol) 
+	chisq[ntest+i] = NA_REAL; /* Not positive definite --- enough! */
+      else 
+	chisq[ntest+i] = (u1*u1/v11 + u2*u2/v22 - 2.0*r2*u1*u2/v12)/(1.0-r2);
+    }
+  }
+  SEXP Dimnames, Colnames;
+  PROTECT(Dimnames = allocVector(VECSXP, 2));
+  PROTECT(Colnames = allocVector(STRSXP, 2));
+  SET_STRING_ELT(Colnames, 0, mkChar("1 df"));
+  SET_STRING_ELT(Colnames, 1, mkChar("2 df"));
+  SET_VECTOR_ELT(Dimnames, 0, R_NilValue);
+  SET_VECTOR_ELT(Dimnames, 1, Colnames);
+  setAttrib(Result, R_DimNamesSymbol, Dimnames);
+  UNPROTECT(3);
+  return Result;
+}
+
+ 
+    

@@ -3,14 +3,14 @@ setOldClass(c("haplotype", "genotype"), test=TRUE)
 #content should be raw - TODO: put restriction 
 setClass("snp.matrix", contains="matrix")
 
-setClass("X.snp.matrix", representation(Female="logical"),
+setClass("X.snp.matrix", representation("snp.matrix", Female="logical"),
          contains="snp.matrix")
 
 setClass("snp", contains="raw")
 setClass("X.snp", representation(Female="logical"), contains="snp")
 
 setClass("snp.dprime")
-
+         
 # constructor for new()
 setMethod("initialize", 
           "snp.matrix", 
@@ -43,7 +43,7 @@ setMethod("initialize",
               warning("Sex guessed from heterozygosity")
               guess <- .guessSex(.Object)
               .Object@Female <- guess$Female
-              if (any(!guess$Female&(guess$Heterozygosity>0))) {
+              if (any(!guess$Female & (guess$Heterozygosity>0), na.rm=T)) {
                 warning("heterozygous calls for males set to NA")
                 .Object@.Data <- .forceHom(.Object@.Data, guess$Female)
               }
@@ -52,8 +52,9 @@ setMethod("initialize",
               if (length(.Object@Female)!=nrow(.Object))
                 stop("female argument incorrect length")
               if (any(is.na(.Object@Female)))
-                stop("female argument contains NAs")
-              if (any(!.Object@Female&(row.summary(.Object)$Heterozygosity>0))){
+                warning("female argument contains NAs")
+              het <- row.summary(.Object)$Heterozygosity
+              if (any(!.Object@Female & (!is.na(het)&(het>0)))){
                 warning("heterozygous calls for males set to NA")
                 .Object@.Data <- .forceHom(.Object@.Data, .Object@Female)
               }                
@@ -122,6 +123,7 @@ setMethod("[", signature(x="X.snp.matrix",i="ANY",j="ANY",drop="ANY"),
           })
 
 # The sub-assignment methods
+
 setMethod("[<-", signature(x="X.snp.matrix",i="ANY",j="ANY",value="X.snp.matrix"),
           function(x, i, j, value) {
             # The raw sub assignment should *just work*:
@@ -225,11 +227,23 @@ setAs("snp", "genotype",
       
 setAs("matrix", "snp.matrix",
       function(from) {
-        if(!all(is.na(from) | from==0 | from==1 | from==2))
-          stop("values must be NA, 0, 1 or 2")  # FIXME: is this really right? invalid entries should auto-convert to NA
-        to <- from+1
-        to[is.na(from)] <- 0
-        mode(to) <- "raw"
+        if (is.numeric(from)) {
+          valid  <- (from==0 | from==1 | from==2)
+          if(!all(is.na(from) | valid)) 
+            warning("values other than 0, 1 or 2 set to NA")
+          to <- from+1
+          to[is.na(from)|!valid] <- 0
+          mode(to) <- "raw"
+        }
+        else if (is.raw(from)) {
+          not.valid  <- (from>3)
+          if (any(not.valid))
+            warning("values other than 01, 02 or 03 set to NA (00)")
+          to <- from
+          to[not.valid] <- as.raw(0)
+        }
+        else 
+          stop("Can only convert `numeric' or `raw' matrices") 
         new("snp.matrix", to)
       })
            
@@ -247,7 +261,43 @@ setMethod("summary", "X.snp.matrix",
      .Call("X_snp_summary", object, PACKAGE="snpMatrix")
    })
 
-# Show methods
+# Imputation
+
+setClass("snp.reg.imputation")
+
+
+setMethod("summary", "snp.reg.imputation",
+   function(object) {
+     r2 <- .Call("r2_impute", object, PACKAGE="snpMatrix")
+     table(cut(r2[,1], c((0:9)/10, 0.95, 0.99, 1.0)), r2[,2],
+           dnn=c("R-squared", "SNPs used"))
+   })
+
+# Show and plot methods
+
+setMethod("show", "snp.reg.imputation",
+   function(object) {
+     to <- names(object)
+     for (i in 1:length(object)) {
+       cat(to[i], " ~ ", paste(object[[i]]$snps, collapse="+"),
+           " (R-squared = ",object[[i]]$r.squared, ")\n", sep="")
+     }
+   })
+
+
+setMethod("plot", signature(x="snp.reg.imputation", y="missing"),
+   function(x, y, ...) {
+     mat <- summary(x)
+     if (colnames(mat)[1]=="0") 
+       mat <- mat[,-1]
+     n <- nrow(mat)
+     m <- ncol(mat)
+     val <- barplot(t(mat[n:1,]), legend.text=paste(1:m, "tag SNPs"),
+                    beside=F, col=heat.colors(m),
+                    xlab="r-squared", ylab="Number of SNPs",
+                    names.arg=rep("", n), ...)
+     mtext(rownames(mat)[n:1], at=val, side=1, las=2, line=0.5)
+   })
 
 setMethod("show", "X.snp.matrix",
    function(object) {
@@ -343,3 +393,226 @@ snp.cbind <- function(...){
 setMethod("rbind2", signature(x="snp.matrix", y="snp.matrix"), .rbind2)
 setMethod("cbind2", signature(x="snp.matrix", y="snp.matrix"), .cbind2)
 
+
+
+# Tests
+
+setClass("snp.tests.single", 
+         representation(snp.names="character", chisq="matrix",
+                        N="integer", N.r2="numeric"))
+setClass("snp.tests.single.score", 
+         representation("snp.tests.single", U="matrix", V="matrix"),
+         contains="snp.tests.single")
+
+setMethod("[",
+          signature(x="snp.tests.single", i="ANY",
+                    j="missing", drop="missing"),
+          function(x, i, j, drop) {
+            if (is.character(i)) {
+              i <- match(i, x@snp.names)
+              if (any(is.na(i))) {
+                warning(sum(is.na(i)),
+                        " SNPs couldn't be found in snp.tests.single object\n")
+                i <- i[!is.na(i)]
+              }
+            } else if (is.logical(i)) {
+              if (length(i)!=length(x@snp.names))
+                stop("logical selection array has incorrect length")
+              i <- (1:length(i))[i]
+            } else if (is.numeric(i)) {
+              if (min(i)<0 || max(i)>length(x@snp.names))
+                stop("selection index out of range")
+            } else {
+              stop("illegal selection array")
+            }
+            if (length(x@N.r2)>0)
+              N.r2 <- x@N.r2[i]
+            else
+              N.r2 <- numeric(0)
+            new("snp.tests.single",
+              snp.names=x@snp.names[i], chisq=x@chisq[i,, drop=FALSE],
+                N=x@N[i], N.r2=N.r2)
+          })
+
+setMethod("[",
+          signature(x="snp.tests.single.score", i="ANY",
+                    j="missing", drop="missing"),
+          function(x, i, j, drop) {
+            if (is.character(i)) {
+              i <- match(i, x@snp.names)
+              if (any(is.na(i))) {
+                warning(sum(is.na(i)),
+                        " SNPs couldn't be found in snp.tests.single object\n")
+                i <- i[!is.na(i)]
+              }
+            } else if (is.logical(i)) {
+              if (length(i)!=length(x@snp.names))
+                stop("logical selection array has incorrect length")
+              i <- (1:length(i))[i]
+            } else if (is.numeric(i)) {
+              if (min(i)<0 || max(i)>length(x@snp.names))
+                stop("selection index out of range")
+            } else {
+              stop("illegal selection array")
+            }
+            if (length(x@N.r2)>0)
+              N.r2 <- x@N.r2[i]
+            else
+              N.r2 <- numeric(0)
+            new("snp.tests.single.score",
+              snp.names=x@snp.names[i], chisq=x@chisq[i,, drop=FALSE],
+                N=x@N[i], N.r2=N.r2,
+                U=x@U[i,,drop=FALSE], V=x@V[i,,drop=FALSE])
+          })
+                  
+setMethod("summary", "snp.tests.single",
+          function(object) {
+            if (length(object@N.r2)>0)
+              summary(data.frame(N=object@N, N.r2=object@N.r2,
+                        Chi2=object@chisq,
+                        P.1df=pchisq(object@chisq[,1], df=1, lower.tail=FALSE),
+                        P.2df=pchisq(object@chisq[,2], df=2, lower.tail=FALSE)
+                        ))
+            else
+               summary(data.frame(N=object@N, Chi2=object@chisq,
+                        P.1df=pchisq(object@chisq[,1], df=1, lower.tail=FALSE),
+                        P.2df=pchisq(object@chisq[,2], df=2, lower.tail=FALSE)
+                        ))
+          })
+
+            
+setMethod("show", "snp.tests.single",
+          function(object) {
+            if (length(object@N.r2)>0)
+              print(data.frame(N=object@N, N.r2=object@N.r2, Chi2=object@chisq,
+                        P.1df=pchisq(object@chisq[,1], df=1, lower.tail=FALSE),
+                        P.2df=pchisq(object@chisq[,2], df=2, lower.tail=FALSE),
+                        row.names=object@snp.names))
+            else
+              print(data.frame(N=object@N, Chi2=object@chisq,
+                        P.1df=pchisq(object@chisq[,1], df=1, lower.tail=FALSE),
+                        P.2df=pchisq(object@chisq[,2], df=2, lower.tail=FALSE),
+                        row.names=object@snp.names))
+            })
+
+# There are no standard generics for these, but the call to standardGeneric
+# avoids a warning message 
+  
+setGeneric("p.value", function(x, df) standardGeneric("p.value"),
+           useAsDefault=FALSE)
+
+setGeneric("chi.squared", function(x, df) standardGeneric("chi.squared"),
+           useAsDefault=FALSE)
+
+setGeneric("pool2", function(x, y, score) standardGeneric("pool2"),
+           useAsDefault=FALSE)
+
+setMethod("p.value", signature(x="snp.tests.single", df="numeric"),
+          function(x, df) {
+            if (df>2)
+              stop("df must be 1 or 2")
+            p <- pchisq(x@chisq[,df], df=df, lower.tail=FALSE)
+            names(p) <- x@snp.names
+            p
+          })
+
+setMethod("chi.squared", signature(x="snp.tests.single", df="numeric"),
+          function(x, df) {
+            if (df>2)
+              stop("df must be 1 or 2")
+            chi2 <- x@chisq[,df]
+            names(chi2) <- x@snp.names
+            chi2
+          })
+
+setMethod("p.value", signature(x="snp.tests.single.score", df="numeric"),
+          function(x, df) {
+            if (df>2)
+              stop("df must be 1 or 2")
+            p <- pchisq(x@chisq[,df], df=df, lower.tail=FALSE)
+            names(p) <- x@snp.names
+            p
+          })
+
+setMethod("chi.squared", signature(x="snp.tests.single.score", df="numeric"),
+          function(x, df) {
+            if (df>2)
+              stop("df must be 1 or 2")
+            chi2 <- x@chisq[,df]
+            names(chi2) <- x@snp.names
+            chi2
+          })
+
+setMethod("pool2",
+          signature(x="snp.tests.single.score",y="snp.tests.single.score",
+                    score="logical"),
+          function(x, y, score) {
+            all.snps <- union(x@snp.names, y@snp.names)
+            can.pool <- intersect(x@snp.names, y@snp.names)
+            x.only <- setdiff(x@snp.names, can.pool)
+            y.only <- setdiff(y@snp.names, can.pool)
+            if (length(can.pool)>0) {
+              xsel <- match(can.pool, x@snp.names)
+              ysel <- match(can.pool, y@snp.names)
+              N <- x@N[xsel] + y@N[ysel]
+              U <- x@U[xsel,] + y@U[ysel,]
+              V <- x@V[xsel,] + y@V[ysel,]
+              if (length(x@N.r2)>0) {
+                if (length(y@N.r2)>0)
+                  Nr2 <- x@N.r2[xsel] + y@N.r2[ysel]
+                else
+                  Nr2 <- x@N.r2[xsel] + y@N[ysel]
+              } else {
+                if (length(y@N.r2)>0)
+                  Nr2 <- x@N[xsel]+  y@N.r2[ysel]
+                else
+                  Nr2 <- numeric(0)
+              }
+            } else {
+              N <- NULL
+              U <- NULL
+              V <- NULL
+              Nr2 <- numeric(0)
+            }
+            if (length(x.only)>0) {
+              xsel <- match(x.only, x@snp.names)
+              N <- c(N, x@N[xsel])
+              U <- rbind(U, x@U[xsel,])
+              V <- rbind(V, x@V[xsel,])
+              if (length(Nr2>0)) {
+                if (length(x@N.r2)>0) 
+                  Nr2 <- c(Nr2, x@N.r2[xsel])
+                else
+                  Nr2 <- c(Nr2, x@N[xsel])
+              } else {
+                if (length(x@N.r2)>0)
+                  Nr2 <- c(N, x@N.r2[xsel])
+              }
+            }
+            if (length(y.only)>0) {
+              ysel <- match(y.only, y@snp.names)
+              N <- c(N, y@N[ysel])
+              U <- rbind(U, y@U[ysel,])
+              V <- rbind(V, y@V[ysel,])
+              if (length(Nr2>0)) {
+                if (length(y@N.r2)>0) 
+                  Nr2 <- c(Nr2, y@N.r2[ysel])
+                else
+                  Nr2 <- c(Nr2, y@N[ysel])
+              } else {
+                if (length(y@N.r2)>0)
+                  Nr2 <- c(N, y@N.r2[ysel])
+              }
+            }
+            chisq <- .Call("chisq_single", list(U=U, V=V, N=N),
+                           PACKAGE="snpMatrix")
+            if (score)
+              res <- new("snp.tests.single.score",
+                         snp.names=c(can.pool, x.only, y.only),
+                         chisq=chisq, N=N, U=U, V=V, N.r2=Nr2)
+            else
+              res <- new("snp.tests.single",
+                         snp.names=c(can.pool, x.only, y.only),
+                         chisq=chisq, N=N, N.r2=Nr2)
+            res
+          })

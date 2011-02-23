@@ -1,11 +1,16 @@
-exportClasses(snp.matrix, X.snp.matrix, snp, X.snp, snp.dprime)
-exportMethods(cbind2, is.na, ld.with, rbind2, show, summary,
-              "[", "[<-", coerce, initialize)
-export(epsout.ld.snp, glm.test.control, ibs.stats, ibsCount, ibsDist, ld.snp,
-       ld.with, niceprint, pair.result.ld.snp, plot.snp.dprime,
+exportClasses(snp.matrix, X.snp.matrix, snp, X.snp, snp.dprime,
+              snp.reg.imputation, snp.tests.single, snp.tests.single.score)
+exportMethods(cbind2, chi.squared, is.na, ld.with, pool2, p.value, rbind2, show,
+              summary, plot, "[", "[<-", coerce, initialize)
+export(epsout.ld.snp, filter.rules, glm.test.control, ibs.stats, ibsCount,
+       ibsDist, impute.snps,
+       ld.snp, ld.with, niceprint, pair.result.ld.snp, plot.snp.dprime, pool,
        print.snp.dprime, qq.chisq, read.HapMap.data, read.pedfile.info,
        read.snps.chiamo, read.snps.long, read.snps.long.old, read.snps.pedfile,
        read.wtccc.signals, row.summary, single.snp.tests, snp.cbind, snp.rbind,
-       snp.cor, snp.lhs.tests, snp.post, snp.pre,
-       snp.rhs.tests, write.snp.matrix, xxt)
+       snp.cor, snp.imputation, snp.lhs.tests, snp.post, snp.pre,
+       snp.rhs.tests, switch.alleles, switch.alleles.single,
+       test.allele.switch, write.snp.matrix,
+       xxt)
+importFrom(graphics, plot)
 importFrom(survival, untangle.specials, cluster, strata)

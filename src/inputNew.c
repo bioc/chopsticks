@@ -341,8 +341,14 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 	Rprintf("%60s%20s\r", "", filename);
     }
     gzFile infile = gzopen(filename, "rb");
-    if (!infile) 
-      error("Failure to open input file: %s", filename);
+    if (!infile) {
+      warning("Failure to open input file: %s", filename);
+      if (file_is==1)  
+	i_this++;
+      if (file_is==2) 
+	j_this++;
+      continue;
+    }
     int fterm = 2, line = 0, found_in_file = 0;
     /* Skip any header lines */
     for (int i=0; i<skip; i++) {
@@ -601,9 +607,11 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 	  Nxerror);
   if (Nreject)
     Rprintf("%d genotypes were rejected due to low confidence\n", Nreject);
-  if (Nsample*Nsnp > Naccept+Nxerror+Nreject)
+  if (Nocall)
+    Rprintf("%d genotypes were not called\n", Nocall);
+  if (Nsample*Nsnp > Naccept+Nxerror+Nreject+Nocall)
     Rprintf("%d genotypes could not be found on input file(s)\n",
-	    Nsample*Nsnp - Naccept - Nreject - Nxerror);
+	    Nsample*Nsnp - Naccept - Nreject - Nxerror-Nocall);
   if (nuc) {
     if (verbose)
       Rprintf("Recasting and checking nucleotide coding\n");

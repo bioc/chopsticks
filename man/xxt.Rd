@@ -1,8 +1,9 @@
 \name{xxt}
 \alias{xxt}
-\title{X.X-transpose for a normalised snp.matrix}
+\title{X.X-transpose for a standardized snp.matrix}
 \description{
-The input snp.matrix is first normalised by subtracting the mean from
+The input snp.matrix is first standardized by subtracting the mean (or
+stratum mean) from
 each call  and
 dividing by the expected standard deviation under Hardy-Weinberg
 equilibrium.
@@ -10,14 +11,17 @@ It is then post-multiplied by its transpose. This is a
 preliminary step in the computation of principal components.
 }
 \usage{
-xxt(snps, correct.for.missing = FALSE, lower.only = FALSE)
+xxt(snps, strata=NULL, correct.for.missing = FALSE, lower.only = FALSE)
 }
 \arguments{
   \item{snps}{The input matrix, of type \code{"snp.matrix"}}
+  \item{strata}{A \code{factor} (or an object which can be coerced into
+    a  \code{factor}) with length equal to the number of rows of
+    \code{snps} defining stratum membership}
   \item{correct.for.missing}{If \code{TRUE}, an attempt is made to
     correct for the effect of missing data by use of inverse probability
     weights. Otherwise, missing observations are scored zero in the
-    normalised matrix}
+    standardized matrix}
   \item{lower.only}{If \code{TRUE}, only the lower triangle of the
     result is returned and the upper triangle is filled with
     zeros. Otherwise, the complete symmetric matrix is returned}
@@ -28,7 +32,7 @@ xxt(snps, correct.for.missing = FALSE, lower.only = FALSE)
   (2006), when the data matrix has more rows than columns it is
   most efficient to calculate the eigenvectors of
   \var{X}.\var{X}-transpose, where \var{X} is a 
-  \code{snp.matrix} whose columns have been  normalised to zero mean and
+  \code{snp.matrix} whose columns have been  standardized to zero mean and
   unit variance. For autosomes, the genotypes are given codes 0, 1 or 2
   after subtraction of the mean, 2\var{p}, are divided by the standard
   deviation 
@@ -36,11 +40,13 @@ xxt(snps, correct.for.missing = FALSE, lower.only = FALSE)
   frequency). For SNPs on the X chromosome in male subjects,
   genotypes are coded 0 or 2. Then 
   the mean is still 2\var{p}, but the standard deviation is 
-  2sqrt(\var{p}(1-\var{p})).
+  2sqrt(\var{p}(1-\var{p})). If the \code{strata} is supplied, a
+  stratum-specific estimate value for \var{p} is used for
+  standardization. 
   
   Missing observations present some difficulty. Price et al. (2006)
   recommended replacing missing observations by their means, this being
-  equivalent to replacement by zeros in the normalised matrix. However
+  equivalent to replacement by zeros in the standardized matrix. However
   this results in a biased estimate of the complete data
   result. Optionally this bias can be corrected by inverse probability
   weighting. We assume that the probability that any one call is missing

@@ -17,10 +17,10 @@
  *  Fifth Floor, Boston, MA 02110-1301  USA.
  */
 
+#include <R.h>
+#include <Rinternals.h>
 #include "zlib.h"
 #include "hash_index.h"
-#include "R.h"
-#include <Rinternals.h>
 
 #include "read_tokens.h"
 

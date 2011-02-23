@@ -15,10 +15,10 @@ ibsDist(counts)
     \code{\link{ibsCount}}}
 }
 \value{
-  An object of class \code{"dist"} (see \code{\link{dist}})
+  An object of class \code{"dist"} (see \code{\link[stats]{dist}})
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
-\seealso{\code{\link{ibsCount}}, \code{\link{dist}}}
+\seealso{\code{\link{ibsCount}}, \code{\link[stats]{dist}}}
 \examples{
 data(testdata)
 ibs <- ibsCount(Xchromosome)

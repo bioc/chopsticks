@@ -15,7 +15,7 @@ read.snps.pedfile(file, snp.names=NULL, assign=NULL, missing=NULL, X=FALSE, sep=
 \arguments{
   \item{file}{The file name for the input pedfile}
   \item{snp.names}{A character vector giving the SNP names. If an
-    accompanying info file is present, it will be read and the
+    accompanying map file or an info file is present, it will be read and the
     information used for the SNP names, and also the information
     merged with the result. If absent,
     the SNPs will be named numerically ("1", "2", ...)}
@@ -55,6 +55,7 @@ read.snps.pedfile(file, snp.names=NULL, assign=NULL, missing=NULL, X=FALSE, sep=
 }
 \author{Hin-Tak Leung}
 \seealso{\code{\link{snp.matrix-class}}, \code{\link{X.snp.matrix-class}},
-  \code{\link{read.snps.long}}, \code{\link{read.HapMap.data}}}
+  \code{\link{read.snps.long}}, \code{\link{read.HapMap.data}},
+  \code{\link{read.pedfile.info}}, \code{\link{read.pedfile.map}}}
 \keyword{IO}
 \keyword{file}
