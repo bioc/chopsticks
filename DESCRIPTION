@@ -1,7 +1,7 @@
 Package: snpMatrix 
 Title: The snp.matrix and X.snp.matrix classes
-Version: 1.15.5
-Date: 2011-01-24
+Version: 1.15.6
+Date: 2011-02-03
 Author: David Clayton <david.clayton@cimr.cam.ac.uk> and 
   Hin-Tak Leung <htl10@users.sourceforge.net>
 Description: Implements classes and methods for large-scale SNP association studies 
