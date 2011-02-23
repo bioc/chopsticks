@@ -6,23 +6,23 @@
 The snp.matrix and X.snp.matrix classes
 }
 \description{
-Implements classes and some basic methods for large-scale SNP association studies
+Implements classes and methods for large-scale SNP association studies
 }
 \details{
 \tabular{ll}{
 Package: \tab snpMatrix\cr
-Version: \tab 1.5.4\cr
-Date: \tab 2008-08-21\cr
+Version: \tab 1.5.5\cr
+Date: \tab 2008-10-09\cr
 Depends: \tab R(>= 2.3.0), survival, methods\cr
 Suggests: \tab hexbin\cr
 Enhances: \tab genetics\cr
 License: \tab GNU General Public Licence (GPLv3)\cr
 URL: \tab http://www-gene.cimr.cam.ac.uk/clayton/software/\cr
-Collate: \tab ld.with.R ss.R contingency.table.R glm\_test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq\_chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R tdt\_single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
+Collate: \tab ld.with.R ss.R contingency.table.R glm_test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq_chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R tdt_single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
 LazyLoad: \tab yes\cr
 biocViews: \tab Microarray, SNPsAndGeneticVariability\cr
-Packaged: \tab Thu Aug 21 12:41:45 BST 2008\cr
-Built: \tab R 2.7.1; x86\_64-pc-linux-gnu; 2008-08-21 13:17:24; unix\cr
+Packaged: \tab Thu Oct  9 15:07:21 BST 2008\cr
+Built: \tab R 2.7.1; x86_64-redhat-linux-gnu; 2008-10-09 17:08:31; unix\cr
 }
 
 Index:
@@ -32,6 +32,7 @@ X.snp.matrix-class      Class "X.snp.matrix"
 chi.squared             Extract test statistics and p-values
 epsout.ld.snp           Function to write an eps file directly to
                         visualize LD
+families                Test data for family association tests
 filter.rules            Filter a set of imputation rules
 for.exercise            Data for exercise in use of the snpMatrix
                         package
@@ -42,10 +43,13 @@ ibs.stats               function to calculate the identity-by-state
 ibsCount                Count alleles identical by state
 ibsDist                 Distance matrix based on identity by state
                         (IBS)
+imputation.maf          Extract MAF and R-squared values from
+                        imputation rules
 impute.snps             Impute snps
 ld.snp                  Function to calculate pairwise D', r-squared
 ld.with                 function to calculate the LD measures of
                         specific SNPs against other SNPs
+misinherits             Find non-Mendelian inheritances in family data
 pair.result.ld.snp      Function to calculate the pairwise D',
                         r-squared, LOD of a pair of specified SNPs
 plot.snp.dprime         Function to draw the pairwise D' in a eps file
@@ -86,12 +90,13 @@ snp.reg.imputation-class
                         Class "snp.reg.imputation"
 snp.rhs.tests           Score tests with SNP genotypes as independent
                         variable
+snp.tests.glm-class     Class "snp.tests.glm"
 snp.tests.single-class
                         Classes "snp.tests.single" and
                         "snp.tests.single.score"
 snpMatrix-package       The snp.matrix and X.snp.matrix classes
-switch.alleles          Switch alleles in columns of a snp.matrix
-switch.alleles.single   Switch alleles in test results
+switch.alleles          Switch alleles in columns of a snp.matrix or in
+                        test results
 tdt.snp                 1-df and 2-df tests for genetic associations
                         with SNPs (or imputed SNPs) in family data
 test.allele.switch      Test for switch of alleles between two
@@ -105,8 +110,8 @@ xxt                     X.X-transpose for a standardized snp.matrix
 
 Further information is available in the following vignettes:
 \tabular{ll}{
-\code{imputation-vignette} \tab imputation (source)\cr
-\code{snpMatrix-vignette} \tab snpMatrix (source)\cr
+\code{imputation-vignette} \tab imputation (source, pdf)\cr
+\code{snpMatrix-vignette} \tab snpMatrix (source, pdf)\cr
 }
 }
 \author{
