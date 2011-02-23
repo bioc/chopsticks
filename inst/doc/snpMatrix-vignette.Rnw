@@ -129,9 +129,9 @@ for reading SNP genotype data into an object of class ``{\tt
 A short summary of the contents of {\tt snps.10} is provided by the
 {\tt summary} function. This operation actually produces two ``summaries of
 summaries''. First, summary 
-statistics are calculated for each row, and their results
-summarised. Then summary statistics are calculated for each column and
-their results summarised.
+statistics are calculated for each row (sample), and their results
+summarised. Then summary statistics are calculated for each column
+(SNP) and their results summarised.
 <<>>=
 summary(snps.10)
 @ 
@@ -173,6 +173,7 @@ poor quality samples:
 par(mfrow = c(1, 1))
 plot(sample.qc)
 @ 
+There is one clear outlier.
 
 \section*{The analysis}
 We'll start by removing the `outlying' sample above (the sample with 
@@ -279,7 +280,7 @@ position <- snp.support[use, "position"]
 
 We now calculate $p$-values  for the
 Cochran-Armitage tests and plot minus logs (base 10) of the $p$-values
-against position, with a horizontal line corresponding to $p = 10^{-6}$:
+against position
 <<plot-tests,fig=TRUE>>=
 p1 <- p.value(tests, df=1)
 plot(hexbin(position, -log10(p1), xbin=50))
@@ -295,7 +296,9 @@ qq.chisq(chi2,  df = 1)
 
 The three numbers returned by this command are the number of tests considered,
 the number of outliers falling beyond the plot boundary, and the slope of a
-line fitted to the smallest 90\% of values.  The "concentration band" for the
+line fitted to the smallest 90\% of values ({\it i.e.} the multiple by
+which the chi-squared test statistics are over-dispersed).  
+The ``concentration band'' for the
 plot is shown in grey. This region is defined by upper and lower probability
 bounds for each order statistic.  The default is to use the 2.5\% and 95.7\%
 bounds\footnote{Note that this is not a simultaneous confidence region; the
@@ -305,11 +308,11 @@ probability that the plot will stray outside the band at some point exceeds
 This over-dispersion of chi-squared values was built into our
 simulation. The data were constructed by re-sampling individuals from
 {\em two} groups of HapMap subjects, the CEU sample (of European
-origin) and the JPT$+$CHB sample (of Asian origin), The 55\% of the
+origin) and the JPT$+$CHB sample (of Asian origin). The 55\% of the
 cases were of European ancestry as compared with  only 45\% of the
 controls. We can deal with this by stratification of the tests,
 achieved by adding the {\tt stratum} argument to the call to {\tt
-  single.snp.tests} (the following commands are as before)
+  single.snp.tests} (the remaining commands are as before)
 <<more-tests,fig=TRUE>>=
 tests <- single.snp.tests(cc, stratum, data = subject.support,
      snp.data = snps.10)
@@ -361,7 +364,7 @@ local <- names[position > 9.6e+07 & position < 9.8e+07]
 
 The variable {\tt posord} contains the permutation necessary to sort
 SNPs into position order and {\tt names} and {\tt position} have now
-been reordered in this manner. the variable {\tt local} contains the
+been reordered in this manner. The variable {\tt local} contains the
 names of the SNPs in the selected 2 mega-base region.
 Now create a matrix containing just these SNPs, in position order, and
 compute the linkage disequilibrium (LD) between them:
@@ -397,14 +400,14 @@ stratum <- subject.support$stratum
 top <- as(snps.10[, "rs870041"], "numeric")
 glm(cc ~ top + stratum, family = "binomial")
 @
-The coefficient of {\tt top} in this regression is estimated as 0.5048,
-equivalent to a relative risk of $\exp(.5048) =1.657$.  
+The coefficient of {\tt top} in this regression is estimated as 0.5100,
+equivalent to a relative risk of $\exp(.5100) =1.665$.  
 For the other top SNP we have:
 <<top2>>=
 top2 <- as(snps.10[, "rs10882596"], "numeric")
 glm(cc ~ top2 + stratum, family = "binomial")
 @
-This relative risk is $\exp(0.4103)=1.507$. Both estimates are
+This relative risk is $\exp(0.4575)=1.580$. Both estimates are
 close to the values used to simulate the data.
 
 Finally you might like to repeat the analysis above using the 2~df
@@ -482,7 +485,7 @@ test since the simulation ensured that the ``causal'' locus was
 actually one of the SNPs typed on the Affymetrix platform.
 QQ plots are somewhat more difficult since the tests are on differing
 degrees of freedom. This difficulty is neatly circumvented by noting
-that $-2\log p$ is, under the null hypothesis, distributed as
+that, under the null hypothesis,  $-2\log p$ is distributed as
 chi-squared on 2~df:
 <<qqplot-mtests,fig=TRUE>>=
 qq.chisq(-2 * log(pm), df = 2)

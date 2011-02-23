@@ -35,8 +35,9 @@ pdftitle={Imputed SNP analyses with snpMatrix}]
 \section*{Getting started}
 The need for imputation in SNP analysis studies occurs when we have a
 smaller set of samples in which a large number of SNPs have been
-typed, and a larger set of samples typed in only a subset of the
-SNPs. We use the smaller, complete dataset (which will be termed the
+typed, and a larger set of samples typed in  
+only a subset of the SNPs. 
+We use the smaller, complete dataset (which will be termed the
 {\em training dataset}) to impute the missing SNPs in the larger,
 incomplete dataset (the {\em target dataset}). Examples of such applications 
 include:
@@ -63,24 +64,41 @@ library(hexbin)
 data(for.exercise)
 @ 
 
-Next we select alternate SNPs to be potentially missing or present 
-in the target dataset:
+We shall sample 200 subjects in our fictitious study as the
+training data set, select alternate SNPs to be potentially 
+missing or present in the target dataset, and split the training set
+into two parts accoordingly:
 
 <<select>>= 
-sel <- seq(1, ncol(snps.10),2) 
-missing <- snps.10[,sel]
-present <- snps.10[,-sel] 
+training <- sample(1000, 200)
+in.target<- seq(1, ncol(snps.10),2) 
+missing <- snps.10[training, -in.target]
+present <- snps.10[training, in.target] 
 missing 
 present 
 @
+Thus the training dataset consists of the objects {\tt missing} and
+{\tt present}. The target dataset holds a subset of the SNPs 
+for the remaining 800 subjects. 
 
+<<target>>=
+target <- snps.10[-training, in.target]
+target
+@ 
+But, in order to see how successful we
+have been with imputation, we will also save the SNPs we have removed from the
+target dataset
+<<>>=
+lost <- snps.10[-training, -in.target]
+lost
+@ 
 We also need to know where the SNPs are on the chromosome in order to
 avoid having to search the entire chromosome for suitable predictors
 of a missing SNP:
 
 <<positions>>=
-pos.miss <- snp.support$position[sel]
-pos.pres <- snp.support$position[-sel]
+pos.miss <- snp.support$position[-in.target]
+pos.pres <- snp.support$position[in.target]
 @ 
 
 \section*{Calculating the imputation rules}
@@ -146,7 +164,7 @@ function {\tt single.snp.tests}.
 
 <<imptest>>=
 imp <- single.snp.tests(cc, stratum, data=subject.support,
-                        snp.data=present, rules=rules)
+                        snp.data=target, rules=rules)
 @ 
 
 Using the observed data in the matrix {\tt present} and the set of
@@ -157,7 +175,7 @@ single tests for association,  returns the results in the object {\tt
 the same tests using the {\em true} data in {\tt missing}:
 
 <<realtest>>= 
-obs <- single.snp.tests(cc, stratum, data=subject.support, snp.data=missing)
+obs <- single.snp.tests(cc, stratum, data=subject.support, snp.data=lost)
 @ 
 
 The next commands extract the $p$-values for the 1-df tests, using both
@@ -205,7 +223,7 @@ tests as carried out with
   against those obtained when values are observed.
 <<imptest-rhs,fig=TRUE>>=
 imp2 <- snp.rhs.tests(cc~strata(stratum), family="binomial", 
-                      data=subject.support, snp.data=present, rules=rules)
+                      data=subject.support, snp.data=target, rules=rules)
 logP.imp2 <- -log10(p.value(imp2))
 hb <- hexbin(logP.obs, logP.imp2, xbin=50)
 sp <- plot(hb)
@@ -235,22 +253,28 @@ In {\tt snpMatrix}, the statistical testing functions can be
 called with the option {\tt score=TRUE}, causing an extended object to
 be saved. The extended object contains the $U$ and $V$ values, thus
 allowing later combination of the evidence from different
-studies. We shall first see what sort of object we have calculated using {\tt
+studies. We shall first see what sort of object we have calculated
+previously using {\tt
   single.snp.tests} {\em without} the {\tt score=TRUE} argument.
 <<class-imp-obs>>=
 class(imp)
-class(obs)
 @ 
-We'll now recalculate these objects, saving the score information
+This object contains the imputed SNP tests in our target set. However,
+these SNPs were observed in our training set, so we can test
+them. We will also recalculate the imputed tests. In both cases we
+will saving the score information:
 <<save-scores>>=
 obs <- single.snp.tests(cc, stratum, data=subject.support, snp.data=missing, 
                         score=TRUE)
 imp <- single.snp.tests(cc, stratum, data=subject.support,
-                        snp.data=present, rules=rules, score=TRUE)
+                        snp.data=target, rules=rules, score=TRUE)
+@
+The extended objects have been returned:
+<<>>=
 class(obs)
 class(imp)
 @ 
-You will see that extended objects have been returned. These extended
+These extended
 objects behave in the same way as the original objects, so that the
 same functions can be used to extract chi-squared values, $p$-values
 etc., but several additional functions, or methods, are now
@@ -279,6 +303,12 @@ example, this command tabulates the signs of the associations in {\tt obs}:
 <<sign>>=
 table(effect.sign(obs))
 @ 
+In this table, -1 corresponds to tests in which 
+effect sizes were negative (corresponding to an
+odds ratio less than one), while +1 indicates positive effect sizes
+(odds ratio greater than one). Zero sign indicates that 
+the effect was {\tt NA} (for example
+because the SNP was monomorphic). 
 Reversal of sign can be the explanation of a puzzling phenomenon when
 two studies give significant results individually, but no significant
 association when pooled. Although it is not impossible that such

@@ -1,4 +1,5 @@
 \name{snpMatrix-package}
+\Rdversion{1.1}
 \alias{snpMatrix-package}
 \alias{snpMatrix}
 \docType{package}
@@ -11,8 +12,8 @@ Implements classes and methods for large-scale SNP association studies
 \details{
 \tabular{ll}{
 Package: \tab snpMatrix\cr
-Version: \tab 1.7.8\cr
-Date: \tab 2009-04-17\cr
+Version: \tab 1.9.1\cr
+Date: \tab 2009-06-10\cr
 Depends: \tab R(>= 2.3.0), survival, methods\cr
 Suggests: \tab hexbin\cr
 Enhances: \tab genetics\cr
@@ -21,7 +22,7 @@ URL: \tab http://www-gene.cimr.cam.ac.uk/clayton/software/\cr
 Collate: \tab ld.with.R ss.R contingency.table.R glm-test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq-chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R tdt-single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
 LazyLoad: \tab yes\cr
 biocViews: \tab Microarray, SNPsAndGeneticVariability\cr
-Built: \tab R 2.8.1; x86\_64-pc-linux-gnu; 2009-04-17 09:49:40; unix\cr
+Built: \tab R 2.9.0; x86\_64-pc-linux-gnu; 2009-06-10 10:32:01 UTC; unix\cr
 }
 
 Index:
@@ -108,10 +109,10 @@ xxt                     X.X-transpose for a standardized snp.matrix
 
 Further information is available in the following vignettes:
 \tabular{ll}{
-\code{imputation-vignette} \tab Imputation and meta-analysis (source, pdf)\cr
-\code{pca-vignette} \tab Principal components analysis (source, pdf)\cr
-\code{snpMatrix-vignette} \tab snpMatrix introduction (source, pdf)\cr
-\code{tdt-vignette} \tab TDT tests (source, pdf)\cr
+\code{imputation-vignette} \tab Imputation and meta-analysis (source)\cr
+\code{pca-vignette} \tab Principal components analysis (source)\cr
+\code{snpMatrix-vignette} \tab snpMatrix introduction (source)\cr
+\code{tdt-vignette} \tab TDT tests (source)\cr
 }
 }
 \author{
