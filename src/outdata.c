@@ -17,8 +17,9 @@ void write_as_matrix(char **file, char *x, int *N, int *M,
   int zerom = (int) '0' -1 ; /* Character code for zero ... minus 1 */
   int nrow = *N;
   int ncol = *M;
-  FILE *  outfile;
+  FILE *  outfile = NULL;
   int i=0, j=0, ij=0;
+  *iferror = 0;
   if (*append)
     outfile = fopen(*file, "a");
   else
@@ -68,7 +69,6 @@ void write_as_matrix(char **file, char *x, int *N, int *M,
     fputs(*eol, outfile);
   }
   fclose(outfile);
-  *iferror = 0;
   return;
 }
 
