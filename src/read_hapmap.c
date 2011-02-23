@@ -361,7 +361,7 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
 	(strlen(cur_content_ptr->strand) > 1) || 
         ( (cur_content_ptr->strand[0] != '+') && (cur_content_ptr->strand[0] != '-') )
 	){
-      Rprintf("mailformed input line: %s", current_line);
+      Rprintf("malformed input line: %s", current_line);
       break;
     }
 

@@ -204,7 +204,7 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
 		   &(l->sex),
 		   &(l->affected));
     if ((i != 6) || (i== EOF)) {
-      Rprintf("mailformed input line: [%20s...]\n", current_line);
+      Rprintf("malformed input line: [%20s...]\n", current_line);
       break;
     }
     

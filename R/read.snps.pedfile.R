@@ -37,11 +37,11 @@ read.snps.pedfile <- function(file, snp.names=NULL, assign=NULL, missing=NULL, X
   }
   if (!is.null(snp.names)) {
     snp.names <- as.character(snp.names)
+    cat(length(snp.names), "SNPs are to be read in\n")
   }
   if (!is.null(missing)) {
     missing <- as.character(missing)
   }
-  
   # if file starts with http:// or ftp://, download it and replace the input
   # with the downloaded file
   if (length(grep("^(ftp|http|file)://", file)) > 0) { 
@@ -58,6 +58,9 @@ read.snps.pedfile <- function(file, snp.names=NULL, assign=NULL, missing=NULL, X
   if (!low.mem) {
     result <- .Call("read_pedfile", file, snp.names, missing,
                     as.logical(X), as.character(sep), PACKAGE="snpMatrix")
+    if (is.null(result)) {
+      stop("ped file invalid - see error message above\n")
+    }
     if (join.info) {
       snp.info[['assignment']] <- as.factor(result$snp.support)
       result$snp.support <- snp.info
@@ -70,6 +73,10 @@ read.snps.pedfile <- function(file, snp.names=NULL, assign=NULL, missing=NULL, X
     }
     result <-  .Call("readped", file, as.character(snp.names), as.character(missing),
                      as.logical(X), as.character(sep), PACKAGE="snpMatrix")
+    # readped does not currently generate a null on error, fix it later
+    if (is.null(result)) {
+      stop("ped file invalid - see error message above\n")
+    }
     if (join.info) {
       result$snp.support <- snp.info
     }

@@ -145,7 +145,7 @@ int glm_fit(int family, int link, int N, int M, int S,
 	    else {
 	      D = dlink(link, mu);
 	      ri = D*(y[i] - mu);
-	      wi = pi+D*D*Vmu;
+	      wi = pi/(D*D*Vmu);
 	    }
 	    wss += wi*ri*ri;
 	  }

@@ -47,6 +47,25 @@ read.snps.pedfile(file, snp.names=NULL, assign=NULL, missing=NULL, X=FALSE, sep=
   Row names of the output objects are constructed by
   concatenation of the pedigree and member identifiers, "Family",
   "Individual" joined by ".", e.g. "Family.Adams.Individual.0".
+
+  It has been called to the authors' attention that there are LINKAGE
+  ped files out there of case-control-study origin which encode the entire
+  collection as one big family. This is wrong because in a case-control
+  study evey sample is supposed to be unrelated, and the PED file should be
+  a few thousand families, each with 1 member, instead of 1 family with
+  a few thousand members.
+
+  To fix such faulty ped files, run this perl snipplet below, which
+  joins the family field with the member field with an underscore as the
+  new family field, and put "1" in the member field:
+
+  \preformatted{
+cat input.ped | perl -n -e \
+ '($a, $b, $c) = split /\s/,$_, 3; print $a, "_", $b, " 1 ", $c;' > output.ped
+  }
+
+  Also, note that the member field is limited to numeric. This is a
+  documented limitation above.
 }
 \value{
   \item{snps}{The output \code{"snp.matrix"} or \code{"X.snp.matrix"}}
