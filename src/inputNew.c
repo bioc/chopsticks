@@ -117,19 +117,15 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
     Rprintf("Reading one call per input line\n");
     if (fsamp) {
       Rprintf("   Sample id is in field %d", fsamp);
-      if (file_is==1) {
+      if (file_is==1) 
 	Rprintf(" (ignored)\n");
-	fsamp = 0;
-      }
       else
 	Rprintf("\n");
     }
     if (fsnp) {
       Rprintf("   SNP id is in field %d", fsnp);
-      if (file_is==2) {
+      if (file_is==2) 
 	Rprintf(" (ignored)\n");
-	fsnp = 0;
-      }
       else
 	Rprintf("\n");
     }
@@ -142,6 +138,11 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
     if (fconf)
       Rprintf("   Confidence score is in field %d\n", fconf);
   }
+  
+  if (file_is==1)
+    fsamp = 0;
+  else if (file_is==2)
+    fsnp = 0;
 
 
   /* Allele or genotype coding? */
@@ -579,7 +580,6 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 	advance = 1;
       }
       else {
-
 	Nskipped++;
 
 	/* Flag no advance to next target */
