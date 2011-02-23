@@ -1,5 +1,6 @@
 tdt.snp <- function(ped, id, father, mother, affected,
-                         data=sys.parent(), snp.data, rules=NULL, snp.subset,
+                         data=sys.parent(), snp.data, rules=NULL,
+                         snp.subset=NULL,
                          check.inheritance=TRUE, robust=FALSE,
                          score=FALSE) {
   if (!is.null(rules) || !check.inheritance) 
@@ -56,6 +57,10 @@ tdt.snp <- function(ped, id, father, mother, affected,
       affected <- as.logical(eval(mcall$affected, envir=data))
   }
 
+  # Treat subjects with "affected" missing as not affected
+  
+  affected[is.na(affected)] <- FALSE
+
   # Correspondence between ped data and snp data
 
   in.snp <- match(subject.names, rownames(snp.data))
@@ -73,7 +78,7 @@ tdt.snp <- function(ped, id, father, mother, affected,
   
   trio <- have.snps & affected & (!is.na(fpos)) & (have.snps[fpos]) &
                                  (!is.na(mpos)) & (have.snps[mpos])
-  ntrio <- sum(trio)
+  ntrio <- sum(trio, na.rm=TRUE)
   if (ntrio==0) {
     cat("No potentially complete trios to analyse\n")
     return(NULL)
@@ -84,8 +89,8 @@ tdt.snp <- function(ped, id, father, mother, affected,
   
   clust <-   as.integer(factor(ped[trio]))
   cord <- order(clust)
-  cat("Analysing ", ntrio, " potentially complete trios in  ", max(clust),
-      " different pedigrees\n")
+  cat("Analysing", ntrio, "potentially complete trios in", max(clust),
+      "different pedigrees\n")
 
   # Calculate scores and score variances
 
