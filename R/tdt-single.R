@@ -5,7 +5,7 @@
 tdt.snp <- function(ped, id, father, mother, affected,
                          data=sys.parent(), snp.data, rules=NULL,
                          snp.subset=NULL,
-                         check.inheritance=TRUE, robust=FALSE,
+                         check.inheritance=TRUE, robust=FALSE, uncertain=FALSE,
                          score=FALSE) {
   if (!is.null(rules) || !check.inheritance) 
     robust <- TRUE

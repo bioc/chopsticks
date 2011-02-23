@@ -10,9 +10,8 @@ function(maxit, epsilon, R2Max)
 
 
 snp.lhs.tests <-
-  
 function(snp.data, base.formula, add.formula, subset, snp.subset,
-         data=sys.parent(), robust=FALSE,
+         data=sys.parent(), robust=FALSE, uncertain=FALSE,
          control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98),
          score=FALSE)
 {   
@@ -153,7 +152,7 @@ function(snp.data, base.formula, add.formula, subset, snp.subset,
 snp.rhs.tests <-
 function(formula, family="binomial", link, weights, subset,
           data=parent.frame(), snp.data, rules=NULL, 
-          tests=NULL, robust=FALSE,
+          tests=NULL, robust=FALSE, uncertain=FALSE,
           control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98),
           allow.missing=0.01, score=FALSE) {
   

@@ -8,11 +8,14 @@ must have the same number of rows. All valid pairs are used in the
 computation of each correlation coefficient.
 } 
 \usage{
-snp.cor(x, y)
+snp.cor(x, y, uncertain = FALSE)
 }
 \arguments{
   \item{x}{An \var{N} by \var{M} \code{snp.matrix}}
   \item{y}{An \var{N} by \var{P} general matrix}
+  \item{uncertain}{If \code{TRUE}, uncertain genotypes are replaced by
+    posterior expectations. Otherwise these are treated as missing
+    values}
 }
 \details{
   This can be used together with \code{\link{xxt}} and

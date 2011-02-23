@@ -9,10 +9,15 @@
 }
 \usage{
 row.summary(object)
-col.summary(object)
+col.summary(object, uncertain = FALSE)
 }
 \arguments{
-\item{object}{genotype data as a \code{\link{snp.matrix-class}} or \code{\link{X.snp.matrix-class}} object}
+\item{object}{genotype data as a \code{\link{snp.matrix-class}} or
+  \code{\link{X.snp.matrix-class}} object}
+\item{uncertain}{If \code{TRUE} uncertain genotypes are used in
+  calculation of allele and genotype frequencies (by scoring as
+  posterior expectations). Otherwise, and for Hardy-Weinberg tests,
+  they are ignored}
 }
 \value{
   \item{row.summary}{

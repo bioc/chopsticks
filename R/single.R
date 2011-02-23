@@ -1,5 +1,6 @@
 single.snp.tests <- function(phenotype, stratum, data=sys.parent(), snp.data,
-                             rules=NULL, subset, snp.subset, score=FALSE) {
+                             rules=NULL, subset, snp.subset, uncertain=FALSE,
+                             score=FALSE) {
   m <- match.call()
   smiss <- missing(stratum)
   ssmiss <- missing(subset)

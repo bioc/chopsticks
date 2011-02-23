@@ -13,7 +13,7 @@
 }
 \usage{
 snp.lhs.tests(snp.data, base.formula, add.formula, subset, snp.subset,
-                data = sys.parent(), robust = FALSE,
+                data = sys.parent(), robust = FALSE, uncertain = FALSE,
                 control=glm.test.control(maxit=20, epsilon=1.e-4,R2Max=0.98),
                 score=FALSE)
 }
@@ -31,7 +31,10 @@ snp.lhs.tests(snp.data, base.formula, add.formula, subset, snp.subset,
   \item{data}{The data frame in which \code{base.formula},
     \code{add.formula} and \code{subset} are to be evaluated}
   \item{robust}{If \code{TRUE}, a test which does not assume
-    Hardy-Weinberg equilibrium will be used}
+    Hardy-Weinberg equilibrium will be used }
+  \item{uncertain}{If \code{TRUE}, uncertain genotypes are used and
+    scored by their posterior expectations. Otherwise they are treated
+    as missing. If set, this option forces \code{robust} variance estimates}
   \item{control}{An object giving parameters for the IRLS algorithm
     fitting of the base model and for the acceptable aliasing amongst
     new terms to be tested. See \code{\link{glm.test.control}}}

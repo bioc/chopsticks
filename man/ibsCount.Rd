@@ -6,12 +6,15 @@
   the total number of alleles which are identical by state (IBS)
 }
 \usage{
-ibsCount(snps)
+ibsCount(snps, uncertain = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{snps}{An input object of class \code{"snp.matrix"} or
     \code{"X.snp.matrix"}}
+  \item{uncertain}{If \code{TRUE}, uncertain genotypes are replaced by
+    posterior expectations. Otherwise these are treated as missing
+    values}
 }
 \details{
 For each pair of subjects the function counts the total number of

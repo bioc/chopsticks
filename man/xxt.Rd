@@ -11,7 +11,8 @@ It is then post-multiplied by its transpose. This is a
 preliminary step in the computation of principal components.
 }
 \usage{
-xxt(snps, strata=NULL, correct.for.missing = FALSE, lower.only = FALSE)
+xxt(snps, strata = NULL, correct.for.missing = FALSE, lower.only = FALSE,
+  uncertain = FALSE)
 }
 \arguments{
   \item{snps}{The input matrix, of type \code{"snp.matrix"}}
@@ -25,6 +26,9 @@ xxt(snps, strata=NULL, correct.for.missing = FALSE, lower.only = FALSE)
   \item{lower.only}{If \code{TRUE}, only the lower triangle of the
     result is returned and the upper triangle is filled with
     zeros. Otherwise, the complete symmetric matrix is returned}
+  \item{uncertain}{If \code{TRUE}, uncertain genotypes are replaced by
+    posterior expectations. Otherwise these are treated as missing
+    values}
 }
 \details{
   This computation forms the first step of the calculation of principal
