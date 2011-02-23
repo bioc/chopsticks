@@ -1,5 +1,6 @@
 \name{snp.clust.plot}
 \alias{snp.clust.plot}
+\alias{example-new}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
   function to do colorized cluster plots
