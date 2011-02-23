@@ -19,8 +19,12 @@ read.snps.pedfile <- function(file, snp.names=NULL, assign=NULL, missing=NULL, X
   # and if possible, load it for the snp names
   join.info <- FALSE
   if (is.null(snp.names)) {
-    map.file  <- sub('.ped$', '.map',  file)
-    info.file <- sub('.ped$', '.info', file)  
+    map.file  <- paste(file, "map", sep=".")
+    info.file <- paste(file, "info", sep=".")
+    if(length(grep("\\.ped$", file))) {
+      map.file  <- sub('\\.ped$', '.map',  file)
+      info.file <- sub('\\.ped$', '.info', file)
+    }
     if (!(file.access(map.file,mode=4))) {
       cat("Found accompanying map file, reading it first\n")
       snp.info <- read.pedfile.map(map.file)
