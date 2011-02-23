@@ -35,7 +35,8 @@ should first be read as a \code{snp.matrix} and then coerced to an
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
 \seealso{\code{\link{snp.matrix-class}}}
 \examples{
-##---- No example available yet
+imputed.data <- read.mach(system.file("data/mach1.out.mlprob.gz",package="snpMatrix"))
+summary(imputed.data)
 }
 \keyword{IO}
 \keyword{file}
