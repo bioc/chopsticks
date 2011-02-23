@@ -870,10 +870,7 @@ pool <- function(..., score=FALSE) {
     stop("need at least two test sets to pool")
   if (na>2) {
     p2 <- pool2(..1, ..2, score=TRUE)
-    arglist <- list(p2)
-    for (a in 3:na) arglist <- append(arglist, argl[a])
-    append(arglist, list(score=score))
-    r <- do.call(pool, arglist)
+    r <- do.call(pool, c(p2, argl[3:na], score=score))
   }
   else
     r <- pool2(..1, ..2, score=score)
