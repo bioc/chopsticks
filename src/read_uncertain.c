@@ -46,8 +46,6 @@ void gznext(const gzFile infile, char *buffer, const int len) {
   buffer[i] = 00;
 }
 
-/* MACH MLPROB file */
-
 SEXP read_mach(const SEXP Filename, const SEXP Colnames, const SEXP Nsubject) {
   int nsubj=0;
   SEXPTYPE tns = TYPEOF(Nsubject);
@@ -94,7 +92,7 @@ SEXP read_mach(const SEXP Filename, const SEXP Colnames, const SEXP Nsubject) {
 
   /* Build output object */ 
 
-  SEXP Result, Dimnames, Rnames=R_NilValue, Package, Class;
+  SEXP Result, Dimnames, Rnames, Package, Class;
   PROTECT(Result = allocMatrix(RAWSXP, lines, ncol));
   unsigned char *result = RAW(Result);
   memset(result, 0x00, lines*ncol);
@@ -161,10 +159,9 @@ SEXP read_mach(const SEXP Filename, const SEXP Colnames, const SEXP Nsubject) {
   return(Result);
 }
 
-/* IMPUTE or BEAGLE output */
 
 SEXP read_impute(const SEXP Filename, const SEXP Rownames, const SEXP Nsnp, 
-		 const SEXP Snpcol, const SEXP Header) {
+		 const SEXP Snpcol) {
   int nsnp=0;
   SEXPTYPE tns = TYPEOF(Nsnp);
   if (tns!=NILSXP) {
@@ -175,7 +172,6 @@ SEXP read_impute(const SEXP Filename, const SEXP Rownames, const SEXP Nsnp,
     else
       error("illegal type for nsnp argument");
   }
-  /* For impute which snp id used. zero means BEAGLE output */ 
   int snpcol=2; 
   tns = TYPEOF(Snpcol);
   if (tns!=NILSXP) {
@@ -186,14 +182,7 @@ SEXP read_impute(const SEXP Filename, const SEXP Rownames, const SEXP Nsnp,
     else
       error("illegal type for snpcol argument");
   }
-  if (snpcol<0 || snpcol>2)
-    error("illegal snpcol argument");
-  int ncol_skip = snpcol? 5: 3;
-      
-  if (TYPEOF(Header) != LGLSXP) 
-    error("illegal header argument");
-  int header = *LOGICAL(Header);
-
+ 
   if (TYPEOF(Filename)!=STRSXP || length(Filename)>1)
     error("Argument type error: Filename");
   const char *filename = CHAR(STRING_ELT(Filename, 0));
@@ -206,21 +195,19 @@ SEXP read_impute(const SEXP Filename, const SEXP Rownames, const SEXP Nsnp,
     gzwc(infile, 0, &chars, &words, &lines);
     if (words%lines)
       error("Number of fields is not a multiple of number of lines");
-    N = words/lines - ncol_skip;
+    N = words/lines - 5;
     nsnp = lines;
   }
   else {
     gzwc(infile, 1,  &chars, &words, &lines);
-    N = words - ncol_skip;
+    N = words -5;
   }
   if (N<=0)
     error("No loci to read");
   if (N%3)
     error("Number of probabilities is not a multiple of 3");
   N/=3;
-  int norownames = 1;
   if (TYPEOF(Rownames)!=NILSXP) {
-    norownames = 0;
     if (TYPEOF(Rownames)!=STRSXP)
       error("row names are not of character type");
     if (length(Rownames)!=N) 
@@ -231,24 +218,23 @@ SEXP read_impute(const SEXP Filename, const SEXP Rownames, const SEXP Nsnp,
 
   /* Build output object */ 
 
-  SEXP Result, Dimnames, Colnames, Package, Class, Rnames;
+  SEXP Result, Dimnames, Colnames, Package, Class;
   PROTECT(Result = allocMatrix(RAWSXP, N, nsnp));
   unsigned char *result = RAW(Result);
   memset(result, 0x00, N*nsnp);
   PROTECT(Dimnames = allocVector(VECSXP, 2));
   PROTECT(Colnames = allocVector(STRSXP, nsnp));
-  SET_VECTOR_ELT(Dimnames, 1, Colnames);
+  SET_VECTOR_ELT(Dimnames, 0, Rownames);
   if (TYPEOF(Rownames)!=NILSXP) {
     SET_VECTOR_ELT(Dimnames, 0, Rownames);
   }
   else {
+    SEXP Rnames;
     PROTECT(Rnames = allocVector(STRSXP, N));
     char id[BUFFERSIZE];
-    if (!header) {
-      for (int i=0; i<N; i++) {
-	sprintf(id, "Sample%d", i+1);
-	SET_STRING_ELT(Rnames, i, mkChar(id));
-      }
+    for (int i=0; i<N; i++) {
+      sprintf(id, "Sample%d", i+1);
+      SET_STRING_ELT(Rnames, i, mkChar(id));
     }
     SET_VECTOR_ELT(Dimnames, 0, Rnames);
     UNPROTECT(1); /* Rnames should be protected via Dimnames */
@@ -266,32 +252,12 @@ SEXP read_impute(const SEXP Filename, const SEXP Rownames, const SEXP Nsnp,
   classgets(Result, Class);
   SET_S4_OBJECT(Result);
   UNPROTECT(2);
-
-  char buffer[BUFFERSIZE];
-
-  /* If BEAGLE, read in header line */
-
-  if (!snpcol && header) {
-    gznext(infile, buffer, BUFFERSIZE);
-    if (strcmp(buffer, "marker"))
-      error("Header line not compatible with BEAGLE output format");
-    gznext(infile, buffer, BUFFERSIZE);
-    gznext(infile, buffer, BUFFERSIZE);
-    for (int i=0; i<N; i++) {
-      gznext(infile, buffer, BUFFERSIZE);
-      if (norownames)
-	SET_STRING_ELT(Rnames, i, mkChar(buffer));
-      gznext(infile, buffer, BUFFERSIZE);
-      gznext(infile, buffer, BUFFERSIZE);
-    }
-  }
-  if (snpcol)
-    snpcol--;
-
+ 
   /* Read in data */
 
+  char buffer[BUFFERSIZE];
   for (int i=0, ij=0; i<nsnp; i++) {
-    for (int j=0; j<ncol_skip; j++) {
+    for (int j=1; j<6; j++) {
       gznext(infile, buffer, BUFFERSIZE);
       if (j==snpcol) {
 	SET_STRING_ELT(Colnames, i, mkChar(buffer));

@@ -141,4 +141,3 @@ single.snp.tests <- function(phenotype, stratum, data=sys.parent(), snp.data,
   res
 }
 
-

@@ -65,13 +65,13 @@ data(for.exercise)
 @ 
 
 We shall sample 200 subjects in our fictitious study as the
-training data set, select every second SNP to be missing 
+training data set, select every fourth SNP to be missing 
 in the target dataset, and split the training set
 into two parts accordingly:
 
 <<select>>= 
 training <- sample(1000, 200)
-select <- seq(1, ncol(snps.10),2) 
+select <- seq(1, ncol(snps.10),4) 
 missing <- snps.10[training, select]
 present <- snps.10[training, -select] 
 missing 
@@ -115,7 +115,7 @@ for imputing the {\tt missing} SNPs from the {\tt
 rules <- snp.imputation(present, missing, pos.pres, pos.miss)
 @ 
 
-This step executes remarkably quickly  when we
+This took a short while. But the wait was really quite short when we
 consider what the function has done. For each of the \Sexpr{length(select)} 
 SNPs in
 the ``missing'' set, the function has performed a forward step-wise
@@ -126,15 +126,18 @@ at least 0.05. The figure 50 is the default value of the {\tt try} argument
 of the function, while the values 0.95, 4 and 0.05 together make up the 
 default value of the {\tt stopping} argument. After the predictor, or
 ``tag'' SNPs
-have been chosen, the haplotypes of the target SNP plus tags was phased
- and haplotype frequencies calculated using the EM algorithm. These
- frequencies were then stored in the {\tt rules} object.
-\footnote{For imputation from small samples, some smoothing of these
-  haplotype frequencies would be advantageous and some ability to do
-  this has been included. The {\tt use.haps} argument to {\tt
-    snp.imputtaion} controls this. But invoking this option 
-  slows down the algorithm and it is not
-  advised other than for very small sample sizes.}
+have been chosen, the haplotypes of these SNPs are phased and a
+logistic regression prediction equation calculated. 
+Where prediction does not achieve a target $R^2$, 
+phased haplotype frequencies are estimated under a ``saturated'' model
+({\it i.e. } a model with one parameter for the frequency of each
+identified haplotype). When the gain in $R^2$ exceeds a threshold, 
+this rule is saved in preference to the logistic regression
+based rule. The $R^2$ target and threshold which control this process are 
+supplied in the argument {\tt use.haps}.\footnote{Ideally we would
+  search intermediate models between the logistic regression ``main
+  effects'' model and the fully saturated model. This is planned for a
+  later release of the software.}
 
 A short listing of the first 10 rules follows:
 <<rule1>>=

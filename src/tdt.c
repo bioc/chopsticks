@@ -202,7 +202,7 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 	}
       }
       else {
-	do_impute(Snps, nsubj, female, NULL, nsubj, name_index, Rule, gt2ht, 
+	do_impute(snps, nsubj, female, NULL, nsubj, name_index, Rule, gt2ht, 
 		  xadd, xdom);
 	r2 = *REAL(VECTOR_ELT(Rule, 0));
       }

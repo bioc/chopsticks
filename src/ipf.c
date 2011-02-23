@@ -4,7 +4,12 @@
 #include <math.h>
 #include <R.h>
 #include <Rinternals.h>
-#include "ipf.h"
+
+/* IPF function declaration */
+
+int ipf(int K, const double *observed, 
+	const int nterms, const unsigned int *terms,  double *expected,
+	const int maxit, const double eps);
 
 /* 
    Count bits set in an integer (up to 14 bit integer)
