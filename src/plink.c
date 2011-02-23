@@ -91,3 +91,58 @@ SEXP readbed(SEXP Bed, SEXP Id, SEXP Snps) {
   return Result;
 }
 
+SEXP writebed(const SEXP Snps, const SEXP File, const SEXP SnpMajor) {
+  const char *file = CHAR(STRING_ELT(File, 0));
+  FILE *out = fopen(file, "wb");
+  if (!out)
+    error("Couldn't open output file: %s", file);
+  /* Magic number */
+  fputc(0x6C, out); fputc(0x1B, out);
+  /* Order */
+  int snpmaj = *LOGICAL(SnpMajor);
+  /* Snps */
+  int N = nrows(Snps);
+  int M = ncols(Snps);
+  unsigned char *snps = RAW(Snps);
+  unsigned char recode[4] = {0x01, 0x00, 0x02, 0x03};
+  unsigned char byte = 0x00;
+  if (snpmaj) {
+    fputc(0x01, out);
+    for (int j=0, ij=0; j<M; j++) {
+      for (int i=0; i<N; i++, ij++) {
+	unsigned char s = snps[ij];
+	if (s>3)
+	  error("Uncertain genotype [%d,%d]: cannot be dealt with by this version", i, j);
+	int part = i%4;
+	if (!part && i) {
+	  fputc(byte, out);
+	  byte = 0x00;
+	}
+	byte = byte | (recode[s] << 2*part);
+      }
+      fputc(byte, out);
+      byte = 0x00;
+    }
+  }
+  else {
+    fputc(0x00, out);
+    for (int i=0; i<N; i++) {
+      int part;
+      for (int j=0, ij=i; j<M; j++, ij+=N) {
+	unsigned char s = snps[ij];
+	if (s>3)
+	  error("Uncertain genotype [%d,%d]: cannot be dealt with by this version", i, j);
+	part = j%4;
+	if (!part && j) {
+	  fputc(byte, out);
+	  byte = 0x00;
+	}
+	byte = byte | (recode[s]<<2*part);
+      }
+      fputc(byte, out);
+      byte = 0x00;
+    }
+  }
+  fclose(out);
+  return R_NilValue;
+}
