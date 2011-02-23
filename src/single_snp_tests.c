@@ -151,20 +151,23 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
   double *umat = REAL(U); 
   SET_VECTOR_ELT(Result, 1, V);
   double *vmat = REAL(V);
+
   PROTECT(Used =  allocVector(INTSXP, ntest) ); /* N used */
+  int *Nused = INTEGER(Used);
   SET_VECTOR_ELT(Result, 2, Used);
+
   SEXP Nr2;
-  double *nr2 = NULL;
-  if (isNull(Rules)) 
+  double *nr2;
+  if (isNull(Rules)) {
     PROTECT(Nr2 = allocVector(REALSXP, 0));
+    nr2 = NULL;
+  }
   else {
     PROTECT(Nr2 = allocVector(REALSXP, ntest)); /* N used x R-squared */
     nr2 = REAL(Nr2);
   }
   SET_VECTOR_ELT(Result, 3, Nr2);
-
-  int *Nused = INTEGER(Used);
-
+  
   /* Space to hold imputed values */
 
   double *xadd = NULL;
@@ -177,7 +180,6 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 
 
   /* Do calculations */
-
   
   if (!ifX) {
 
@@ -185,7 +187,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
     
     double **UV = (double **) Calloc(nstrata, double *);
     for (int i=0; i<nstrata; i++) 
-      UV[i] = (double *) calloc(10, sizeof(double));
+      UV[i] = (double *) Calloc(10, double);
 
     for (int t=0; t<ntest; t++) {
       int i = snp_subset? snp_subset[t] - 1: t; 

@@ -1,7 +1,7 @@
 Package: snpMatrix 
 Title: The snp.matrix and X.snp.matrix classes
-Version: 1.5.2
-Date: 2008-08-05
+Version: 1.5.3
+Date: 2008-08-11
 Author: David Clayton <david.clayton@cimr.cam.ac.uk> and 
   Hin-Tak Leung <htl10@users.sourceforge.net>
 Description: Implements classes and some basic methods for large-scale SNP association studies 
@@ -14,5 +14,6 @@ URL: http://www-gene.cimr.cam.ac.uk/clayton/software/
 Collate: ld.with.R ss.R contingency.table.R glm_test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R qc.R qq_chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R
 LazyLoad: yes
 biocViews: Microarray, SNPsAndGeneticVariability
-Packaged: Tue Aug  5 16:00:12 BST 2008
+Packaged: Mon Aug 11 14:32:17 BST 2008
+
 
