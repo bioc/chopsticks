@@ -162,16 +162,26 @@ hexVP.abline(sp$plot.vp, 0, 1, col="black")
 @ 
 
 As might be expected, the agreement is rather better if we only
-compare the results for SNPs that can be computed with high $R^2$.The
-$R^2$ value could be extracted from the {\tt rules} object, but below
-it is obtained by dividing the ``effective'' sample size ({\tt N.r2})
-by the true sample size ({\tt N}) in the test results for imputed SNPs.
+compare the results for SNPs that can be computed with high $R^2$. The
+$R^2$ value is extracted from the {\tt rules} object, using the
+function {\tt imputation.r2} and used to select a subset of rules:
 
 <<best,fig=TRUE>>=
-r2 <- imp@N.r2/imp@N
-hb <- hexbin(logP.obs[r2>0.9], logP.imp[r2>0.9], xbin=50)
+use <- imputation.r2(rules)>0.9
+hb <- hexbin(logP.obs[use], logP.imp[use], xbin=50)
 sp <- plot(hb)
 hexVP.abline(sp$plot.vp, 0, 1, col="black")
 @ 
+
+Similarly, the function {\tt imputation.maf} can be used to extract
+the minor allele frequencies of the imputed SNP from the {\tt rules}
+object. Note that there is a tendency for SNPs with a high minor allele
+frequency to be imputed rather more successfully:
+
+<<rsqmaf,fig=TRUE>>=
+hb <- hexbin(imputation.maf(rules), imputation.r2(rules), xbin=50)
+sp <- plot(hb)
+@ 
+
 
 \end{document}

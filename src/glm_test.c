@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 
 #include "mla.h"
 #include "glm_test.h"
@@ -307,9 +308,8 @@ with rank -- the number of columns in Xb
 
 Output:
 
-chi2  Score test 
-df    Degrees of freedom for asymptotic chi-squared distribution
-
+score       P*1 vector of scores
+score-var   Upper triangle of variance-covariance matrix of scores
 
 */
 
@@ -317,14 +317,13 @@ void glm_score_test(int N, int M, int S, const int *stratum,
 		    int P, const double *Z, int C, const int *cluster,
 		    const double *resid, const double *weights, 
 		    const double *Xb, double scale,
-		    double max_R2, double *chi2, int *df) {
-  const double eta1 = 1.e-8;   /* First stage singularity test */
-  double eta2 = 1.0 - max_R2;   /* Second stage singularity test */
+		    double max_R2, 
+		    double *score, double *score_var) {
+  const double eta = 1.e-8;   /* First stage singularity test */
   const double *Zi = Z;
   double *Zr, *Zri;
   double *U = NULL, *Ui = NULL;
   double test = 0.0;
-  int i = 0, j = 0;
 
   /* Work array */
 
@@ -338,73 +337,61 @@ void glm_score_test(int N, int M, int S, const int *stratum,
 
   /* Main algorithm */
  
-  int rank = 0;
-  for (i=0; i<P; i++, Zi+=N) {
+  for (int i=0, ij=0; i<P; i++, Zi+=N, Zri+=N) {
+
     /* Regress each column of Z on strata indicators and X basis */
+
     double ssz = wssq(Zi, N, weights);
     wcenter(Zi, N, weights, stratum, S, 1, Zri);
     const double *Xbj = Xb;
-    for (j=0; j<M; j++, Xbj+=N) 
+    for (int j=0; j<M; j++, Xbj+=N) 
       wresid(Zri, N, weights, Xbj, Zri);
     double ssr = wssq(Zri, N, weights);
-    if (ssr/ssz > eta1) {     /* First singularity test */
+
+    if (ssr/ssz > eta) {     /* Singularity test */
+ 
       if (C) {
+
         /* Add new column to matrix of score contributions */
+
 	if (C==1) {
-	  for (j=0; j<N; j++)
-	    Ui[j] = Zri[j]*weights[j]*resid[j];
+	  for (int k=0; k<N; k++)
+	    Ui[k] = Zri[k]*weights[k]*resid[k];
 	}
 	else {
-	  for (j=0; j<nc; j++)
-	    Ui[j] = 0.0;
-	  for (j=0; j<N; j++) {
-	    int ic = cluster[j] - 1;
-	    Ui[ic] += Zri[j]*weights[j]*resid[j];
+	  memset(Ui, 0x00, nc*sizeof(double));
+	  for (int k=0; k<N; k++) {
+	    int kc = cluster[k] - 1;
+	    Ui[kc] += Zri[k]*weights[k]*resid[k];
 	  }
 	}
-	/* Regress on previous columns */
-	ssr = wssq(Ui, nc, NULL);
+
+	/* Update score and score-variance */
+
+	score[i] = wsum(Ui, nc, NULL);
 	double *Uj = U;
-	for (j=0; j<rank; j++, Uj+=nc) 
-	  wresid(Ui, nc, NULL, Uj, Ui);
-	/* Sum and sum of squares */
-	double sU = 0.0, ssU = 0.0;
-	for (j=0; j<nc; j++) {
-	  double Uij = Ui[j];
-	  sU += Uij;
-	  ssU += Uij*Uij;
-	}
-	/* Second singularity test */
-	if (ssU/ssr > eta2) {
-	  test += sU*sU/ssU;
-	  rank++;
-	  Zri += N;
-	  Ui += nc;
-	}
+	for (int j=0; j<i; j++, Uj+=nc) 
+	  score_var[ij++] = wspr(Ui, Uj, nc, NULL);
+	score_var[ij++] = wssq(Ui, nc, NULL);
       }
       else {
+
+	/* Update score and score-variance */
+
+	score[i] = wspr(Zri, resid, N, weights);
 	double *Zrj = Zr;
-	for (j=0; j<rank; j++, Zrj+=N)
-	  wresid(Zri, N, weights, Zrj, Zri);
-	/* Sums and sums of squares */
-	double ws = 0.0, wss = 0.0;
-	for (j=0; j<N; j++) {
-	  double Zrij = Zri[j];
-	  double wz = weights[j]*Zrij;
-	  ws += wz*resid[j];
-	  wss += Zrij*wz;
-	}
-	/* Second singularity test */
-	if (wss/ssr > eta2) {
-	  test += ws*ws/(scale*wss);
-	  rank++;
-	  Zri += N;
-	}
+	for (int j=0; j<i; j++, Zrj+=N) 
+	  score_var[ij++] = scale*wspr(Zri, Zrj, N, weights);
+	score_var[ij++] = scale*wssq(Zri, N, weights);
       }
     }
+    else {
+      memset(Zri, 0x00, N*sizeof(double));
+      score[i] = 0.0;
+      for (int j=0; j<=i; j++) 
+	score_var[ij++] = 0.0;
+    }
   }
-  *chi2 = test;
-  *df = rank;
   free(Zr);
   if (C)
     free(U);

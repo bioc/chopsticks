@@ -4,6 +4,12 @@ read.snps.long <-function(files, sample.id=NULL, snp.id=NULL, female=NULL,
                          sep=" ", comment="#",  skip=0,
                          simplify=c(FALSE, FALSE),
                          verbose=FALSE, every=1000) {
+  if (any(duplicated(files)))
+    stop("duplicated input file name(s)")
+  if (any(duplicated(sample.id)))
+    stop("duplicated target sample identifier(s)")
+  if (any(duplicated(snp.id)))
+    stop("duplicated target SNP identifier(s)")
   if (!is.null(female) && any(is.na(female)))
     stop("female argument contains one or more NA's")
   if (!is.integer(fields))

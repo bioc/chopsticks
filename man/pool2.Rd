@@ -11,11 +11,14 @@ pool2(x, y, score)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x, y}{Objects holding the (extended) test results. Currently
-    these must be of class
-    \code{\link[=snp.tests.single.score-class]{snp.tests.single.score}}}
+  \item{x, y}{Objects holding the (extended) test results. 
+    These must be of class
+    \code{\link[=snp.tests.single.score-class]{snp.tests.single.score}}
+    or
+    \code{\link[=snp.tests.glm-class]{snp.tests.glm}}}
   \item{score}{Is extended score information to
-  be returned in the output object?}
+  be returned in the output object (only relevant for
+  \code{snp.tests.single.score} objects)?}
 }
 \value{
   An object of same class as the input objects (optionally without the
@@ -23,6 +26,11 @@ pool2(x, y, score)
   SNPs tested in all the input objects. 
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
-\seealso{\code{\link{snp.tests.single.score-class}},
-  \code{\link{single.snp.tests}}}
+\seealso{\code{\link{pool}},
+  \code{\link{snp.tests.single.score-class}},
+  \code{\link{snp.tests.glm-class}},
+  \code{\link{single.snp.tests}},
+  \code{\link{snp.lhs.tests}},
+  \code{\link{snp.rhs.tests}}
+  }
 \keyword{htest}

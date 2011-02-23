@@ -4,6 +4,7 @@
 \alias{show,snp.reg.imputation-method}
 \alias{summary,snp.reg.imputation-method}
 \alias{plot,snp.reg.imputation,missing-method}
+\alias{[,snp.reg.imputation,ANY,missing,missing-method}
 
 \title{Class "snp.reg.imputation"}
 \description{A class defining a list of regression equations, or "rules",
@@ -13,6 +14,7 @@ for imputation of SNPs}
   of a SNP by a linear regression equation. Each element is itself a
   list with the following elements:
   \describe{
+    \item{maf}{The minor allele frequency of the imputed SNP} 
     \item{r.squared}{The squared Pearson correlation coefficient between
     observed and predicted SNP duration derivation of the rule.}
     \item{snps}{The names of the SNPs to be included in the regression.}
@@ -33,6 +35,8 @@ for imputation of SNPs}
       achieved against the number of snps used for imputation}
     \item{plot}{\code{signature(x="snp.reg.imputation", y="missing")}:
       plots the distribution of r-squared values as a stacked bar chart}
+    \item{[]}{\code{signature(x = "snp.reg.imputation", i = "ANY")}: subset
+      operations}
   }
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}

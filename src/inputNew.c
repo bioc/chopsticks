@@ -59,24 +59,20 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 
   int file_is = 0;
   if (!Nsample) {
-    if (Nsnp && Nfile>1) {
+    if (Nsnp) {
       Nsample = Nfile;
       Rprintf("Each file is assumed to concern a single sample\n"); 
       Rprintf("(Sample IDs are assumed to be included in filenames)\n");
       file_is = 1;
     }
     else 
-      error("No sample IDs specified");
+      error("No sample or SNP IDs specified");
   }
-  if (!Nsnp) {
-    if (Nsample && Nfile>1) {
-      Nsnp = Nfile;
-      Rprintf("Each file is assumed to concern a single SNP\n");
-      Rprintf("(SNP IDs are assumed to be included in filenames)\n");
-      file_is = 2;
-    }
-    else
-      error("No SNP IDs specified");
+  else if (!Nsnp) {
+    Nsnp = Nfile;
+    Rprintf("Each file is assumed to concern a single SNP\n");
+    Rprintf("(SNP IDs are assumed to be included in filenames)\n");
+    file_is = 2;
   }
 
   int *female=NULL;
@@ -312,6 +308,7 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 
   char field[MAX_FLD];
   int Naccept = 0, Nreject = 0, Nocall = 0, Nskipped = 0, Nxerror = 0;
+  int duplicates = 0, first = 1;
   int i_this = 0, j_this = 0;
   int i_next = Nsample>1? 1: 0;
   int j_next = Nsnp>1? 1: 0;
@@ -452,9 +449,10 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 	}
       }
       
-      /* Check sample id against current and next targets */
-      
       if ((file_is!=1) && strcmp(this_sample, sampid)) {
+  
+        /* Check sample id against current and next targets */
+      
 	if (strcmp(next_sample, sampid)) {
 	  wanted = 0;
 	}
@@ -472,11 +470,11 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 	    next_snp = CHAR(STRING_ELT(Snp_id, 1));
 	  }	
 	}
-      }
+      } 
+      else if ((file_is!=2) && strcmp(this_snp, snpid)) {
 
-      /* Check snp id against current and next targets */
+        /* Check snp id against current and next targets */
 
-      if ((file_is!=2) && strcmp(this_snp, snpid)) {
 	if (strcmp(next_snp, snpid)) {
 	  wanted = 0;
 	}
@@ -495,6 +493,13 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 	  }
 	}
       }
+      else {
+	if (!first) {
+	  wanted = 0;
+	  duplicates++;
+	}
+      }
+      first = 0;
 
       if (!wanted) { 
 	Nskipped++;
@@ -607,6 +612,8 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
     warning("End of data reached before search completed");
   if (Nxerror) 
     warning("%d males were coded as heterozygous; set to NA", Nxerror);
+  if (duplicates) 
+    warning("%d duplicated calls were skipped", duplicates);
 
   Rprintf("\n%d genotypes successfully read\n", Naccept);
   if (Nxerror)

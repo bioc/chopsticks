@@ -1,3 +1,7 @@
+#
+# Much duplicated code between tdt.snp() and misinherits()
+# Could/should be tidied up
+
 tdt.snp <- function(ped, id, father, mother, affected,
                          data=sys.parent(), snp.data, rules=NULL,
                          snp.subset=NULL,
@@ -12,7 +16,9 @@ tdt.snp <- function(ped, id, father, mother, affected,
   nc.snps = ncol(snp.data)
   if (missing(data)) { # ped data are in calling environment
     ped <- as.character(ped)
-    nped <- length(id)
+    nped <- length(ped)
+    if (nped != nrow(snp.data))
+      stop("length of `ped' argument incompatible with `snp.data'")
     id <- as.character(id)
     if (length(id)!=nped)
       stop("incompatible length for `id' and `ped' arguments")
@@ -25,9 +31,14 @@ tdt.snp <- function(ped, id, father, mother, affected,
     affected <- as.logical(affected)
     if (length(affected)!=nped)
       stop("incompatible length for `affected' and `ped' arguments")
-    subject.names <- id
-  }
-  else { # ped data are in data dataframe
+               
+    # Correspondence between ped data and snp data
+
+    subject.names <- rownames(snp.data)
+    in.snp <- 1:nped
+    have.snps <- TRUE
+    
+  } else { # ped data are in data dataframe
     data <- as.data.frame(data)
     nped <- nrow(data)
     subject.names <- rownames(data)
@@ -55,16 +66,17 @@ tdt.snp <- function(ped, id, father, mother, affected,
       affected <- (data[,6]==2)
     else
       affected <- as.logical(eval(mcall$affected, envir=data))
+
+    # Correspondence between ped data and snp data
+
+    in.snp <- match(subject.names, rownames(snp.data))
+    have.snps <- !is.na(in.snp)
   }
 
   # Treat subjects with "affected" missing as not affected
   
   affected[is.na(affected)] <- FALSE
 
-  # Correspondence between ped data and snp data
-
-  in.snp <- match(subject.names, rownames(snp.data))
-  have.snps <- !is.na(in.snp)
 
   # Father and mother locations in ped file
 
@@ -117,5 +129,114 @@ tdt.snp <- function(ped, id, father, mother, affected,
     res <- new("snp.tests.single", snp.names=tested, chisq=chisq,
                N=scores$N,  N.r2=scores$N.r2)
   res
+}
+
+misinherits <- function(ped, id, father, mother, data=sys.parent(), snp.data){
+
+  non.mendel <- !as.logical(c(
+     1,1,1,1, 1,1,1,0, 1,1,1,1, 1,0,1,1,
+     1,1,1,0, 1,1,0,0, 1,1,1,0, 1,0,1,0,
+     1,1,1,1, 1,1,1,0, 1,1,1,1, 1,0,1,1,
+     1,0,1,1, 1,0,1,0, 1,0,1,1, 1,0,0,1,
+     1,1,0,1, 1,1,0,0, 1,1,0,1, 1,0,0,1))
+
+  mcall <- match.call()
+  if (!is(snp.data, "snp.matrix"))
+    stop("snp.data argument must be of class snp.matrix")
+  X <- is(snp.data, "X.snp.matrix")
+  nr.snps = nrow(snp.data)
+  nc.snps = ncol(snp.data)
+  if (missing(data)) { # ped data are in calling environment
+    ped <- as.character(ped)
+    nped <- length(ped)
+    if (nped != nrow(snp.data))
+      stop("length of `ped' argument incompatible with `snp.data'")
+    id <- as.character(id)
+    if (length(id)!=nped)
+      stop("incompatible length for `id' and `ped' arguments")
+    father <- as.character(father)
+    if (length(father)!=nped)
+      stop("incompatible length for `father' and `ped' arguments")
+    mother <- as.character(father)
+    if (length(mother)!=nped)
+      stop("incompatible length for `mother' and `ped' arguments")
+    affected <- as.logical(affected)
+    if (length(affected)!=nped)
+      stop("incompatible length for `affected' and `ped' arguments")
+    subject.names <- id
+           
+    # Correspondence between ped data and snp data
+
+    subject.names <- rownames(snp.data)
+    in.snp <- 1:nped
+    have.snps <- TRUE
+           
+  } else { # ped data are in data dataframe
+    data <- as.data.frame(data)
+    nped <- nrow(data)
+    subject.names <- rownames(data)
+    if (missing(ped))
+      ped <- as.character(data[,1])
+    else
+      ped <- as.character(eval(mcall$ped, envir=data))
+    
+    if (missing(id))
+      id <- as.character(data[,2])
+    else
+      id <- as.character(eval(mcall$id, envir=data))
+    
+    if (missing(father))
+      father <- as.character(data[,3])
+    else
+      father <- as.character(eval(mcall$father, envir=data))
+    
+    if (missing(mother))
+      mother <- as.character(data[,4])
+    else
+      mother <- as.character(eval(mcall$mother, envir=data))
+
+    # Correspondence between ped data and snp data
+
+    in.snp <- match(subject.names, rownames(snp.data))
+    have.snps <- !is.na(in.snp)
+  }
+
+  # Father and mother locations in ped file
+
+  unique <- paste(ped, id, sep=":")
+  f.unique <-  paste(ped, father, sep=":")
+  fpos <- match(f.unique, unique)
+  m.unique <-  paste(ped, mother, sep=":")
+  mpos <- match(m.unique, unique)
+
+  # Potentially complete trios
+  
+  trio <- have.snps & (!is.na(fpos)) & (have.snps[fpos]) &
+                                 (!is.na(mpos)) & (have.snps[mpos])
+  ntrio <- sum(trio)
+  if (ntrio==0) {
+    cat("No potentially complete trios to analyse\n")
+    return(NULL)
+  }
+  pd.snps <- in.snp[trio] # Proband rows in snp.matrix
+  fr.snps <- in.snp[fpos[trio]] # Fathers' rows in snp.matrix
+  mr.snps <- in.snp[mpos[trio]] # Mothers' rows in snp.matrix
+
+  fr.raw <- as.raw(snp.data[fr.snps,])
+  if (X)
+    fr.raw[!snp.data@Female[pd.snps]] <- as.raw(4)
+  mr.raw <- as.raw(snp.data[mr.snps,])
+  pd.raw <- as.raw(snp.data[pd.snps,])
+  code <- 1 + as.numeric(
+                rawShift(fr.raw, 4) |
+                rawShift(mr.raw, 2) |
+                pd.raw)
+  error <- non.mendel[code]
+  error[is.na(snp.data[pd.snps,])] <- NA
+  error <- matrix(error, nrow=ntrio,
+                  dimnames=list(subject.names[trio], colnames(snp.data)))
+  erows <- apply(error, 1, any, na.rm=TRUE)
+  ecols <- apply(error, 2, any, na.rm=TRUE)
+  error[erows, ecols, drop=FALSE]
 }
 

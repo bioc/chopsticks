@@ -8,6 +8,7 @@ function(maxit, epsilon, R2Max)
 
 # Logit tests with snps on LHS */
 
+
 snp.lhs.tests <-
   
 function(snp.data, base.formula, add.formula, subset, snp.subset,
@@ -120,35 +121,44 @@ function(snp.data, base.formula, add.formula, subset, snp.subset,
     Z <- Z[iz,, drop=FALSE]
   }
 
-  if (missing(snp.subset))
+  if (missing(snp.subset)) {
     snp.subset <- NULL
-  else if (is.character(snp.subset)) {
-    snp.subset <- match(snp.subset, colnames(snp.data))
-    if (any(is.na(snp.subset)))
-      stop("unmatched snps in snp.subset argument")
+    test.names <- colnames(snp.data)
   }
-  else if (is.logical(snp.subset)){
-    if (length(snp.subset)!=ncol(snp.data))
-      stop("snp.subset element(s) out of range")
-    snp.subset <- (1:ncol(snp.data))[snp.subset]
+  else {
+    if (is.character(snp.subset)) {
+      snp.subset <- match(snp.subset, colnames(snp.data))
+      if (any(is.na(snp.subset)))
+        stop("unmatched snps in snp.subset argument")
+    }
+    else if (is.logical(snp.subset)){
+      if (length(snp.subset)!=ncol(snp.data))
+        stop("snp.subset element(s) out of range")
+      snp.subset <- (1:ncol(snp.data))[snp.subset]
+    }
+    else if (is.integer(snp.subset)) {
+      if (any(snp.subset<1 | snp.subset>ncol(snp.data)))
+        stop("snp.subset element(s) out of range")
+    }
+    else 
+      stop("illegal type for snp.subset")
+    test.names <- colnames(snp.data)[snp.subset]
   }
-  else if (is.integer(snp.subset)) {
-    if (any(snp.subset<1 | snp.subset>ncol(snp.data)))
-      stop("snp.subset element(s) out of range")
-  }
-  else 
-    stop("illegal type for snp.subset")
-
-  .Call("snp_lhs_score",
-        snp.data, X, strats, Z, snp.subset, robust, clust,
-        control, PACKAGE="snpMatrix")
+  res <- .Call("snp_lhs_score",
+           snp.data, X, strats, Z, snp.subset, robust, clust,
+           control, PACKAGE="snpMatrix")
+  names(res) <- test.names
+  cl <- "snp.tests.glm"
+  attr(cl, "package") <- "snpMatrix"
+  class(res) <- cl
+  asS4(res)
 }
 
 # GLM tests with SNPs on RHS
 
 snp.rhs.tests <-
 function (formula, family="binomial", link, weights, subset,
-          data=parent.frame(), snp.data,
+          data=parent.frame(), snp.data, rules=NULL, 
           tests=NULL, robust=FALSE,
           control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98),
           allow.missing=0.01) {
@@ -302,42 +312,75 @@ function (formula, family="binomial", link, weights, subset,
   else if (any(map != 1:N))
     snp.data <- snp.data[map,,drop=FALSE]
     
-    
+  # Imputation
+
+  if (!is.null(rules) && class(rules)!="snp.reg.imputation")
+    stop("illegal class for `rules' argument")
+
 
   # Coerce tests argument to correct form #
-  if(is.null(tests))
-    tests <- as.integer(1:ncol(snp.data))
 
   # Private utility function to 
-  # match character array  to list of names
-  .col.numbers <- function(inc, names) {
-    res <- match(inc, names, nomatch=NA)
-    if (any(is.na(res))) {
-      warning("Unmatched SNP names in tests argument")
-      res <- tests[!is.na(res)]
-    }
-    res
-  }
+  # match character array  to list of (first) names
+  # or (optionally) to second names if that fails
   
-  if(is.character(tests)) {
-    tests <- .col.numbers(tests, colnames(snp.data))
-  } else {
-    if(is.list(tests)) {
-      first <- tests[[1]]
-      if (is.character(first)) {
-        tests <- lapply(tests, .col.numbers, colnames(snp.data))
-      } else {
-        if(!is.numeric(first))
-          stop("illegal first element of tests argument")
+  .col.numbers <- function(inc, first.names, second.names=NULL) {
+    if (is.character(inc)) {
+      res <- match(inc, first.names, nomatch=NA)
+      missing <- is.na(res)
+      if (any(missing)) {
+        if (!is.null(second.names)) {
+          res[missing] <- - match(inc[missing], second.names, nomatch=NA)
+          missing <- is.na(res)
+          if (any(missing)) {
+            warning("Unmatched SNP names in tests argument")
+            res <- res[!missing]
+          }
+        } else {
+          warning("Unmatched SNP names in tests argument")
+          res <- res[!missing]
+        }
       }
-      tests<-lapply(tests,as.integer)
-    } else {
-      if(!(is.integer(tests) || is.null(tests)))
-        stop("illegal tests argument")
     }
+    else if (is.numeric(inc)) {
+      res <- inc
+    }
+    else stop("Illegal multiple SNP test definition")
+      
+    as.integer(res)
   }
   
-  .Call("snp_rhs_score", Y, fam, lnk, X, strats, snp.data, weights,
-        tests, robust, clust, control, allow.missing, PACKAGE="snpMatrix")
-}
+  if(is.null(tests)) {
+    if (is.null(rules)) {
+      tests <- as.integer(1:ncol(snp.data))
+      test.names <- colnames(snp.data)
+    } else {
+      tests <- as.integer(-(1:length(rules)))
+      test.names <- names(rules)
+    }
+  } 
+  else if (is.character(tests)) {
+    test.names <- tests
+    tests <- .col.numbers(tests, colnames(snp.data), names(rules))
+  }
+  else if (is.numeric(tests)) {
+    tests <- as.integer(tests)
+    test.names <- colnames(snp.data)[tests]
+  }
+  else if(is.list(tests)) {
+    test.names <- names(tests)
+    tests <- lapply(tests, .col.numbers, colnames(snp.data), names(rules))
+  } else {
+    stop("illegal tests argument")
+  }
+  
+  res <- .Call("snp_rhs_score", Y, fam, lnk, X, strats, snp.data, rules,
+            weights, tests, robust, clust, control, allow.missing,
+            PACKAGE="snpMatrix")
+  names(res) <- test.names
+  cl <- "snp.tests.glm"
+  attr(cl, "package") <- "snpMatrix"
+  class(res) <- cl
+  asS4(res)
+}  
 

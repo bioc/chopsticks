@@ -86,8 +86,8 @@ single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data,
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
 \seealso{\code{\link{snp.lhs.tests}}, \code{\link{snp.rhs.tests}},
-  \code{\link{impute.snps}}, \code{\link{pool}}, 
-      \code{\link{snp.reg.imputation-class}},
+  \code{\link{impute.snps}}, \code{\link{snp.reg.imputation-class}},
+  \code{\link{pool}}, 
 	\code{\link{snp.tests.single-class}},
     \code{\link{snp.tests.single.score-class}}
 }

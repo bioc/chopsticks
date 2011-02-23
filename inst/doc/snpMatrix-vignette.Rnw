@@ -470,10 +470,10 @@ The first argument, together with the second,
 specifies  the model which corresponds to the null
 hypothesis. In this case we have allowed for the variation in ethnic
 origin ({\tt stratum}) between cases and controls.
-We complete the analysis by calculating
+We complete the analysis by extracting 
 the $p$--values and plotting minus their logs (base 10):
 <<plot-mtests,fig=TRUE>>=
-pm <- pchisq(mtests$Chi.squared, mtests$Df, lower.tail = FALSE)
+pm <- p.value(mtests)
 plot(hexbin(-log10(pm), xbin=50))
 @
 

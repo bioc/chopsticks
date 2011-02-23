@@ -121,15 +121,14 @@ int wresid(const double *y, int n, const double *weight, const double *x,
 
 double wssq(const double *y, int n, const double *weights) {
   double res = 0.0;
-  int i;
   if (weights) {
-    for (i=0; i<n; i++) {
+    for (int i=0; i<n; i++) {
       double yi = y[i];
       res += weights[i]*yi*yi;
     }
   }
   else {
-    for (i=0; i<n; i++) {
+    for (int i=0; i<n; i++) {
       double yi = y[i];
       res += yi*yi;
     }
@@ -137,3 +136,25 @@ double wssq(const double *y, int n, const double *weights) {
   return(res);
 }
  
+/* Weighted inner product */
+
+double wspr(const double *y, const double *x, int n, const double *weights) {
+  double res = 0.0;
+  if (weights) 
+    for (int i=0; i<n; i++) res += weights[i]*y[i]*x[i];
+  else 
+    for (int i=0; i<n; i++) res += y[i]*x[i];
+  return(res);
+}
+
+/* Weighted sum */
+
+double wsum(const double *y, int n, const double *weights) {
+  double res=0.0;
+  int i;
+  if (weights) 
+    for (int i=0; i<n; i++) res += weights[i]*y[i];
+  else
+    for (int i=0; i<n; i++) res += y[i];
+  return(res);
+}

@@ -19,11 +19,3 @@ test.allele.switch <- function(snps, snps2=NULL, split=NULL, prior.df=1) {
   .Call("test_switch", snps, snps2, split, prior.df, PACKAGE="snpMatrix")
 }
 
-switch.alleles <- function(snps, cols){
-  all <- 1:nrow(snps)
-  change <- as.integer(snps[all,cols])
-  new <- ifelse(change==0, change, 4 - change)
-  snps[all,cols] <- as.raw(4 - as.integer(new))
-  snps
-}
-

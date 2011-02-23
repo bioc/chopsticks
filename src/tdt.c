@@ -19,9 +19,10 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 	       const SEXP Cluster, const SEXP Snps,  const SEXP Rules, 
                const SEXP Snp_subset, const SEXP Check, const SEXP Robust){
  
-  int mendelian[27] = {1, 0, 0, 1, 1, 0, 0, 1, 0,
+  int mendelian[36] = {1, 0, 0, 1, 1, 0, 0, 1, 0,
 		       1, 1, 0, 1, 1, 1, 0, 1, 1,
-		       0, 1, 0, 0, 1, 1, 0, 0, 1};
+		       0, 1, 0, 0, 1, 1, 0, 0, 1,
+                       1, 0, 0, 1, 0, 1, 0, 0, 1};
    
   /* Trios */
 
@@ -164,6 +165,9 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
   
   int nonmend=0, Xerrors=0;
   
+  const double thrsix = 3.0/16.0;
+  const double quart = 1.0/4.0;
+
   if (!ifX) {
 
     for (int t=0; t<ntest; t++) {
@@ -195,8 +199,6 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
       double u1=0.0, u2=0.0, v11=0.0, v12=0.0, v22=0.0; 
       double up1=0.0, up2=0.0; 
 
-      const double thrsix = 3.0/16.0;
-      const double quart = 1.0/4.0;
       int nu = 0;
       for (int j=0, jn=1; j<ntrio; j=jn, jn++) {
 	int pj = proband[j] - 1;
@@ -254,7 +256,7 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 	      }
 	    }
 	    else {
-	      nonmend += jm;
+	      nonmend += !jm;
 	    }
 	  }
 	}
@@ -283,12 +285,6 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
   }
 
   else {
-    double u = 0, v=0, u1=0.0, u2=0.0, v11=0.0, v12=0.0, v22=0.0; 
-    double up=0.0, up1=0.0, up2=0.0; 
-
-    const double thrsix = 3.0/16.0;
-    const double quart = 1.0/4.0;
-    int nu = 0;
 
     for (int t=0; t<ntest; t++) {
       int i = snp_subset? snp_subset[t] - 1: t; 
@@ -313,6 +309,11 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 	snpsi = snps + nsubj*i;
       }
 
+      double u = 0, v=0, u1=0.0, u2=0.0, v11=0.0, v12=0.0, v22=0.0; 
+      double up=0.0, up1=0.0, up2=0.0; 
+      
+      int nu = 0;
+
       for (int j=0, jn=1; j<ntrio; j=jn, jn++) {
 	int pj = proband[j] - 1;
 	int fj = father[j] - 1;
@@ -334,46 +335,52 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 	  }
 	}
 	else {
-	  unsigned char sp = snpsi[pj];
-	  unsigned char sf = snpsi[fj];
-	  unsigned char sm = snpsi[mj];
+	  int sp = (int) snpsi[pj];
+	  int sf = (int) snpsi[fj];
+	  int sm = (int) snpsi[mj];
 	  if (sp && sf && sm) {
 	    sp--;
 	    sf--;
 	    sm--;
 	    int malehet = (sf==1) || (!fp && (sp==1));
-	    int jm = mendelian[sp + 3*sm + 9*sf];
+            int jm = fp? mendelian[sp + 3*sm + 9*sf]: 
+                         mendelian[sp + 3*sm + 27];
 	    if (!malehet && (!check || jm))  {
 	      nu++;
 	      int hetm = (sm==1);
 	      if (hetm) {
 		int homp = (sp==2);
-		int ss = sf + sm;
-		double uw = (double) sp - (double) ss /2.0;
+		int homf = (sf==2);
+		double esp = fp? (double) 0.5 + homf: 1.0;
+		double uw = (double) sp - esp;
 		if (!robust) {
 		  u += uw;
-		  v += quart;
 		  if (fp) {
 		    u1 += uw;
-		    v11 += quart;
-		    u2 += (double) homp - (double)(sf*sm)/4.0;
-		    if (sf==2) {
-			v22 += quart;
-			v12 += quart;
+		    v11 += quart; 
+		    if (homf) {
+		      u2 += (double) homp - 0.5;
+		      v22 += quart;
+		      v12 += quart;
 		    }
+		    v += quart;
+		  }
+		  else {
+		    v += 1.0;
 		  }
 		}
 		else {
 		  up += uw;
 		  if (fp) {
 		    up1 += uw;
-		    up2 += (double) homp - (double)(sf*sm)/4.0;
+		    if (homf)
+		      up2 += (double) homp - 0.5;
 		  }
 		}
 	      }
 	    }
 	    else {
-	      nonmend += jm;
+	      nonmend += !jm;
 	      Xerrors += malehet;
 	    }
 	  }

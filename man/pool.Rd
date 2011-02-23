@@ -5,20 +5,23 @@
   Given the same set of "score" tests carried out in several studies or
   in several different sub-samples within a study, this function pools
   the evidence by summation of the score statistics and score
-  variances. Currently it combines tests produced by
-  \code{\link{single.snp.tests}} but it will be extended to deal with
-  further tests.
+  variances. It combines tests produced by
+  \code{\link{single.snp.tests}} or by \code{\link{snp.lhs.tests}} and
+  \code{\link{snp.rhs.tests}}. 
 }
 \usage{
 pool(..., score = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{\dots}{Objects holding the (extended) test results. Currently
-    these must be of class
-    \code{\link[=snp.tests.single.score-class]{snp.tests.single.score}}}
+  \item{\dots}{Objects holding the (extended) test results. 
+    These must be of class
+    \code{\link[=snp.tests.single.score-class]{snp.tests.single.score}}
+    or \code{\link[=snp.tests.glm-class]{snp.tests.glm}}
+  }
   \item{score}{Is extended score information to
-  be returned in the output object?}
+  be returned in the output object? Relevant only for
+  \code{snp.tests.single.score} objects}
 }
 \details{
 This function works by recursive calls to the generic function 
@@ -30,7 +33,13 @@ This function works by recursive calls to the generic function
   SNPs tested in all the input objects. 
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
-\seealso{\code{\link{snp.tests.single.score-class}}}
+\seealso{\code{\link{pool2}},
+  \code{\link{snp.tests.single.score-class}},
+  \code{\link{snp.tests.glm-class}},
+  \code{\link{single.snp.tests}},
+  \code{\link{snp.lhs.tests}},
+  \code{\link{snp.rhs.tests}}
+}
 \examples{
 # An artificial example which simply doubles the size of a study
 library(snpMatrix)

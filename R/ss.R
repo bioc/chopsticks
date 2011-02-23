@@ -54,8 +54,10 @@ setMethod("initialize",
               if (any(is.na(.Object@Female)))
                 warning("female argument contains NAs")
               het <- row.summary(.Object)$Heterozygosity
-              if (any(!.Object@Female & (!is.na(het)&(het>0)))){
-                warning("heterozygous calls for males set to NA")
+              hetm <- !.Object@Female & (!is.na(het)&(het>0))
+              if (any(hetm)){
+                warning(sum(hetm, na.rm=TRUE),
+                        " heterozygous calls for males set to NA")
                 .Object@.Data <- .forceHom(.Object@.Data, .Object@Female)
               }                
             }
@@ -78,12 +80,14 @@ setMethod("[", signature(x="snp.matrix",i="ANY",j="ANY",drop="ANY"),
               else 
                 x <- x@.Data[i,j,drop=drop]
             }
-            class(x) <-
+            cl <-
               if (is.matrix(x)) {
                 "snp.matrix"
               } else { 
                 "snp"
               }
+            attr(cl, "package") <- "snpMatrix"
+            class(x) <- cl
             # setting an S4 class doesn't not automatically
             # set the object's internal tag; do it manually
             x <- asS4(x)
@@ -263,7 +267,7 @@ setMethod("summary", "X.snp.matrix",
 
 # Imputation
 
-setClass("snp.reg.imputation")
+setClass("snp.reg.imputation", contains="list")
 
 
 setMethod("summary", "snp.reg.imputation",
@@ -273,6 +277,17 @@ setMethod("summary", "snp.reg.imputation",
            dnn=c("R-squared", "SNPs used"))
    })
 
+setMethod("[",
+       signature(x="snp.reg.imputation", i="ANY", j="missing", drop="missing"),
+       function(x, i){
+         if (is.character(i))
+           i <- match(i, names(x), nomatch=0)
+         res <- new("snp.reg.imputation", x@.Data[i])
+         names(res) <- names(x)[i]
+         res
+       })
+
+
 # Show and plot methods
 
 setMethod("show", "snp.reg.imputation",
@@ -280,7 +295,9 @@ setMethod("show", "snp.reg.imputation",
      to <- names(object)
      for (i in 1:length(object)) {
        cat(to[i], " ~ ", paste(object[[i]]$snps, collapse="+"),
-           " (R-squared = ",object[[i]]$r.squared, ")\n", sep="")
+           " (MAF = ", object[[i]]$maf, 
+           ", R-squared = ", object[[i]]$r.squared,
+           ")\n", sep="")
      }
    })
 
@@ -395,7 +412,7 @@ setMethod("cbind2", signature(x="snp.matrix", y="snp.matrix"), .cbind2)
 
 
 
-# Tests
+# Tests 
 
 setClass("snp.tests.single", 
          representation(snp.names="character", chisq="matrix",
@@ -403,6 +420,7 @@ setClass("snp.tests.single",
 setClass("snp.tests.single.score", 
          representation("snp.tests.single", U="matrix", V="matrix"),
          contains="snp.tests.single")
+setClass("snp.tests.glm", contains="list")
 
 setMethod("[",
           signature(x="snp.tests.single", i="ANY",
@@ -460,40 +478,71 @@ setMethod("[",
             else
               N.r2 <- numeric(0)
             new("snp.tests.single.score",
-              snp.names=x@snp.names[i], chisq=x@chisq[i,, drop=FALSE],
+              snp.names=x@snp.names[i], chisq=x@chisq[i,,drop=FALSE],
                 N=x@N[i], N.r2=N.r2,
                 U=x@U[i,,drop=FALSE], V=x@V[i,,drop=FALSE])
+          })
+
+setMethod("[",
+          signature(x="snp.tests.glm", i="ANY",
+                    j="missing", drop="missing"),
+          function(x, i, j, drop) {
+            if (is.character(i)) 
+              i <- match(i, names(x), nomatch=0)
+            res <- new("snp.tests.glm", x@.Data[i])
+            names(res) <- names(x)[i]
+            res
           })
                   
 setMethod("summary", "snp.tests.single",
           function(object) {
             if (length(object@N.r2)>0)
               summary(data.frame(N=object@N, N.r2=object@N.r2,
-                        Chi2=object@chisq,
+                        Chi.squared=object@chisq,
                         P.1df=pchisq(object@chisq[,1], df=1, lower.tail=FALSE),
                         P.2df=pchisq(object@chisq[,2], df=2, lower.tail=FALSE)
                         ))
             else
-               summary(data.frame(N=object@N, Chi2=object@chisq,
+               summary(data.frame(N=object@N,
+                        Chi.squared=object@chisq,
                         P.1df=pchisq(object@chisq[,1], df=1, lower.tail=FALSE),
                         P.2df=pchisq(object@chisq[,2], df=2, lower.tail=FALSE)
                         ))
           })
 
-            
+setMethod("summary", "snp.tests.glm",
+          function(object) {
+            chi2 <- sapply(object, '[[', "chi.squared")
+            df <- sapply(object, '[[', "df")
+            p <- pchisq(chi2, df=df, lower.tail=FALSE)
+            summary(data.frame(row.names=names(object),
+                               Chi.squared=chi2, Df=df, p.value=p))
+          })
+
 setMethod("show", "snp.tests.single",
           function(object) {
             if (length(object@N.r2)>0)
-              print(data.frame(N=object@N, N.r2=object@N.r2, Chi2=object@chisq,
+              print(data.frame(N=object@N, N.r2=object@N.r2,
+                        Chi.squared=object@chisq,
                         P.1df=pchisq(object@chisq[,1], df=1, lower.tail=FALSE),
                         P.2df=pchisq(object@chisq[,2], df=2, lower.tail=FALSE),
                         row.names=object@snp.names))
             else
-              print(data.frame(N=object@N, Chi2=object@chisq,
+              print(data.frame(N=object@N,
+                        Chi.squared=object@chisq,
                         P.1df=pchisq(object@chisq[,1], df=1, lower.tail=FALSE),
                         P.2df=pchisq(object@chisq[,2], df=2, lower.tail=FALSE),
                         row.names=object@snp.names))
             })
+
+setMethod("show", "snp.tests.glm",
+          function(object) {
+            chi2 <- sapply(object, '[[', "chi.squared")
+            df <- sapply(object, '[[', "df")
+            p <- pchisq(chi2, df=df, lower.tail=FALSE)
+            print(data.frame(row.names=names(object),
+                             Chi.squared=chi2, Df=df, p.value=p))
+          })
 
 # There are no standard generics for these, but the call to standardGeneric
 # avoids a warning message 
@@ -502,6 +551,12 @@ setGeneric("p.value", function(x, df) standardGeneric("p.value"),
            useAsDefault=FALSE)
 
 setGeneric("chi.squared", function(x, df) standardGeneric("chi.squared"),
+           useAsDefault=FALSE)
+
+setGeneric("deg.freedom", function(x) standardGeneric("deg.freedom"),
+           useAsDefault=FALSE)
+
+setGeneric("effect.sign", function(x, simplify) standardGeneric("effect.sign"),
            useAsDefault=FALSE)
 
 setGeneric("pool2", function(x, y, score) standardGeneric("pool2"),
@@ -516,12 +571,29 @@ setMethod("p.value", signature(x="snp.tests.single", df="numeric"),
             p
           })
 
+setMethod("p.value", signature(x="snp.tests.glm", df="missing"),
+          function(x, df) {
+            p <- pchisq(q=sapply(x, '[[', "chi.squared"),
+                   df=sapply(x, '[[', "df"),
+                   lower.tail=FALSE)
+            names(p) <- names(x)
+            p
+          })
+
+
 setMethod("chi.squared", signature(x="snp.tests.single", df="numeric"),
           function(x, df) {
             if (df>2)
               stop("df must be 1 or 2")
             chi2 <- x@chisq[,df]
             names(chi2) <- x@snp.names
+            chi2
+          })
+
+setMethod("chi.squared", signature(x="snp.tests.glm", df="missing"),
+          function(x, df) {
+            chi2 <- sapply(x, '[[', "chi.squared")
+            names(chi2) <- names(x)
             chi2
           })
 
@@ -543,6 +615,24 @@ setMethod("chi.squared", signature(x="snp.tests.single.score", df="numeric"),
             chi2
           })
 
+setMethod("deg.freedom", signature(x="snp.tests.glm"),
+          function(x) {
+            df <- sapply(x, '[[', "df")
+            names(df) <- names(x)
+            df
+          })
+
+setMethod("effect.sign", signature(x="snp.tests.glm", simplify="logical"),
+          function(x, simplify=TRUE) {
+            sapply(x, function(x) sign(x$U))
+          })
+
+setMethod("effect.sign",
+          signature(x="snp.tests.single.score", simplify="missing"),
+          function(x, simplify) {
+            sign(x@U[,1])
+          })
+
 setMethod("pool2",
           signature(x="snp.tests.single.score",y="snp.tests.single.score",
                     score="logical"),
@@ -555,8 +645,8 @@ setMethod("pool2",
               xsel <- match(can.pool, x@snp.names)
               ysel <- match(can.pool, y@snp.names)
               N <- x@N[xsel] + y@N[ysel]
-              U <- x@U[xsel,] + y@U[ysel,]
-              V <- x@V[xsel,] + y@V[ysel,]
+              U <- x@U[xsel,,drop=FALSE] + y@U[ysel,,drop=FALSE]
+              V <- x@V[xsel,,drop=FALSE] + y@V[ysel,,drop=FALSE]
               if (length(x@N.r2)>0) {
                 if (length(y@N.r2)>0)
                   Nr2 <- x@N.r2[xsel] + y@N.r2[ysel]
@@ -576,9 +666,8 @@ setMethod("pool2",
             }
             if (length(x.only)>0) {
               xsel <- match(x.only, x@snp.names)
-              N <- c(N, x@N[xsel])
-              U <- rbind(U, x@U[xsel,])
-              V <- rbind(V, x@V[xsel,])
+              U <- rbind(U, x@U[xsel,,drop=FALSE])
+              V <- rbind(V, x@V[xsel,,drop=FALSE])
               if (length(Nr2>0)) {
                 if (length(x@N.r2)>0) 
                   Nr2 <- c(Nr2, x@N.r2[xsel])
@@ -588,12 +677,12 @@ setMethod("pool2",
                 if (length(x@N.r2)>0)
                   Nr2 <- c(N, x@N.r2[xsel])
               }
+              N <- c(N, x@N[xsel])
             }
             if (length(y.only)>0) {
               ysel <- match(y.only, y@snp.names)
-              N <- c(N, y@N[ysel])
-              U <- rbind(U, y@U[ysel,])
-              V <- rbind(V, y@V[ysel,])
+              U <- rbind(U, y@U[ysel,,drop=FALSE])
+              V <- rbind(V, y@V[ysel,,drop=FALSE])
               if (length(Nr2>0)) {
                 if (length(y@N.r2)>0) 
                   Nr2 <- c(Nr2, y@N.r2[ysel])
@@ -603,6 +692,7 @@ setMethod("pool2",
                 if (length(y@N.r2)>0)
                   Nr2 <- c(N, y@N.r2[ysel])
               }
+              N <- c(N, y@N[ysel])
             }
             chisq <- .Call("chisq_single", list(U=U, V=V, N=N),
                            PACKAGE="snpMatrix")
@@ -616,3 +706,136 @@ setMethod("pool2",
                          chisq=chisq, N=N, N.r2=Nr2)
             res
           })
+
+setMethod("pool2",
+          signature(x="snp.tests.glm",y="snp.tests.glm",
+                    score="logical"),
+          function(x, y, score) {
+            nm.x <- names(x)
+            nm.y <- names(y)
+            if (is.null(nm.x) || is.null(nm.y)) {
+              if (length(x)!=length(y))
+                stop("Cannot pool unnamed snp.test.glm objects of different lengths")
+              res <- .Call("pool2_glm", x, y, PACKAGE="snpMatrix")
+              if (!is.null(nm.x))
+                names(res) <- nm.x
+              else if (!is.null(nm.y))
+                names(res) <- nm.y
+            }
+            else {
+              to.pool <- intersect(nm.x, nm.y)
+              res <- .Call("pool2_glm",
+                           x[to.pool],
+                           y[to.pool],
+                           PACKAGE="snpMatrix")
+              names(res) <- to.pool
+              x.only <- setdiff(nm.x, to.pool)
+              y.only <- setdiff(nm.y, to.pool)
+              if (!is.null(x.only))
+                res <- append(res, x[x.only])
+              if (!is.null(y.only))
+                res <- append(res, y[y.only])
+            }
+            cl <- "snp.tests.glm"
+            attr(cl, "package") <- "snpMatrix"
+            class(res) <- cl
+            asS4(res)
+          })
+
+# Switch allele methods 
+
+setGeneric("switch.alleles",
+           function(x, snps) standardGeneric("switch.alleles"),
+           useAsDefault=FALSE)
+
+setMethod("switch.alleles", signature(x="snp.matrix", snps="ANY"),
+          function(x, snps) {
+            all <- 1:nrow(x)
+            change <- as.integer(x[all,snps])
+            new <- ifelse(change==0, 0, 4 - change)
+            x[all,snps] <- as.raw(4 - as.integer(new))
+            x
+          })
+
+setMethod("switch.alleles", signature(x="snp.tests.single.score", snps="ANY"),
+          function(x, snps) {
+            if (is.character(snps)) {
+              snps <- match(snps, x@snp.names)
+              if (any(is.na(snps)))
+                warning(sum(is.na(snps)),
+                        " SNP names were not found in tests object")
+              snps <- snps[!is.na(snps)]
+            } 
+            ntest <- length(x@snp.names)
+            if (is.logical(snps)) {
+              if (length(snps)!=ntest)
+                stop("incompatible arguments")
+              if (sum(snps)==0)
+                return(x)
+            } else if (is.numeric(snps)) {
+              if (length(snps)==0)
+                return(x)
+              if (max(snps)>ntest || min(snps)<1)
+                stop("incompatible arguments")
+            } else {
+              stop("SNPs to be switched must be indicated by name, position, or by a logical vector")
+            }
+            res <- x
+            res@U[snps,1] <- -x@U[snps,1]
+            if (ncol(x@U)==3) {
+              res@U[snps,2] <- -x@U[snps,2]
+              res@U[snps,3] <- x@U[snps,3] - x@U[snps,2]
+              res@V[snps,4] <- x@V[snps,4] - 2*x@V[snps,3] +
+                x@V[snps,2]
+              res@V[snps,3] <- x@V[snps,3] - x@V[snps,2]
+            } else {
+              res@U[snps,2] <- x@U[snps,2] - x@U[snps,1]
+              res@V[snps,3] <- x@V[snps,3] - 2*x@V[snps,2] +
+                x@V[snps,1]
+              res@V[snps,2] <- x@V[snps,2] - x@V[snps,1]
+            }
+            res
+          })
+
+setMethod("switch.alleles", signature(x="snp.tests.glm", snps="character"),
+          function(x, snps) {
+            res <- lapply(x, sw1.glm, snps)
+            class(res) <- class(x)
+            asS4(res)
+          })
+
+sw1.glm <- function(x, snps) {
+  to.switch <- x$parameters %in% snps
+  if (!any(to.switch))
+    return(x)
+  res <- x
+  u <- ifelse(to.switch, -1, 1)
+  v <- u %*% t(u)
+  v <- v[!lower.tri(v)]
+  res$U <- u*res$U
+  res$V <- v*res$V
+  res
+}
+
+
+pool <- function(..., score=FALSE) {
+  argl <- list(...)
+  na <- length(argl)
+  while (na > 0 && is.null(argl[[na]])) {
+    argl <- argl[-na]
+    na <- na - 1
+  }
+  if (na<2)
+    stop("need at least two test sets to pool")
+  if (na>2) {
+    p2 <- pool2(..1, ..2, score=TRUE)
+    arglist <- list(p2)
+    for (a in 3:na) arglist <- append(arglist, argl[a])
+    append(arglist, list(score=score))
+    r <- do.call(pool, arglist)
+  }
+  else
+    r <- pool2(..1, ..2, score=score)
+  r
+}
+

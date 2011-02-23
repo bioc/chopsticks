@@ -37,5 +37,5 @@ void glm_score_test(int N, int M, int S, const int *stratum,
 		    int P, const double *Z, int C, const int *cluster,
 		    const double *resid, const double *weights, 
 		    const double *Xb, double scale,
-		    double max_r2, double *chi2, int *df);
+		    double max_r2, double *U, double *V);
 

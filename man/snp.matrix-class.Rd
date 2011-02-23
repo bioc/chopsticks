@@ -17,6 +17,8 @@
 \alias{rbind,snp.matrix-method}
 \alias{show,snp.matrix-method}
 \alias{summary,snp.matrix-method}
+\alias{switch.alleles,snp.matrix,ANY-method}
+
 
 \title{Class "snp.matrix"}
 \description{ This class defines objects holding large arrays of single
@@ -48,7 +50,7 @@ Class \code{"vector"}, by class "matrix", with explicit coerce.
 \section{Methods}{
   \describe{
     \item{[]}{\code{signature(x = "snp.matrix")}: subset
-      operations. Currently rather slow owing to excessive copying.}
+      operations}
     \item{cbind2}{\code{signature(x = "snp.matrix", y = "snp.matrix")}:
       S4 generic function to provide cbind() for two or
       more matrices together by column. Row names must match and column
@@ -82,9 +84,10 @@ Class \code{"vector"}, by class "matrix", with explicit coerce.
       \code{P.AB}, \code{P.BB}, and \code{z.HWE}}
     \item{is.na}{\code{signature(x = "snp.matrix")}: returns a logical
       matrix of missing call indicators}
+    \item{switch.alleles}{\code{signature(x = "snp.matrix", snps
+	="ANY")}: Recode specified columns of of the matrix to reflect
+      allele switches}
 
-    \item{show}{\code{signature(object = "snp.matrix")}: ... }
-    \item{summary}{\code{signature(object = "snp.matrix")}: ... }
 	 }
 }
 \references{\url{http://www-gene.cimr.cam.ac.uk/clayton}}

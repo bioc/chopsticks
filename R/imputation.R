@@ -54,3 +54,9 @@ filter.rules <- function(rules, snps.excluded, exclusions=TRUE) {
   else
     names(rules)[!if.excl]
 }
+
+# List extraction functions
+
+imputation.maf <- function(rules) sapply(rules, function(x) x$maf)
+
+imputation.r2 <- function(rules) sapply(rules, function(x) x$r.squared)

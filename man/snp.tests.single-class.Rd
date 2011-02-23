@@ -10,8 +10,11 @@
 \alias{snp.tests.single.score-class}
 \alias{[,snp.tests.single.score,ANY,missing,missing-method}
 \alias{chi.squared,snp.tests.single.score,numeric-method}
+\alias{effect.sign,snp.tests.single.score,missing-method}
 \alias{pool2,snp.tests.single.score,snp.tests.single.score,logical-method}
 \alias{p.value,snp.tests.single.score,numeric-method}
+\alias{switch.alleles,snp.tests.single.score,ANY-method}
+
 
 \title{Classes "snp.tests.single" and "snp.tests.single.score"}
 \description{These are classes to hold the objects created by
@@ -53,6 +56,8 @@ provide methods for pooling results from several studies or parts of a study
     \item{chi.squared}{\code{signature(x = "snp.tests.single.score", df =
 	"numeric")}:
       Extract 1- and 2-df chi-squared test values}
+    \item{effect.sign}{\code{signature(x = "snp.tests.single.score", simplify =
+	"missing")}: Extract signs of associations tested by the 1df tests}
     \item{p.value}{\code{signature(x = "snp.tests.single", df =
 	"numeric")}:
       Evaluate 1- and 2-df test p-values}
@@ -65,7 +70,10 @@ provide methods for pooling results from several studies or parts of a study
       Summarize all tests and p-values}
     \item{pool2}{\code{signature(x = "snp.tests.single.score",
 	y = "snp.tests.single.score", score = "logical")}: Combine two
-        sets of test results. Used recursively by {\code{\link{pool}}}}
+      sets of test results. Used recursively by {\code{\link{pool}}}}
+    \item{switch.alleles}{\code{signature(x = "snp.tests.single.score", snps =
+	"ANY")}: Emulate, in the score vector and its (co)variances,
+      the effect of switching of the alleles for the specified tests}
   }
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}

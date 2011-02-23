@@ -11,7 +11,7 @@ of the variance function,  "robust" tests may be selected.
 }
 \usage{
 snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent.frame(),
-   snp.data, tests=NULL, robust = FALSE,
+   snp.data, rules=NULL, tests=NULL, robust = FALSE,
    control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98), allow.missing=0.01)
 }
 \arguments{
@@ -27,12 +27,13 @@ snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent
   \item{data}{The dataframe in which the base model is to be fitted}
   \item{snp.data}{An object of class \code{"snp.matrix"} or
     \code{"X.snp.matrix"} containing the SNP data} 
-  \item{tests}{Either a vector of column names or  numbers for the SNPs
+  \item{rules}{An object of class
+    \code{"snp.reg.imputation"}. If
+    supplied, the rules coded in this object are used, together with
+    \code{snp.data}, to calculate tests for imputed SNPs}
+  \item{tests}{Either a vector of SNP names (or  numbers) for the SNPs
     to be tested, or a list of short vectors defining groups of SNPs to be
-    tested (again by name or number). The default action is to carry out
-    \emph{all} single SNP tests, but
-    \code{\link{single.snp.tests}} will often achieve the same
-    result much faster}
+    tested (see \code{Details})}
   \item{weights}{"Prior" weights in the generalized linear model}
   \item{subset}{Array defining the subset of rows of  \code{data} to use}
   \item{robust}{If \code{TRUE}, robust tests will be carried out}
@@ -59,6 +60,19 @@ snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent
   \code{data} objects are aligned by rowname. Otherwise all variables in
   the model formulae are assumed to be stored in the same order as the
   columns of the \code{snp.data} object.
+
+  Usually SNPs to be used in tests will be referenced by name. However,
+  they can
+  also be referenced by number, a positive number indicating the
+  appropriate column in the input \code{snp.data}, and a negative number
+  indicating (minus) a position in the \code{rules} list. Tests
+  involving more than one SNP can use a mixture of observed and imputed
+  SNPs. If the \code{tests} argument is missing, single SNP tests are
+  carried out; if a \code{rules} is given, all \emph{imputed} SNP tests
+  are calculated, otherwise all SNPs in the input \code{snp.data} matrix
+  are tested. But note that, for single SNP tests, the function
+  \code{\link{single.snp.tests}} will often achieve the same
+  result much faster.
 }
 \value{
   A data frame containing, for each SNP,
@@ -89,6 +103,7 @@ snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent
   appropriate robust estimate of the variance of the score test is used.
 }
 \seealso{\code{\link{single.snp.tests}}, \code{\link{snp.lhs.tests}},
+    \code{\link{impute.snps}}, \code{\link{snp.reg.imputation-class}},
   \code{\link{snp.matrix-class}}, \code{\link{X.snp.matrix-class}}}
 \examples{
 data(testdata)

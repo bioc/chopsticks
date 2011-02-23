@@ -77,10 +77,8 @@ snp.lhs.tests(snp.data, base.formula, add.formula, subset, snp.subset,
     \code{\link{X.snp.matrix-class}}}
 \examples{
 data(testdata)
-slt1 <- snp.lhs.tests(Autosomes[,1:10], ~cc, ~region, data=subject.data)
-print(slt1)
-slt2 <- snp.lhs.tests(Autosomes[,1:10], ~strata(region), ~cc,
+snp.lhs.tests(Autosomes[,1:10], ~cc, ~region, data=subject.data)
+snp.lhs.tests(Autosomes[,1:10], ~strata(region), ~cc,
    data=subject.data)
-print(slt2)
 }
 \keyword{htest}

@@ -73,9 +73,21 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
 
   for (int i=0; i<ny; i++) {
     unsigned char *yi = y + nsubject*(yord[i]-1);
-    int start = nearest_N(xpos, nx, ypos[i], try);
-    double yy = snpcov(yi, yi, female, nsubject);
-    if (yy>0) {
+    /* Minor allele frequency */
+    int ng=0, na=0;
+    for (int j=0; j<nsubject; j++) {
+      int yij = (int) yi[j];
+      if (yij) {
+	ng++;
+	na += yij;
+      }
+    }
+    if (ng>0) {
+      double maf = (double) (na - ng)/ (double) (2*ng);
+      if (maf>0.5)
+	maf = 1.0 - maf;
+      int start = nearest_N(xpos, nx, ypos[i], try);
+      double yy = snpcov(yi, yi, female, nsubject);
       for (int j=0; j<try; j++) { 
 	int jx = nsubject*(xord[start+j]-1);
 	xy[j] = snpcov(x+jx, yi, female, nsubject);
@@ -144,15 +156,18 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
       utinv(coef, nregr+1);
 
  
-      SEXP Rule, Rlnames, R2, Pnames, Coefs;
-      PROTECT(Rule = allocVector(VECSXP, 3));
+      SEXP Rule, Rlnames, Maf, R2, Pnames, Coefs;
+      PROTECT(Rule = allocVector(VECSXP, 4));
       
-      PROTECT(Rlnames = allocVector(STRSXP, 3));
-      SET_STRING_ELT(Rlnames, 0, mkChar("r.squared"));
-      SET_STRING_ELT(Rlnames, 1, mkChar("snps"));
-      SET_STRING_ELT(Rlnames, 2, mkChar("coefficients"));
+      PROTECT(Rlnames = allocVector(STRSXP, 4));
+      SET_STRING_ELT(Rlnames, 0, mkChar("maf"));
+      SET_STRING_ELT(Rlnames, 1, mkChar("r.squared"));
+      SET_STRING_ELT(Rlnames, 2, mkChar("snps"));
+      SET_STRING_ELT(Rlnames, 3, mkChar("coefficients"));
       setAttrib(Rule, R_NamesSymbol, Rlnames);
       
+      PROTECT(Maf = allocVector(REALSXP, 1));
+      *REAL(Maf) = maf;
       PROTECT(R2 = allocVector(REALSXP, 1));
       *REAL(R2) = rsq;
       PROTECT(Pnames = allocVector(STRSXP, nregr));
@@ -166,20 +181,24 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
 	intcpt -= beta*snpmean(x+nsubject*xsnp, female, nsubject);
       }
       *REAL(Coefs) = intcpt; 
-      SET_VECTOR_ELT(Rule, 0, R2);
-      SET_VECTOR_ELT(Rule, 1, Pnames);
-      SET_VECTOR_ELT(Rule, 2, Coefs);
+      SET_VECTOR_ELT(Rule, 0, Maf);
+      SET_VECTOR_ELT(Rule, 1, R2);
+      SET_VECTOR_ELT(Rule, 2, Pnames);
+      SET_VECTOR_ELT(Rule, 3, Coefs);
       SET_VECTOR_ELT(Result, yord[i]-1, Rule);
-      UNPROTECT(5);
+      UNPROTECT(6);
     }
     else {
       SET_VECTOR_ELT(Result, yord[i]-1, R_NilValue);
     }
   }
-  SEXP IrClass;
+  SEXP IrClass, Package;
   PROTECT(IrClass = allocVector(STRSXP, 1));
   SET_STRING_ELT(IrClass, 0, mkChar("snp.reg.imputation"));
-  setAttrib(Result, R_ClassSymbol, IrClass);
+  PROTECT(Package = allocVector(STRSXP, 1));
+  SET_STRING_ELT(Package, 0, mkChar("snpMatrix"));
+  setAttrib(IrClass, install("package"), Package);
+  classgets(Result, IrClass);
   SET_S4_OBJECT(Result);
 
   /* Tidy up */
@@ -190,7 +209,7 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
   Free(coef);
   Free(ycoef);
   free_window(cache);
-  UNPROTECT(2);
+  UNPROTECT(3);
   return Result;
 }
 
@@ -348,9 +367,9 @@ void do_impute(const unsigned char *snps, const int nrow,
 	       index_db snp_names,
 	       SEXP Rule, 
 	       double *value_a, double *value_d) {
-  SEXP Snps = VECTOR_ELT(Rule, 1);
+  SEXP Snps = VECTOR_ELT(Rule, 2);
   int nsnp = LENGTH(Snps);
-  SEXP Coefs = VECTOR_ELT(Rule, 2);
+  SEXP Coefs = VECTOR_ELT(Rule, 3);
   double *coefs = REAL(Coefs);
   double alpha = *coefs;
   if (!rows)
@@ -429,8 +448,8 @@ SEXP r2_impute(const SEXP Rules) {
       result[i+M] = 0;
     }
     else {
-      result[i] = *REAL(VECTOR_ELT(Rule, 0));
-      result[i+M] = LENGTH(VECTOR_ELT(Rule, 1));
+      result[i] = *REAL(VECTOR_ELT(Rule, 1));
+      result[i+M] = LENGTH(VECTOR_ELT(Rule, 2));
     }
   }
   UNPROTECT(1);

@@ -59,7 +59,11 @@ tdt.snp(ped, id, father, mother, affected, data = sys.parent(), snp.data,
   assumed to be in their usual positions in the pedfile data frame 
   i.e. in columns one to 
   four for the identifiers  and column six for disease status 
-  (with affected coded \code{2}).
+  (with affected coded \code{2}). If the pedfile data are obtained from
+  a dataframe, the row names of the \code{data} and \code{snp.data}
+  files will be used to align the pedfile and SNP data. Otherwise, these
+  vectors will be assumed to be in the same order as the rows of
+  \code{snp.data}. 
 
   The \code{snp.subset} argument can be a logical,
   integer, or character vector.
@@ -95,6 +99,7 @@ tdt.snp(ped, id, father, mother, affected, data = sys.parent(), snp.data,
   \code{\link{snp.tests.single.score-class}} 
 }
 \examples{
-# No example yet
+data(families)
+tdt.snp(data=pedfile, snp.data=genotypes)
 }
 \keyword{htest}
