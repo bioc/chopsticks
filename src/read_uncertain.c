@@ -175,8 +175,8 @@ SEXP read_impute(const SEXP Filename, const SEXP Rownames, const SEXP Nsnp,
     else
       error("illegal type for nsnp argument");
   }
-  /* For impute which snp id used. zero means BEAGLE output */ 
-  int snpcol=2; 
+  /* For impute which snp id used. zero or NULL means BEAGLE output */ 
+  int snpcol=0; 
   tns = TYPEOF(Snpcol);
   if (tns!=NILSXP) {
     if (tns==INTSXP)
