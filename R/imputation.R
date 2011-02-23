@@ -1,6 +1,7 @@
 snp.imputation<- function(X, Y, pos.X, pos.Y, phase=FALSE, try=50,
                           stopping=c(0.95, 4, 0.05),
-                          use.hap = c(0.95, 0.1), em.cntrl=c(50, 0.01),
+                          use.hap = c(1.0, 0.0),
+                          em.cntrl=c(50, 0.01, 10, .01),
                           minA=5) {
   if (phase)
     stop("phase=TRUE option not yet implemented")

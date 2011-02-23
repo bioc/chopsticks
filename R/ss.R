@@ -282,8 +282,11 @@ setMethod("summary", "snp.reg.imputation",
      levs <- sort(unique(i2))
      labs <- paste(levs, "tags")
      size <- factor(i2, levels= levs, labels=labs)
-     table(cut(info[,1], c((0:9)/10, 0.95, 0.99, 1.0)), size, 
-           dnn=c("R-squared", "SNPs used"), useNA="ifany")
+     r2 <- info[,1]
+     r2[r2>1] <- 1
+     byr2 <- cut(r2, c((0:9)/10, 0.95, 0.99, 1.0), right=FALSE,
+                 include.lowest=TRUE)
+     table(byr2, size, dnn=c("R-squared", "SNPs used"), useNA="ifany")
    })
 
 setMethod("[",
@@ -935,6 +938,8 @@ setClass("snp.estimates.glm", contains="list")
 setMethod("[", signature("snp.estimates.glm", i="ANY", j="missing",
                          drop="missing"),
           function(x, i) {
+            if (is.character(i))
+              i <- match(i, names(x))
             res <- x@.Data[i, drop=FALSE]
             if (length(res)==0)
               return(NULL)

@@ -8,7 +8,7 @@
 
 \title{Class "snp.reg.imputation"}
 \description{A class defining a list "rules" for imputation of
-  SNPs. Rules are either linear regression equations or estimated
+  SNPs. Rules are  estimated population
   haplotype probabilities for a target SNP and one or more predictor SNPs}
 \section{Objects from the Class}{Objects are lists of
   \emph{rules}. Rules are named list elements each describing imputation
@@ -19,10 +19,6 @@
     \item{r.squared}{The squared Pearson correlation coefficient between
     observed and predicted SNP duration derivation of the rule.}
     \item{snps}{The names of the SNPs to be included in the regression.}
-    \item{coefficients}{A numeric array containing the regression
-      equation 
-      intercept followed by the regression coefficients for the SNPs
-      listed in \code{snps}, OR}
     \item{hap.probs}{A numerical array containing estimated
       probabilities for haplotypes of the SNP to be imputed and all the
       predictor SNPs}

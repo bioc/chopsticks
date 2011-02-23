@@ -8,7 +8,7 @@
 }
 \usage{
 snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try=50, stopping=c(0.95, 4, 0.05),
-               use.hap=c(0.95, 0.1), em.cntrl=c(50,0.01), minA=5)
+               use.hap=c(1.0, 0.0), em.cntrl=c(50,0.01,10,0.01), minA=5)
 }
 \arguments{
   \item{X}{An object of class \code{"snpMatrix"} or
@@ -33,7 +33,8 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try=50, stopping=c(0.95, 4, 0.05
     linkage disequilibrium (see below)}
 }
 \details{
-  The routine first carries out a series of step-wise regression analyses in
+  The routine first carries out a series of step-wise least-square
+  regression analyses in
   which each Y SNP is regressed on the nearest \code{try} predictor (X)
   SNPs. If
   \code{phase} is \code{TRUE}, the regressions will be calculated at the
@@ -52,24 +53,38 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try=50, stopping=c(0.95, 4, 0.05
   target set by the third parameter of \code{stopping}. If the third
   parameter of \code{stopping} is \code{NA}, this last test is replaced
   by a test for improvement in the Akaike information criterion
-  (AIC). After choosing the set of "tag" SNPs in this way, haplotypes of
-  the target and tag SNPs are phased, simultaneously fitting a logistic
-  regression of the target on the tags. 
+  (AIC).
 
-  If the prediction  as measure by  \eqn{R^2}, has not achieved a
+  After choosing the set of "tag" SNPs in this way, a prediction
+  rule is generated either by calculating phased haplotype frequencies,
+  either (a) under a log-linear model for linkage disequilibrium with
+  only first order association terms fitted, or (b) under the
+  "saturated" model.  
+  These methods do not differ if there is only
+  one tag SNP but, otherwise,  choice between  methods is controlled
+  by the  \code{use.hap} parameters. 
+  If the prediction,  as measure by  \eqn{R^2} achieved with the
+  log-linear smoothing model exceeds a
   threshold (the first parameter of \code{use.hap})
-  using more than one tag SNP, then the logistic regression assumption
-  is relaxed, phased haplotype frequencies being estimated under the
-  fully saturated model. a second imputation method is
-  tried. The  \eqn{R^2} for prediction of the Y SNP using these
-  haplotype frequencies is then calculated. If the \eqn{(1-R^2)} is reduced
-  by a proportion exceeding the second parameter of \code{use.hap}, then
-  the saturated imputation rule is saved in preference to the logistic
-  regression rule. The argument \code{em.cntrl} controls convergence
-  testing for the EM algorithm for fitting haplotype frequencies. The
-  first parameter is the maximum number of iterations, and the second
+  then this method is used. Otherwise, if the gain in \eqn{R^2}
+  achieved by using the second method exceeds the second parameter of
+  \code{use.hap}, then the second method is used.
+  Current experience is that, the log-linear method is rarely
+  preferred with reasonable choices for \code{use.hap}, and imputation
+  is much faster when the second  method only is considered. 
+  The current default ensures that this second method is used,
+  but the other possibility might be considered if imputing
+  from very small samples.
+
+  The argument \code{em.cntrl} controls convergence
+  testing for the EM algorithm for fitting haplotype frequencies and the
+  IPF algorithm for fitting the log-linear model. The
+  first parameter is the maximum number of EM iterations, and the second
   parameter is the threshold for the change in log likelihood
-  below which the iteration is judged to have converged.
+  below which the iteration is judged to have converged. The third and
+  fourth parameters give the maximum number of IPF iterations and the
+  convergence tolerance. There should be no need to change the default
+  values. 
 
   All SNPs selected for imputation must have sufficient data for
   estimating pairwise linkage disequilibrium with each other and with
@@ -87,6 +102,8 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try=50, stopping=c(0.95, 4, 0.05
 \references{
   Chapman J.M., Cooper J.D., Todd J.A. and Clayton D.G. (2003)
   \emph{Human Heredity}, \bold{56}:18-31.
+  
+  Wallace, C. et al. (2010) \emph{Nature Genetics}, \bold{42}:68-71
 }
 \note{The \code{phase=TRUE} option is not yet implemented} 
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}

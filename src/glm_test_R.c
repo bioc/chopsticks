@@ -737,7 +737,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 	  strncpy(testname+len, CHAR(Rule_namej), space);	
 	SEXP Rule =  VECTOR_ELT(Rules, snpsj);
 	if (!isNull(Rule)){ /* Not monomorphic */
-	  do_impute(z, N, female, NULL, N, name_index, Rule, gt2ht, zw+ij, 
+	  do_impute(Z, N, female, NULL, N, name_index, Rule, gt2ht, zw+ij, 
 		    NULL);
 	  for (int i=0; i<N; i++, ij++) {
 	    if (ISNA(zw[ij])) {
@@ -1401,12 +1401,15 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
 
   /* Estimates. For now snps referred to by col number not name */
 
-  int set_size = 1;
+  int set_size = 1, gen_names = 1;
   int *set_int = NULL;
   int nset = nsnp;
+  SEXP NameSets = R_NilValue;
   SEXPTYPE sets_type = TYPEOF(Sets);
   if (sets_type==VECSXP) {
     nset = LENGTH(Sets);
+    NameSets = getAttrib(Sets, R_NamesSymbol);
+    gen_names = (NameSets==R_NilValue);
     for (int i=0; i<nset; i++) {
       SEXP seti =  VECTOR_ELT(Sets, i);
       if (TYPEOF(seti)!=INTSXP)
@@ -1499,10 +1502,6 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
   SET_STRING_ELT(BVnames, 2, mkChar("N"));
   SET_STRING_ELT(BVnames, 3, mkChar("Y.var"));
 
-  SEXP NameSets = R_NilValue;
-  if (Sets!=R_NilValue) 
-    NameSets = getAttrib(Sets, R_NamesSymbol);
-  int gen_names = (NameSets==R_NilValue);
   SEXP SetNames = R_NilValue;
   if (gen_names) {
     PROTECT(SetNames = allocVector(STRSXP, nset));
@@ -1535,25 +1534,25 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
 
     int missing = 0;
     for (int j=0, ij=NM; j<nsnp_set; j++) {
-      int len = 0;
-      if (gen_names) {
-	if (j){
-	  len = strlen(setname);
-	  if (len<max_name_length) {
-	    setname[len] = '+';
-	    len++;
-	  }
-	  else
-	    len=0;
-	}
-      }
-      int space = max_name_length - len;
       int snpsj = snps[j];
       snpsj--;
 
-      if (gen_names && space>0)
-	strncpy(setname+len, CHAR(STRING_ELT(Snp_names, snpsj)), space);
-      
+      if (gen_names) {
+	if (!j){
+	  strncpy(setname, CHAR(STRING_ELT(Snp_names, snpsj)), max_name_length);
+	}
+	else if ((nsnp_set>1) && (j==(nsnp_set-1))) {
+	  int len = strlen(setname);
+	  int space = max_name_length - len;
+	  if (space>2) {
+	    setname[len++] = '.';
+	    setname[len++] = ',';
+	  }
+	  strncpy(setname+len, CHAR(STRING_ELT(Snp_names, snpsj)), 
+		  space-2);
+	}
+      }
+
       const unsigned char *zj = z + N*snpsj;
       for (int i=0; i<N; i++, ij++) {
 	unsigned char zij = zj[i];

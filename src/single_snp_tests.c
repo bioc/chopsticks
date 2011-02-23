@@ -217,7 +217,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	    xadd[j] = xdom[j] = 0.0;
 	}
 	else {
-	  do_impute(snps, n, NULL, subset, nsubj, name_index, Rule, gt2ht, 
+	  do_impute(Snps, n, NULL, subset, nsubj, name_index, Rule, gt2ht, 
 		    xadd, xdom);
 	  r2 = *REAL(VECTOR_ELT(Rule, 1));
 	}
@@ -321,7 +321,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	    xadd[j] = xdom[j] = 0.0;
 	}
 	else {
-	  do_impute(snps, n, female, subset, nsubj, name_index, Rule, gt2ht, 
+	  do_impute(Snps, n, female, subset, nsubj, name_index, Rule, gt2ht, 
 		    xadd, xdom);
 	  r2 = *REAL(VECTOR_ELT(Rule, 1));
 	}
