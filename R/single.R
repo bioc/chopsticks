@@ -1,5 +1,6 @@
 single.snp.tests <- function(phenotype, stratum, data=sys.parent(), snp.data,
-                             rules=NULL, subset, snp.subset, score=FALSE) {
+                             rules=NULL, subset, snp.subset, uncertain=FALSE,
+                             score=FALSE) {
   m <- match.call()
   smiss <- missing(stratum)
   ssmiss <- missing(subset)
@@ -117,7 +118,7 @@ single.snp.tests <- function(phenotype, stratum, data=sys.parent(), snp.data,
       stop("illegal type for snp.subset")
   }
   scores <- .Call("score_single", phenotype, stratum, snp.data, rules, subset,
-                  snp.subset, PACKAGE="snpMatrix")
+                  snp.subset, uncertain, PACKAGE="snpMatrix")
   chisq <- .Call("chisq_single", scores, PACKAGE="snpMatrix")
   if (is.null(rules)) {
     if (is.null(snp.subset))

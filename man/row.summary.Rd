@@ -9,10 +9,15 @@
 }
 \usage{
 row.summary(object)
-col.summary(object)
+col.summary(object, uncertain = FALSE)
 }
 \arguments{
-\item{object}{genotype data as a \code{\link{snp.matrix-class}} or \code{\link{X.snp.matrix-class}} object}
+\item{object}{genotype data as a \code{\link{snp.matrix-class}} or
+  \code{\link{X.snp.matrix-class}} object}
+\item{uncertain}{If \code{TRUE} uncertain genotypes are used in
+  calculation of allele and genotype frequencies (by scoring as
+  posterior expectations). Otherwise, and for Hardy-Weinberg tests,
+  they are ignored}
 }
 \value{
   \item{row.summary}{
@@ -20,16 +25,21 @@ col.summary(object)
     and with columns/elements:
     \itemize{
       \item Call.rate: Proportion of SNPs called
+      \item Certain.calls: Proportion of called SNPs with certain calls
       \item Heterozygosity: Proportion of called SNPs which are
 	  heterozygous
-    }
+	}
+	Uncertain calls are ignored for calculating the heterozygosity.
+    	
+	
   }
   \item{col.summary}{
     returns a data frame with rows corresponding to columns of the input object
     and with columns/elements:
     \itemize{
       \item Calls: The number of valid calls
-      \item Call rate: The proportion of genotypes called
+      \item Call.rate: The proportion of genotypes called
+      \item Certain.calls: Proportion of called SNPs with certain calls
       \item MAF: The minor allele frequency
       \item P.AA: The frequency of homozygous genotype 1 (A/A)
       \item P.AB: The frequency of heterozygous genotype 2 (A/B)
@@ -43,7 +53,7 @@ col.summary(object)
       \item P.BY: The frequency of allele B in males
       \item Calls.female: The number of valid calls in females (only
 	  these calls are used in the z-test for HWE)
-    }
+      }
   }
 }
 \note{The current version of \code{row.summary}

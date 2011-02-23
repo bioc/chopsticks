@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "uncertain.h"
 
 SEXP test_switch(const SEXP Snps, const SEXP Snps2, const SEXP Split, 
 		 const SEXP Prior) {
@@ -110,10 +111,17 @@ SEXP smat_switch(SEXP X, SEXP Switch) {
     unsigned char *resij = res + N*(sw[i] - 1);
     for (int j=0; j<N; j++, resij++) {
       unsigned char g = *resij;
-      if (g) 
-	*resij = 4 - g;
+      if (g) {
+	if (g>3) {
+	  double p0, p1, p2;
+	  g2post(g, &p0, &p1, &p2);
+	  *resij = post2g(p1, p0);
+	}
+	else
+	  *resij = 4 - g;
+      }
     }
   }
   return Result;
 }
-    
+

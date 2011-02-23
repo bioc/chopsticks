@@ -37,7 +37,7 @@ perl -e 'for ($i = 0; $i < 256; $i++) {printf "/p1%03i \[%3.3f %3.3f %3.3f\] def
 perl -e 'for ($i = 0; $i < 256; $i++) {printf "/c1%03i \{%3.3f setgray\} bind def\\n\\%s", $i, $i/255, "\n";}'
 */
 
-#define EPS_PROLOG \
+#define EPS_PROLOG_1 \
 "%%Magnification: 1.0000\n\
 %%EndComments\n\
 %%BeginProlog\n\
@@ -131,6 +131,8 @@ $F2psDict /mtrx matrix put\n\
 /c68 {1.0 0.267 0.267 srgb} bind def\n\
 /c69 {1.0 0.271 0.271 srgb} bind def\n\
 /c70 {1.0 0.275 0.275 srgb} bind def\n\
+"
+#define EPS_PROLOG_2 "\
 /c71 {1.0 0.278 0.278 srgb} bind def\n\
 /c72 {1.0 0.282 0.282 srgb} bind def\n\
 /c73 {1.0 0.286 0.286 srgb} bind def\n\
@@ -221,6 +223,8 @@ $F2psDict /mtrx matrix put\n\
 /c158 {1.0 0.620 0.620 srgb} bind def\n\
 /c159 {1.0 0.624 0.624 srgb} bind def\n\
 /c160 {1.0 0.627 0.627 srgb} bind def\n\
+"
+#define EPS_PROLOG_3 "\
 /c161 {1.0 0.631 0.631 srgb} bind def\n\
 /c162 {1.0 0.635 0.635 srgb} bind def\n\
 /c163 {1.0 0.639 0.639 srgb} bind def\n\
@@ -312,6 +316,8 @@ $F2psDict /mtrx matrix put\n\
 /p18 [1.0 0.071 0.071] def\n\
 /p19 [1.0 0.075 0.075] def\n\
 /p20 [1.0 0.078 0.078] def\n\
+"
+#define EPS_PROLOG_4 "\
 /p21 [1.0 0.082 0.082] def\n\
 /p22 [1.0 0.086 0.086] def\n\
 /p23 [1.0 0.090 0.090] def\n\
@@ -402,6 +408,8 @@ $F2psDict /mtrx matrix put\n\
 /p108 [1.0 0.424 0.424] def\n\
 /p109 [1.0 0.427 0.427] def\n\
 /p110 [1.0 0.431 0.431] def\n\
+"
+#define EPS_PROLOG_5 "\
 /p111 [1.0 0.435 0.435] def\n\
 /p112 [1.0 0.439 0.439] def\n\
 /p113 [1.0 0.443 0.443] def\n\
@@ -492,6 +500,8 @@ $F2psDict /mtrx matrix put\n\
 /p198 [1.0 0.776 0.776] def\n\
 /p199 [1.0 0.780 0.780] def\n\
 /p200 [1.0 0.784 0.784] def\n\
+"
+#define EPS_PROLOG_6 "\
 /p201 [1.0 0.788 0.788] def\n\
 /p202 [1.0 0.792 0.792] def\n\
 /p203 [1.0 0.796 0.796] def\n\
@@ -587,6 +597,8 @@ $F2psDict /mtrx matrix put\n\
 /c1068 {0.267 setgray} bind def\n\
 /c1069 {0.271 setgray} bind def\n\
 /c1070 {0.275 setgray} bind def\n\
+"
+#define EPS_PROLOG_7 "\
 /c1071 {0.278 setgray} bind def\n\
 /c1072 {0.282 setgray} bind def\n\
 /c1073 {0.286 setgray} bind def\n\
@@ -677,6 +689,8 @@ $F2psDict /mtrx matrix put\n\
 /c1158 {0.620 setgray} bind def\n\
 /c1159 {0.624 setgray} bind def\n\
 /c1160 {0.627 setgray} bind def\n\
+"
+#define EPS_PROLOG_8 "\
 /c1161 {0.631 setgray} bind def\n\
 /c1162 {0.635 setgray} bind def\n\
 /c1163 {0.639 setgray} bind def\n\
@@ -772,6 +786,8 @@ $F2psDict /mtrx matrix put\n\
 /c1253 {0.992 setgray} bind def\n\
 /c1254 {0.996 setgray} bind def\n\
 /c1255 {1.000 setgray} bind def\n\
+"
+#define EPS_PROLOG_9 "\
 /p1000 [0.000 0.000 0.000] def\n\
 /p1001 [0.004 0.004 0.004] def\n\
 /p1002 [0.008 0.008 0.008] def\n\
@@ -863,6 +879,8 @@ $F2psDict /mtrx matrix put\n\
 /p1088 [0.345 0.345 0.345] def\n\
 /p1089 [0.349 0.349 0.349] def\n\
 /p1090 [0.353 0.353 0.353] def\n\
+"
+#define EPS_PROLOG_10 "\
 /p1091 [0.357 0.357 0.357] def\n\
 /p1092 [0.361 0.361 0.361] def\n\
 /p1093 [0.365 0.365 0.365] def\n\
@@ -953,6 +971,8 @@ $F2psDict /mtrx matrix put\n\
 /p1178 [0.698 0.698 0.698] def\n\
 /p1179 [0.702 0.702 0.702] def\n\
 /p1180 [0.706 0.706 0.706] def\n\
+"
+#define EPS_PROLOG_11 "\
 /p1181 [0.710 0.710 0.710] def\n\
 /p1182 [0.714 0.714 0.714] def\n\
 /p1183 [0.718 0.718 0.718] def\n\
@@ -1029,6 +1049,8 @@ $F2psDict /mtrx matrix put\n\
 /p1254 [0.996 0.996 0.996] def\n\
 /p1255 [1.000 1.000 1.000] def\n\
 end\n\
+"
+#define EPS_PROLOG_12 "\
 /cp {closepath} bind def\n\
 /ef {eofill} bind def\n\
 /gr {grestore} bind def\n\

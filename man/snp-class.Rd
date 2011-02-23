@@ -24,7 +24,8 @@
    \item{coerce}{\code{signature(from = "snp", to =
 	"character")}: map to codes "A/A", "A/B", "B/B", or ""}
     \item{coerce}{\code{signature(from = "snp", to = "numeric")}:
-      map to codes 0, 1, 2, or NA}
+      map to numeric values 0, 1, 2 or, for uncertain assignments, to
+      the posterior expectation of the 0, 1, 2 code}
     \item{coerce}{\code{signature(from = "snp", to = "genotype")}: maps
       a single SNP to an object of class \code{"genotype"}. See
       the \code{"genetics"} package}.

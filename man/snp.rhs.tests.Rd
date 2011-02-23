@@ -11,9 +11,9 @@ of the variance function,  "robust" tests may be selected.
 }
 \usage{
 snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent.frame(),
-   snp.data, rules=NULL, tests=NULL, robust = FALSE,
+   snp.data, rules=NULL, tests=NULL, robust = FALSE, uncertain=FALSE, 
    control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98),
-allow.missing=0.01, score=FALSE)
+   allow.missing=0.01, score=FALSE)
 }
 \arguments{
   \item{formula}{The base model formula, with phenotype as dependent variable}
@@ -38,6 +38,9 @@ allow.missing=0.01, score=FALSE)
   \item{weights}{"Prior" weights in the generalized linear model}
   \item{subset}{Array defining the subset of rows of  \code{data} to use}
   \item{robust}{If \code{TRUE}, robust tests will be carried out}
+  \item{uncertain}{If \code{TRUE}, uncertain genotypes are used and
+    scored by their posterior expectations. Otherwise they are treated
+    as missing}
   \item{control}{An object giving parameters for the IRLS algorithm
     fitting of the base model and for the acceptable aliasing amongst
     new terms to be tested. See \code{\link{glm.test.control}}}

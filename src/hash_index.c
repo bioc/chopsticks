@@ -142,4 +142,6 @@ void index_destroy(index_db db) {
       free(this_node);
     }
   }
+  free(db->nodelist);
+  free(db);
 }

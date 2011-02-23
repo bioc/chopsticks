@@ -3,9 +3,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#include "uncertain.h"
 
-
-SEXP X_snp_summary(const SEXP Snps) {
+SEXP X_snp_summary(const SEXP Snps, const SEXP Uncertain) {
 
   /* SNPs ---- an X.snp.matrix */
 
@@ -35,46 +35,57 @@ SEXP X_snp_summary(const SEXP Snps) {
   if (snpNames == R_NilValue) {
     error("Argument error - Snps object has no snp names");
   }
+   
+
+  /* Handling of uncertain genotypes */
+
+  if (TYPEOF(Uncertain) != LGLSXP)
+    error("Argument error: Uncertain is wrong type");
+  int uncert = *LOGICAL(Uncertain);
+
   /* Output object */
 
-  SEXP Result, Calls, Call_rate, MAF, P_AA, P_AB, P_BB, P_AY, P_BY, Z_HWE, Calls_female;
-  PROTECT(Result = allocVector(VECSXP, 10));
+  SEXP Result, Calls, Call_rate, Certain_call_rate, MAF, 
+    P_AA, P_AB, P_BB, P_AY, P_BY, Z_HWE, Calls_female;
+  PROTECT(Result = allocVector(VECSXP, 11));
   PROTECT(Calls = allocVector(INTSXP, M));
   SET_VECTOR_ELT(Result, 0, Calls);
   PROTECT(Call_rate = allocVector(REALSXP, M));
   SET_VECTOR_ELT(Result, 1, Call_rate);
+  PROTECT(Certain_call_rate = allocVector(REALSXP, M));
+  SET_VECTOR_ELT(Result, 2, Certain_call_rate);
   PROTECT(MAF = allocVector(REALSXP, M));
-  SET_VECTOR_ELT(Result, 2, MAF);
+  SET_VECTOR_ELT(Result, 3, MAF);
   PROTECT(P_AA = allocVector(REALSXP, M));
-  SET_VECTOR_ELT(Result, 3, P_AA);
+  SET_VECTOR_ELT(Result, 4, P_AA);
   PROTECT(P_AB = allocVector(REALSXP, M));
-  SET_VECTOR_ELT(Result, 4, P_AB);
+  SET_VECTOR_ELT(Result, 5, P_AB);
   PROTECT(P_BB = allocVector(REALSXP, M));
-  SET_VECTOR_ELT(Result, 5, P_BB);
+  SET_VECTOR_ELT(Result, 6, P_BB);
   PROTECT(P_AY = allocVector(REALSXP, M));
-  SET_VECTOR_ELT(Result, 6, P_AY);
+  SET_VECTOR_ELT(Result, 7, P_AY);
   PROTECT(P_BY = allocVector(REALSXP, M));
-  SET_VECTOR_ELT(Result, 7, P_BY);
+  SET_VECTOR_ELT(Result, 8, P_BY);
   PROTECT(Z_HWE = allocVector(REALSXP, M));
-  SET_VECTOR_ELT(Result, 8, Z_HWE);
+  SET_VECTOR_ELT(Result, 9, Z_HWE);
   PROTECT(Calls_female = allocVector(INTSXP, M));
-  SET_VECTOR_ELT(Result, 9, Calls_female);
-
+  SET_VECTOR_ELT(Result, 10, Calls_female);
   SEXP Names;
-  PROTECT(Names = allocVector(STRSXP, 10));
+  PROTECT(Names = allocVector(STRSXP, 11));
   SET_STRING_ELT(Names, 0, mkChar("Calls"));
   SET_STRING_ELT(Names, 1, mkChar("Call.rate"));
-  SET_STRING_ELT(Names, 2, mkChar("MAF"));
-  SET_STRING_ELT(Names, 3, mkChar("P.AA"));
-  SET_STRING_ELT(Names, 4, mkChar("P.AB"));
-  SET_STRING_ELT(Names, 5, mkChar("P.BB"));
-  SET_STRING_ELT(Names, 6, mkChar("P.AY"));
-  SET_STRING_ELT(Names, 7, mkChar("P.BY"));
-  SET_STRING_ELT(Names, 8, mkChar("z.HWE"));
-  SET_STRING_ELT(Names, 9, mkChar("Calls.female"));
-
+  SET_STRING_ELT(Names, 2, mkChar("Certain.calls"));
+  SET_STRING_ELT(Names, 3, mkChar("MAF"));
+  SET_STRING_ELT(Names, 4, mkChar("P.AA"));
+  SET_STRING_ELT(Names, 5, mkChar("P.AB"));
+  SET_STRING_ELT(Names, 6, mkChar("P.BB"));
+  SET_STRING_ELT(Names, 7, mkChar("P.AY"));
+  SET_STRING_ELT(Names, 8, mkChar("P.BY"));
+  SET_STRING_ELT(Names, 9, mkChar("z.HWE"));
+  SET_STRING_ELT(Names, 10, mkChar("Calls.female"));
   int *calls = INTEGER(Calls);
   double *call_rate = REAL(Call_rate);
+  double *certain = REAL(Certain_call_rate);
   double *maf = REAL(MAF);
   double *p_aa = REAL(P_AA);
   double *p_ab = REAL(P_AB);
@@ -83,9 +94,8 @@ SEXP X_snp_summary(const SEXP Snps) {
   double *p_by = REAL(P_BY);
   double *z_hwe = REAL(Z_HWE);
   int *calls_female = INTEGER(Calls_female);
-
   setAttrib(Result, R_NamesSymbol, Names);
-  setAttrib(Result, R_RowNamesSymbol, duplicate(snpNames));
+  setAttrib(Result, R_RowNamesSymbol, snpNames);
   SEXP dfClass;
   PROTECT(dfClass = allocVector(STRSXP, 1));
   SET_STRING_ELT(dfClass, 0, mkChar("data.frame"));
@@ -93,51 +103,83 @@ SEXP X_snp_summary(const SEXP Snps) {
 
   /* Calculations */
 
-  int *obs = (int *) R_alloc(N, sizeof(int));
+  int *obs = (int *) Calloc(N, int);
   int i, j, ij;
   for (i=0; i<N; i++)
     obs[i] = 0;
 
   for (j=0, ij=0; j<M; j++) {
+    
     int aa = 0, ab = 0, bb = 0, ay=0, by=0;
+    double aap = 0.0, abp = 0.0, bbp = 0.0, ayp=0.0, byp=0.0;
+    int ncall=0, ncertain=0;
     for (i=0; i<N; i++) {
       int g = (int) snps[ij++];
       if (g) {
+	ncall++;
 	obs[i] = 1;
-	if (ifFemale[i]) 
-	  switch (g) {
-	  case 1: aa++; break;
-	  case 2: ab++; break;
-	  case 3: bb++; 
+	if (g<4) {
+	  ncertain++;
+	  if (ifFemale[i]) 
+	    switch (g) {
+	    case 1: aa++; break;
+	    case 2: ab++; break;
+	    case 3: bb++; 
 	  }	  
 	else 
 	  switch (g) {
 	  case 1: ay++; break;
 	  case 3: by++; 
 	  }
+	}
+	else if (uncert) {
+	  double p0, p1, p2;
+	  g2post(g, &p0, &p1, &p2);
+	  if (ifFemale[i]) {
+	    aap += p0;
+	    abp += p1;
+	    bbp += p2;
+	  }
+	  else {
+	    aap += p0;
+	    bbp += p2;
+	  }
+	}
       }
     }
+    
+    /* HWE test only involves certain assignments in females */
+
     double nv = aa + ab + bb;
     double na = 2*aa + ab;
     double p = na/(2.0*nv);
     double q = 1.0 - p;
     double den = 2*p*q*sqrt(nv);
     double z = den>0.0? (ab - 2*p*q*nv)/den: NA_REAL;
-    double ny = ay + by;
+    z_hwe[j] = z;
+
+    /* Call rate stuff */
+
+    calls[j] = ncall;
+    calls_female[j] = nv;
+    call_rate[j] = (double) ncall/(double) N;
+    certain[j] = ncall>0? (double) ncertain /(double) ncall: NA_REAL;
+
+    /* Frequencies */
+
+    nv += aap + abp + bbp;
+    na += 2*aap + abp;
+    double ny = ay + by + ayp + byp;
     double nc = 2*nv + ny;
-    p = (na + ay)/nc;
+    p = (na + ay + ayp)/nc;
     if (p>0.5)
       p = 1.0 - p;
-    calls[j] = nv+ny;
-    calls_female[j] = nv;
-    call_rate[j] = (nv+ny)/(double) N;
     maf[j] = nc>0? p: NA_REAL;
-    p_aa[j] = nv>0? ((double) aa)/nv: NA_REAL;
-    p_ab[j] = nv>0? ((double) ab)/nv: NA_REAL;
-    p_bb[j] = nv>0? ((double) bb)/nv: NA_REAL;
-    p_ay[j] = ny>0? ((double) ay)/ny: NA_REAL;
-    p_by[j] = ny>0? ((double) by)/ny: NA_REAL;
-    z_hwe[j] = z;
+    p_aa[j] = nv>0? ((double) aa + aap)/nv: NA_REAL;
+    p_ab[j] = nv>0? ((double) ab + abp)/nv: NA_REAL;
+    p_bb[j] = nv>0? ((double) bb + bbp)/nv: NA_REAL;
+    p_ay[j] = ny>0? ((double) ay + ayp)/ny: NA_REAL;
+    p_by[j] = ny>0? ((double) by + ayp)/ny: NA_REAL;
   }
   int Nobs = 0;
   for (i=0; i<N; i++) 
@@ -154,12 +196,12 @@ SEXP X_snp_summary(const SEXP Snps) {
       error("Empty matrix");
     }
   }
-  UNPROTECT(13);
+  UNPROTECT(14);
+  Free(obs);
   return Result;
 }
 
-
-SEXP snp_summary(const SEXP Snps) {
+SEXP snp_summary(const SEXP Snps, const SEXP Uncertain) {
 
   /* SNPs ---- a snp.matrix */
 
@@ -184,37 +226,49 @@ SEXP snp_summary(const SEXP Snps) {
   if (snpNames == R_NilValue) {
     error("Argument error - Snps object has no snp names");
   }
+
+  /* Handling of uncertain genotypes */
+
+  if (TYPEOF(Uncertain) != LGLSXP)
+    error("Argument error: Uncertain is wrong type");
+  int uncert = *LOGICAL(Uncertain);
+
   /* Output object */
 
-  SEXP Result, Calls, Call_rate, MAF, P_AA, P_AB, P_BB, Z_HWE;
-  PROTECT(Result = allocVector(VECSXP, 7));
+  SEXP Result, Calls, Call_rate, Certain_call_rate, MAF, 
+    P_AA, P_AB, P_BB, Z_HWE;
+  PROTECT(Result = allocVector(VECSXP, 8));
   PROTECT(Calls = allocVector(INTSXP, M));
   SET_VECTOR_ELT(Result, 0, Calls);
   PROTECT(Call_rate = allocVector(REALSXP, M));
   SET_VECTOR_ELT(Result, 1, Call_rate);
+  PROTECT(Certain_call_rate = allocVector(REALSXP, M));
+  SET_VECTOR_ELT(Result, 2, Certain_call_rate);
   PROTECT(MAF = allocVector(REALSXP, M));
-  SET_VECTOR_ELT(Result, 2, MAF);
+  SET_VECTOR_ELT(Result, 3, MAF);
   PROTECT(P_AA = allocVector(REALSXP, M));
-  SET_VECTOR_ELT(Result, 3, P_AA);
+  SET_VECTOR_ELT(Result, 4, P_AA);
   PROTECT(P_AB = allocVector(REALSXP, M));
-  SET_VECTOR_ELT(Result, 4, P_AB);
+  SET_VECTOR_ELT(Result, 5, P_AB);
   PROTECT(P_BB = allocVector(REALSXP, M));
-  SET_VECTOR_ELT(Result, 5, P_BB);
+  SET_VECTOR_ELT(Result, 6, P_BB);
   PROTECT(Z_HWE = allocVector(REALSXP, M));
-  SET_VECTOR_ELT(Result, 6, Z_HWE);
+  SET_VECTOR_ELT(Result, 7, Z_HWE);
 
   SEXP Names;
-  PROTECT(Names = allocVector(STRSXP, 7));
+  PROTECT(Names = allocVector(STRSXP, 8));
   SET_STRING_ELT(Names, 0, mkChar("Calls"));
   SET_STRING_ELT(Names, 1, mkChar("Call.rate"));
-  SET_STRING_ELT(Names, 2, mkChar("MAF"));
-  SET_STRING_ELT(Names, 3, mkChar("P.AA"));
-  SET_STRING_ELT(Names, 4, mkChar("P.AB"));
-  SET_STRING_ELT(Names, 5, mkChar("P.BB"));
-  SET_STRING_ELT(Names, 6, mkChar("z.HWE"));
+  SET_STRING_ELT(Names, 2, mkChar("Certain.calls"));
+  SET_STRING_ELT(Names, 3, mkChar("MAF"));
+  SET_STRING_ELT(Names, 4, mkChar("P.AA"));
+  SET_STRING_ELT(Names, 5, mkChar("P.AB"));
+  SET_STRING_ELT(Names, 6, mkChar("P.BB"));
+  SET_STRING_ELT(Names, 7, mkChar("z.HWE"));
 
   int *calls = INTEGER(Calls);
   double *call_rate = REAL(Call_rate);
+  double *certain = REAL(Certain_call_rate);
   double *maf = REAL(MAF);
   double *p_aa = REAL(P_AA);
   double *p_ab = REAL(P_AB);
@@ -230,39 +284,64 @@ SEXP snp_summary(const SEXP Snps) {
 
   /* Calculations */
 
-  int *obs = (int *) R_alloc(N, sizeof(int));
+  int *obs = (int *) Calloc(N, int);
   int i, j, ij;
   for (i=0; i<N; i++)
     obs[i] = 0;
-
   for (j=0, ij=0; j<M; j++) {
+    int ncall=0, ncertain=0; 
     int aa = 0, ab = 0, bb = 0;
+    double aap=0.0, abp=0.0, bbp=0.0;
     for (i=0; i<N; i++) {
       int g = (int) snps[ij++];
       if (g) {
+	ncall++;
 	obs[i] = 1;
-	switch (g) {
-	case 1: aa++; break;
-	case 2: ab++; break;
-	case 3: bb++; 	  
+	if (g<4) {
+	  ncertain++;
+	  switch (g) {
+	  case 1: aa++; break;
+	  case 2: ab++; break;
+	  case 3: bb++; 	
+	  } 
+	}
+	else if (uncert) {
+	  double p0, p1, p2;
+	  g2post(g, &p0, &p1, &p2);
+	  aap += p0;
+	  abp += p1;
+	  bbp += p2;
 	}
       }
     }
+    
+    /* HWE test in certain assignments only */
+
     double nv = aa + ab + bb;
     double na = 2*aa + ab;
     double p =  na/(2*nv);
     double q = 1.0 - p;
     double den = 2*p*q*sqrt(nv);
     double z = den>0.0? (ab - 2*p*q*nv)/den: NA_REAL;
+    z_hwe[j] = z;
+
+    /* Call rates */
+
+    calls[j] = ncall;
+    call_rate[j] = (double) ncall/(double) N;
+    certain[j] = ncall>0? (double) ncertain /(double) ncall: NA_REAL;
+
+    /* Frequencies */
+
+    nv += aap + abp + bbp;
+    na += 2*aap + abp;
+    p =  na/(2*nv);
     if (p>0.5)
       p = 1.0 - p;
-    calls[j] = nv;
-    call_rate[j] = nv/(double) N;
     maf[j] = nv>0? p: NA_REAL;
-    p_aa[j] = nv>0? ((double) aa)/nv: NA_REAL;
-    p_ab[j] = nv>0? ((double) ab)/nv: NA_REAL;
-    p_bb[j] = nv>0? ((double) bb)/nv: NA_REAL;
-    z_hwe[j] = z;
+    p_aa[j] = nv>0? ((double) aa + aap)/nv: NA_REAL;
+    p_ab[j] = nv>0? ((double) ab + abp)/nv: NA_REAL;
+    p_bb[j] = nv>0? ((double) bb + bbp)/nv: NA_REAL;
   }
 
   int Nobs = 0;
@@ -280,7 +359,8 @@ SEXP snp_summary(const SEXP Snps) {
       error("Empty matrix");
     }
   }
-  UNPROTECT(10);
+  UNPROTECT(11);
+  Free(obs);
   return Result;
 }
 
@@ -308,21 +388,26 @@ SEXP row_summary(const SEXP Snps) {
   if (rowNames == R_NilValue) {
     error("Argument error - Snps object has no row names");
   }
+  
   /* Output object */
 
-  SEXP Result, Call_rate, Het;
-  PROTECT(Result = allocVector(VECSXP, 2));
+  SEXP Result, Call_rate, Certain_call_rate, Het;
+  PROTECT(Result = allocVector(VECSXP, 3));
   PROTECT(Call_rate = allocVector(REALSXP, N));
   SET_VECTOR_ELT(Result, 0, Call_rate);
+  PROTECT(Certain_call_rate = allocVector(REALSXP, N));
+  SET_VECTOR_ELT(Result, 1, Certain_call_rate);
   PROTECT(Het = allocVector(REALSXP, N));
-  SET_VECTOR_ELT(Result, 1, Het);
+  SET_VECTOR_ELT(Result, 2, Het);
 
   SEXP Names;
-  PROTECT(Names = allocVector(STRSXP, 2));
+  PROTECT(Names = allocVector(STRSXP, 3));
   SET_STRING_ELT(Names, 0, mkChar("Call.rate"));
-  SET_STRING_ELT(Names, 1, mkChar("Heterozygosity"));
+  SET_STRING_ELT(Names, 1, mkChar("Certain.calls"));
+  SET_STRING_ELT(Names, 2, mkChar("Heterozygosity"));
 
   double *call_rate = REAL(Call_rate);
+  double *certain = REAL(Certain_call_rate);
   double *het = REAL(Het);
 
   setAttrib(Result, R_NamesSymbol, Names);
@@ -335,18 +420,22 @@ SEXP row_summary(const SEXP Snps) {
   /* Calculations */
   int i, j, ij;
   for (i=0; i<N; i++) {
-    int ncall = 0, nhet=0;
+    int ncall = 0, nhet=0, ncertain=0;
     for (j=0, ij=i; j<M; j++, ij+=N) {
       unsigned char g = snps[ij];
       if (g) {
 	ncall++;
-	if (g == 0x02) /* Het */
-	  nhet++;
+	if (g<4) {
+	  ncertain++;
+	  if (g == 0x02) /* Het */
+	    nhet++;
+	}
       }
     }
     call_rate[i] = (double) ncall/ (double) M;
-    het[i] = (double) nhet/ (double) ncall;
+    certain[i] = ncall>0? (double) ncertain/(double) ncall: NA_REAL;
+    het[i] = ncall>0? (double) nhet/ (double) ncall: NA_REAL;
   }
-  UNPROTECT(5);
+  UNPROTECT(6);
   return Result;
 }

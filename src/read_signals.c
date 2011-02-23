@@ -210,6 +210,7 @@ SEXP read_signals(SEXP signalfile, SEXP snp_list) {
 
   index_destroy(snp_db);
   gzclose(ginfile);
+  free(line_buffer);
 
   /* TODO: do we need to do something about the original 
      copy of sample_names or do nothing and let it gets 

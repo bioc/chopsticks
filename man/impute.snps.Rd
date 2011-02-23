@@ -3,33 +3,32 @@
 \title{Impute snps}
 \description{
 Given SNPs stored in an object of class \code{"snpMatrix"} or
-\code{"X.snp.matrix"} and a set of imputation equations in as object of
+\code{"X.snp.matrix"} and a set of imputation rules in an object of
 class \code{"snp.reg.imputation"}, this function calculates imputed values.
 }
 \usage{
-impute.snps(rules, snps, subset=NULL)
+impute.snps(rules, snps, subset = NULL, as.numeric = TRUE)
 }
 \arguments{
-  \item{rules}{The imputation equations; an object of class
+  \item{rules}{The imputation rules; an object of class
     \code{"snp.reg.imputation"}}
   \item{snps}{The object of class \code{"snpMatrix"} or
     \code{"X.snp.matrix"} containing the observed SNPs}
   \item{subset}{A vector describing the subset of subjects
     to be used. If \code{NULL} (default), then use all subjects}
+  \item{as.numeric}{If \code{TRUE}, the output is a numeric matrix
+    containing posterior expectations of the imputed SNPs. Otherwise the
+    output matrix is of the same class as \code{snps} and contains
+    uncertain genotype calls}
 }
 \value{
   A matrix with imputed SNPs as columns. The imputed values are the
   estimated expected values of each SNP when coded 0, 1 or 2. 
 }
 \references{
-  Chapman J.M., Cooper J.D., Todd J.A. and Clayton D.G. (2003)
-  \emph{Human Heredity}, \bold{56}:18-31.
+  Wallace, C. et al. (2010) \emph{Nature Genetics}, \bold{42}:68-71
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
-\note{
-  Because the imputation is based on a linear model, the imputed value
-  may lie outside the range 0 to 2.
-}
 \seealso{\code{\link{snp.imputation}}}
 \examples{
 # Remove 5 SNPs from a datset and derive imputation rules for them

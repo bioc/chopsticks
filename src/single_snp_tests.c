@@ -16,9 +16,11 @@
 #include "hash_index.h"
 #include "imputation.h"
 #include "Rmissing.h"
+#include "uncertain.h"
 
 SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps, 
-		  const SEXP Rules, const SEXP Subset, const SEXP Snp_subset){
+		  const SEXP Rules, const SEXP Subset, const SEXP Snp_subset, 
+		  const SEXP Uncertain){
   double vec[4] = {1.0, 0.0, 0.0, 0.0};
   /* int i, j, k, km, m, t, su; */
 
@@ -134,6 +136,13 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
     female = LOGICAL(Female);
   }
 
+  /* Handling of uncertain genotypes */
+
+  if (TYPEOF(Uncertain) != LGLSXP)
+    error("Argument error: Uncertain is wrong type");
+  int uncert = *LOGICAL(Uncertain);
+
+ 
   /* Output objects */
  
   SEXP Result, Used, U, V;
@@ -208,7 +217,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	    xadd[j] = xdom[j] = 0.0;
 	}
 	else {
-	  do_impute(snps, n, subset, nsubj, name_index, Rule, gt2ht, 
+	  do_impute(snps, n, NULL, subset, nsubj, name_index, Rule, gt2ht, 
 		    xadd, xdom);
 	  r2 = *REAL(VECTOR_ELT(Rule, 1));
 	}
@@ -234,8 +243,9 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	vec[1] = phenotype[j];
 	double *uv = UV[strat];
 	if (nrules) {
-	  vec[2] = xadd[su];
-	  if (!ISNA(vec[2])) {
+	  double ax = xadd[su];
+	  vec[2] = ax;
+	  if (!ISNA(ax)) {
 	    nu++;
 	    vec[3] = xdom[su];
 	    for (int k=0, km=0; k<4; k++) {
@@ -247,10 +257,9 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	}
 	else {
 	  unsigned char zij = snpsi[j];
-	  if (zij) {
+	  if (zij&&((zij<4)|uncert)) {
 	    nu++;
-	    vec[2] = zij - 1;
-	    vec[3] = (zij==3);
+	    g2ad(zij, vec+2, vec+3);
 	    for (int k=0, km=0; k<4; k++) {
 	      double vk = vec[k];
 	      for (int m=0; m<=k; m++)
@@ -312,7 +321,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	    xadd[j] = xdom[j] = 0.0;
 	}
 	else {
-	  do_impute(snps, n, subset, nsubj, name_index, Rule, gt2ht, 
+	  do_impute(snps, n, female, subset, nsubj, name_index, Rule, gt2ht, 
 		    xadd, xdom);
 	  r2 = *REAL(VECTOR_ELT(Rule, 1));
 	}
@@ -351,10 +360,9 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	}
 	else {
 	  unsigned char zij = snpsi[j];
-	  if (zij) {
+	  if (zij&&((zij<4)|uncert)) {
 	    nu++;
-	    vec[2] = zij - 1;
-	    vec[3] = (zij==3);
+	    g2ad(zij, vec+2, vec+3);
 	    for (int k=0, km=0; k<4; k++) {
 	      double vk = vec[k];
 	      for (int m=0; m<=k; m++)

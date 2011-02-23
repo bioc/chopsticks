@@ -483,6 +483,7 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
   contentlist_destroy(listhead.next);
   free(translation);
   free(current_line);
+  free(snp_summary);
 
   /* final result */
   SEXP ans = R_NilValue, ans_names = R_NilValue;

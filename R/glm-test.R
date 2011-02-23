@@ -12,7 +12,7 @@ function(maxit, epsilon, R2Max)
 snp.lhs.tests <-
   
 function(snp.data, base.formula, add.formula, subset, snp.subset,
-         data=sys.parent(), robust=FALSE,
+         data=sys.parent(), robust=FALSE, uncertain=FALSE,
          control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98),
          score=FALSE)
 {   
@@ -144,7 +144,7 @@ function(snp.data, base.formula, add.formula, subset, snp.subset,
       stop("illegal type for snp.subset")
   }
   .Call("snp_lhs_score",
-        snp.data, X, strats, Z, snp.subset, robust, clust,
+        snp.data, X, strats, Z, snp.subset, robust, clust, uncertain,
         control, as.logical(score), PACKAGE="snpMatrix")
 }
 
@@ -153,7 +153,7 @@ function(snp.data, base.formula, add.formula, subset, snp.subset,
 snp.rhs.tests <-
 function(formula, family="binomial", link, weights, subset,
           data=parent.frame(), snp.data, rules=NULL, 
-          tests=NULL, robust=FALSE,
+          tests=NULL, robust=FALSE, uncertain=FALSE, 
           control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98),
           allow.missing=0.01, score=FALSE) {
   
@@ -341,7 +341,7 @@ function(formula, family="binomial", link, weights, subset,
   }
   
   .Call("snp_rhs_score", Y, fam, lnk, X, strats, snp.data, rules,
-        weights, tests, robust, clust, control, allow.missing,
+        weights, tests, robust, clust, uncertain, control, allow.missing,
         as.logical(score),
         PACKAGE="snpMatrix")
 }  

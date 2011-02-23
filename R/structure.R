@@ -1,29 +1,29 @@
 # Routines for structure analyses
 
-xxt <- function(snps, strata=NULL,
-                correct.for.missing=FALSE, lower.only=FALSE) {
+xxt <- function(snps, strata=NULL, correct.for.missing=FALSE,
+                lower.only=FALSE, uncertain = FALSE) {
   if (!is.null(strata) && !is.factor(strata))
     strata <- as.factor(strata)
-  .Call("xxt", snps, strata, correct.for.missing, lower.only,
+  .Call("xxt", snps, strata, correct.for.missing, lower.only, uncertain,
         PACKAGE="snpMatrix")
 }
 
-ibsCount <- function(snps) {
-  .Call("ibs_count", snps, PACKAGE="snpMatrix")
+ibsCount <- function(snps, uncertain=FALSE) {
+  .Call("ibs_count", snps, uncertain, PACKAGE="snpMatrix")
 }
 
 ibsDist <- function(counts) {
   .Call("ibs_dist", counts, PACKAGE="snpMatrix")
 }
 
-snp.pre.multiply <- function(snps,  mat, frequency=NULL) {
-  .Call("snp_pre", snps, mat, frequency, PACKAGE="snpMatrix")
+snp.pre.multiply <- function(snps,  mat, frequency=NULL, uncertain=FALSE ) {
+  .Call("snp_pre", snps, mat, frequency, uncertain, PACKAGE="snpMatrix")
 }
 
-snp.post.multiply <- function(snps,  mat, frequency=NULL) {
-  .Call("snp_post", snps, mat, frequency, PACKAGE="snpMatrix")
+snp.post.multiply <- function(snps,  mat, frequency=NULL, uncertain=FALSE) {
+  .Call("snp_post", snps, mat, frequency, uncertain, PACKAGE="snpMatrix")
 }
 
-snp.cor <- function(x, y) {
-  .Call("corsm", x, as.matrix(y), PACKAGE="snpMatrix")
+snp.cor <- function(x, y, uncertain=FALSE) {
+  .Call("corsm", x, as.matrix(y), uncertain, PACKAGE="snpMatrix")
 }

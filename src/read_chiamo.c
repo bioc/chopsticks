@@ -214,6 +214,8 @@ SEXP read_chiamo(SEXP mcmc_file, SEXP sample_list, SEXP threshold) {
 
   } /* while (1) */
   
+  free(current_line);
+
   if (read_failed) {
     break; /* break out of the for loop */
   }

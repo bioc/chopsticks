@@ -151,12 +151,7 @@ setMethod("[<-", signature(x="X.snp.matrix",i="ANY",j="ANY",value="X.snp.matrix"
 
 setAs("snp.matrix", "numeric",
       function(from) {
-        to <- unclass(from)
-        mode(to) <- "integer"
-        if (any(to>3))
-          warning("Illegal SNP code(s)")
-        to[to==0 | to>3] <- NA
-        to-1
+        .Call("asnum", from, PACKAGE="snpMatrix")
       })
 
 setAs("snp", "character",
@@ -182,7 +177,8 @@ setAs("X.snp", "character",
 setAs("snp.matrix", "character",
       function(from) {
         df <- dim(from)
-        to <- c("", "A/A", "A/B", "B/B")[1+as.integer(from)]
+        from <- 1+as.integer(from)
+        to <- ifelse(from<5, c("NA", "A/A", "A/B", "B/B")[from], "Uncertain")
         dim(to) <- df
         dimnames(to) <- dimnames(from)
         to
@@ -196,18 +192,20 @@ setAs("snp.matrix", "X.snp.matrix",
 setAs("X.snp.matrix", "character",
       function(from) {
         df <- dim(from)
-        to <- c("", "A/Y", "Error", "B/Y", "", "A/A", "A/B", "B/B")[
-            1+as.integer(from)+ 4*rep(from@Female, ncol(from))]
+        ifr <- 1 + as.integer(from)
+        offset <-  4*rep(from@Female, ncol(from))
+        to <- ifelse(ifr<5, c("NA", "A/Y", "Error", "B/Y",
+                               "NA", "A/A", "A/B", "B/B")[ifr + offset],
+                     "Uncertain")
         dim(to) <- df
         dimnames(to) <- dimnames(from)
         to
       })
 
 setAs("snp", "numeric",
-      function(from) ifelse(from==00, NA, as.integer(from)-1))
-
-setAs("X.snp", "numeric",
-      function(from) ifelse(from==00, NA, as.integer(from)-1))
+      function(from) {
+        .Call("asnum", from, PACKAGE="snpMatrix")
+      })
 
 #2007-02-27 does this really work with the genetics package loaded?
 # Error in callNextMethod() : a call to callNextMethod() appears in
@@ -270,7 +268,7 @@ setMethod("summary", "X.snp.matrix",
      names(tab) <- ifelse(as.logical(names(tab)), "Female", "Male")
      list(sex = tab,
           rows = summary(row.summary(object)),
-          cols = summary(col.summary(object)))
+          cols = summary(col.summary(object, uncertain=TRUE)))
    })
 
 # Imputation
@@ -282,8 +280,7 @@ setMethod("summary", "snp.reg.imputation",
      info <- .Call("r2_impute", object, PACKAGE="snpMatrix")
      i2 <- info[,2]
      levs <- sort(unique(i2))
-     labs <- paste(ceiling(levs/2), "tags", 
-                   ifelse(levs %% 2, "(reg)", "(hap)"))
+     labs <- paste(levs, "tags")
      size <- factor(i2, levels= levs, labels=labs)
      table(cut(info[,1], c((0:9)/10, 0.95, 0.99, 1.0)), size, 
            dnn=c("R-squared", "SNPs used"), useNA="ifany")
@@ -312,9 +309,9 @@ setMethod("show", "snp.reg.imputation",
          cat(to[i], "~ No imputation available\n")
        else {
          if (is.null(object[[i]]$hap.probs)) 
-           cat(to[i], " ~ ", paste(object[[i]]$snps, collapse="+"))
+           stop("Old imputation rule - not supported by this version")
          else 
-           cat(to[i], " ~ ", paste(object[[i]]$snps, collapse="*"))
+           cat(to[i], " ~ ", paste(object[[i]]$snps, collapse="+"))
          cat(" (MAF = ", object[[i]]$maf, 
              ", R-squared = ", object[[i]]$r.squared,
              ")\n", sep="")

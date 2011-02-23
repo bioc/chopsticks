@@ -20,7 +20,7 @@ snp.imputation<- function(X, Y, pos.X, pos.Y, phase=FALSE, try=50,
         stopping, use.hap, em.cntrl, as.real(minA), PACKAGE="snpMatrix")
 }
 
-impute.snps <- function(rules, snps, subset=NULL) {
+impute.snps <- function(rules, snps, subset=NULL, as.numeric=TRUE) {
   if (class(rules)!= "snp.reg.imputation")
     stop("incorrect class for `rules' argument")
   if (class(snps)!= "snp.matrix" && class(snps)!="X.snp.matrix")
@@ -36,7 +36,7 @@ impute.snps <- function(rules, snps, subset=NULL) {
     if (any((subset<1) | (subset>nr)))
       stop("row number out of range in subset argument")
   }
-  .Call("impute_snps", rules, snps, subset, PACKAGE="snpMatrix")
+  .Call("impute_snps", rules, snps, subset, as.numeric, PACKAGE="snpMatrix")
 }
 
 # Returns names of rules (imputed snps) which feature excluded SNPs
