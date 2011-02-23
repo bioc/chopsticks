@@ -11,8 +11,8 @@ Implements classes and methods for large-scale SNP association studies
 \details{
 \tabular{ll}{
 Package: \tab snpMatrix\cr
-Version: \tab 1.13.2\cr
-Date: \tab 2010-04-12\cr
+Version: \tab 1.13.8\cr
+Date: \tab 2010-10-14\cr
 Depends: \tab R(>= 2.3.0), survival, methods\cr
 Imports: \tab graphics, grDevices, methods, stats, survival, utils\cr
 Suggests: \tab hexbin\cr
@@ -22,7 +22,7 @@ URL: \tab http://www-gene.cimr.cam.ac.uk/clayton/software/\cr
 Collate: \tab ld.with.R ss.R contingency.table.R glm-test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq-chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R snp.compare.R tdt-single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
 LazyLoad: \tab yes\cr
 biocViews: \tab Microarray, SNP, GeneticVariability\cr
-Built: \tab R 2.11.1; x86_64-pc-linux-gnu; 2010-07-14 14:47:57 UTC; unix\cr
+Built: \tab R 2.11.1; x86_64-pc-linux-gnu; 2010-10-15 08:54:03 UTC; unix\cr
 }
 
 Index:
@@ -33,6 +33,7 @@ X.snp.matrix-class      Class "X.snp.matrix"
 chi.squared             Extract test statistics and p-values
 epsout.ld.snp           Function to write an eps file directly to
                         visualize LD
+example-new             An example of intensity data for SNP genotyping
 families                Test data for family association tests
 filter.rules            Filter a set of imputation rules
 for.exercise            Data for exercise in use of the snpMatrix
