@@ -16,11 +16,11 @@ ibsDist <- function(counts) {
   .Call("ibs_dist", counts, PACKAGE="snpMatrix")
 }
 
-snp.pre <- function(snps,  mat, frequency=NULL) {
+snp.pre.multiply <- function(snps,  mat, frequency=NULL) {
   .Call("snp_pre", snps, mat, frequency, PACKAGE="snpMatrix")
 }
 
-snp.post <- function(snps,  mat, frequency=NULL) {
+snp.post.multiply <- function(snps,  mat, frequency=NULL) {
   .Call("snp_post", snps, mat, frequency, PACKAGE="snpMatrix")
 }
 

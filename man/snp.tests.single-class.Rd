@@ -9,7 +9,7 @@
 \alias{effective.sample.size,snp.tests.single-method}
 \alias{show,snp.tests.single-method}
 \alias{summary,snp.tests.single-method}
-
+\alias{coerce,snp.tests.single,data.frame-method}
 \alias{snp.tests.single.score-class}
 \alias{[,snp.tests.single.score,ANY,missing,missing-method}
 \alias{effect.sign,snp.tests.single.score,missing-method}
@@ -63,6 +63,8 @@ provide methods for pooling results from several studies or parts of a study
       Evaluate 1- and 2-df test p-values}
     \item{show}{\code{signature(object = "snp.tests.single")}:
       List all tests and p-values}
+    \item{coerce}{\code{signature(from = "snp.tests.single", to = "data.frame")}:
+      Conversion to data frame class}
     \item{sample.size}{\code{signature(object = "snp.tests.single")}:
       Extract sample sizes for tests}
     \item{effective.sample.size}{\code{signature(object = "snp.tests.single")}:

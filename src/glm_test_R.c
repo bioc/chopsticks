@@ -1119,10 +1119,12 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
   if (TYPEOF(Epsilon)!=REALSXP || LENGTH(Epsilon)!=1)
     error("Argument error - Epsilon");
   double epsilon = REAL(Epsilon)[0];
+  /*not used*//*
   SEXP R2Max = VECTOR_ELT(Control, 2);
   if (TYPEOF(R2Max)!=REALSXP || LENGTH(R2Max)!=1)
     error("Argument error - R2Max");
   double r2Max = REAL(R2Max)[0];
+  */
   
   /* Work arrays */
 
@@ -1447,10 +1449,12 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
   if (TYPEOF(Epsilon)!=REALSXP || LENGTH(Epsilon)!=1)
     error("Argument error - Epsilon");
   double epsilon = REAL(Epsilon)[0];
+  /* not used *//*
   SEXP R2Max = VECTOR_ELT(Control, 2);
   if (TYPEOF(R2Max)!=REALSXP || LENGTH(R2Max)!=1)
     error("Argument error - R2Max");
   double r2Max = REAL(R2Max)[0];
+  */
 
   /* Work arrays */
 
@@ -1574,7 +1578,6 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
 			&scale, &df_r, &pest, which, beta, tri);
       if (err) 
 	warning("No convergence while fitting model for set %d", set+1);
-
       if (!pest) {
 	warning("No estimable parameters for set %d", set+1);
 	SET_VECTOR_ELT(Estimates, set, R_NilValue);
@@ -1599,11 +1602,11 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
 	  if (weights[i]) nunit++;
 	*INTEGER(Nu) = nunit;
       
-	/* Names for B */
 
+	/* Names for B */
 	for (int i=0; i<pest; i++) {
 	  SET_STRING_ELT(Snames, i, 
-			 STRING_ELT(Snp_names, snps[which[i]-1]-1));
+			 STRING_ELT(Snp_names, snps[which[i]-M]-1));
 	}
 	setAttrib(B, R_NamesSymbol, Snames);
 	

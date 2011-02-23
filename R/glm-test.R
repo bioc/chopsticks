@@ -609,7 +609,7 @@ function(formula, family="binomial", link, weights, subset,
     else
       stop("Response is not on two levels")
   }
-  Yname <- rownames(attr(Terms, "factors"))[attr(Terms, "response")]
+  Yname <- as.character(Terms, "variables")[[2]]
 
   # Model matrix -- minus any cluster or strata variables
 
@@ -647,7 +647,7 @@ function(formula, family="binomial", link, weights, subset,
     X <- X[, -ones, drop=FALSE]
   if (ncol(X) == 0)
     X <- NULL
-  
+
   # Prior weights
 
   if (!is.null(model.weights(m))) {

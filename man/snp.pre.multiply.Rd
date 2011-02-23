@@ -1,18 +1,18 @@
-\name{snp.pre}
-\alias{snp.pre}
-\alias{snp.post}
+\name{snp.pre.multiply}
+\alias{snp.pre.multiply}
+\alias{snp.post.multiply}
 \title{Pre- or post-multiply a snp.matrix object by a general matrix}
 \description{
   These functions first standardize the input \code{snp.matrix} in the
   same way as does the function \code{\link{xxt}}. The standardized
-  matrix is then either pre-multiplied (\code{snp.pre}) or
-  post-multiplied (\code{snp.post}) by a general matrix. Allele
+  matrix is then either pre-multiplied (\code{snp.pre.multiply}) or
+  post-multiplied (\code{snp.post.multiply}) by a general matrix. Allele
   frequencies for standardizing the input snp.matrix may be supplied
   but, otherwise, are calculated from the input snp.matrix
 }
 \usage{
-snp.pre(snps, mat, frequency=NULL)
-snp.post(snps, mat, frequency=NULL)
+snp.pre.multiply(snps, mat, frequency=NULL)
+snp.post.multiply(snps, mat, frequency=NULL)
 }
 \arguments{
   \item{snps}{An object of class \code{"snp.matrix"} or \code{"X.snp.matrix"}}
@@ -52,9 +52,9 @@ pc <- eigvv$vectors[,1:2]
 ev <- eigvv$values[1:2]
 # Calculate loadings for first two principal components
 Dinv <- diag(1/sqrt(ev))
-loadings <- snp.pre(small,  Dinv \%*\% t(pc))
+loadings <- snp.pre.multiply(small,  Dinv \%*\% t(pc))
 # Now apply loadings back to recalculate the principal components
-pc.again <- snp.post(small, t(loadings) \%*\% Dinv)
+pc.again <- snp.post.multiply(small, t(loadings) \%*\% Dinv)
 print(cbind(pc, pc.again))
 }
 \keyword{array}

@@ -100,6 +100,6 @@ tdt.snp(ped, id, father, mother, affected, data = sys.parent(), snp.data,
 }
 \examples{
 data(families)
-tdt.snp(data=pedfile, snp.data=genotypes)
+print(tdt.snp(data=pedfile, snp.data=genotypes))
 }
 \keyword{htest}

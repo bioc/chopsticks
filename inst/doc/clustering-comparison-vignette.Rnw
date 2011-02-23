@@ -1,0 +1,212 @@
+\documentclass[11pt]{article}
+\usepackage{fullpage}
+\usepackage{color}
+\usepackage{fancyvrb}
+\usepackage{graphicx}
+
+\usepackage[pdftex,
+bookmarks,
+bookmarksopen,
+pdfauthor={Hin-Tak Leung},
+pdftitle={Comparing clustering algorithms}]
+{hyperref}
+
+\title{Comparing clustering algorithms}
+\author{Hin-Tak Leung}
+\date{\today}
+
+\usepackage{Sweave}
+\SweaveOpts{echo=TRUE, pdf=TRUE, eps=FALSE}
+
+\begin{document}
+\setkeys{Gin}{width=1.0\textwidth}
+
+%\VignetteIndexEntry{Rill}
+%\VignettePackage{Rill}
+
+\maketitle
+
+\section{Introduction}
+This document is the accumulation of a few somewhat unrelated threads of development:
+
+\begin{itemize}
+\item During the WTCCC study (phase 1, for which {\tt snpMatrix} was written), some multi-panel colourised cluster-plot
+drawing code in R, mainly to verify the validity of cluster across cohorts. e.g. a 3x3 panel works very well for 7 common
+diseases plus 2 controls. This becomes {\tt snp.clust.plot} function described later.
+\item When I noticed from looking at the cluster plots of some Illumina data I was working on that
+Illuminus is buggy and plainly wrong when calling the sex chromosomes, I wrote some simple low-level composite C/R code to catalogue the
+differences between Illuminus and GenTrain 1 to find out on which SNP they behaves most differently. This eventually becomes
+the {\tt snp.compare} function described later.
+\item Almost 4 years after GenTrain 1 stabilised (in January 2006), Illumina debuted
+an alternative genotype-calling algorithm called ``GenTrain 2'' in December 2009 with the release of GenomeStudio 2009.2; ``GenTrain 2'' becomes
+the default with fresh installation of the next release, GenomeStudio 2010.1 (March 2010). {\tt SpringOnion} added the
+ability to run ``GenTrain 2'' very soon afterwards.
+\end{itemize}
+
+Given that ``GenTrain 2'' is now the default, obviously Illumina staff must believe that it
+does a better job than ``GenTrain 1'' (besides its being marginally about 5\% faster). The question is, in what way? We have a way of running the same raw data
+through two different algorithms, a way of cataloguing differences, and a way of displaying them side-by-side. So that's what the rest of the document does.
+
+Similar techniques can be used for studying differences between any two algorithms.
+
+\section{Finding the largest differences}
+
+Using the 1550 samples of 99 SNPs of the Illuminus example set (the data is neither typical of BeadArray nor very good,
+but ``real'' data requires scrubbing and obfuscating). Reading the genotypes in:
+
+<<init>>=
+library(snpMatrix)
+load(system.file("data/Genotypes.GenTrain1.Rda",package="snpMatrix"))
+load(system.file("data/Genotypes.GenTrain2.Rda",package="snpMatrix"))
+@
+
+Reading the raw cluster data in:
+
+<<>>=
+ab.signals <- read.wtccc.signals(system.file("data/example-new.txt", package="snpMatrix"),
+                                 paste("rs", 1:99, sep=""))
+@
+
+We'll just quickly run snpMatrix's SNP summary function to verify:
+
+<<>>=
+col.summary(GenTrain2)[1:3,2:7]
+@
+
+Calculate the largest difference count of the two genotype objects, and plot a histogram:
+
+<<lothist,fig=TRUE>>=
+result <- snp.compare(GenTrain1, GenTrain2)
+diff.counts <- result$count
+hist(diff.counts,breaks=50,col='black')
+@
+
+More than half of the SNPs shows zero or close to zero differences between GenTrain 1 and GenTrain 2.
+
+{\bf Lesson 1: For most SNPs (which are well-behaved and have 3 well-separated clusters), any half-decent calling algorithms
+do almost exactly the same thing.}
+
+{\bf Corollary 1: One must look at where two algorithms differ to see which one is ``correct'' more often.}
+
+{\bf Corollary 2: If one can make sure that where two algorithms differ, one algorithm is more ``correct`` than the other, then that's what matters.}
+
+<<>>=
+dim(GenTrain1)
+diff.counts[diff.counts > 1550 * 0.1]
+diff.counts[diff.counts > 1550 * 0.05]
+worst.snps <- names(diff.counts[diff.counts > 1550 * 0.20])
+worst.snps
+@
+
+There are 5 SNPs with more than 20\% difference. Let's plot these 5 SNPs:
+
+% rs22
+
+<<plot-clus1gtrs22,fig=TRUE,width=6,height=3>>=
+par(mfrow=c(1,2),plt=c(0.25, 0.9, 0.15, 0.8),col.main="black",col.axis="black",cex=0.5,cex.main=1.7)
+snp.clust.plot(ab.signals[['rs22']], GenTrain1[,'rs22'], title='rs22 GenTrain1')
+snp.clust.plot(ab.signals[['rs22']], GenTrain2[,'rs22'], title='rs22 GenTrain2')
+@
+
+GenTrain 2 does a better job at calling more of the homozygous AA for rs22.
+
+
+% rs27
+
+<<plot-clus1gtrs27,fig=TRUE,echo=FALSE,width=6,height=3>>=
+par(mfrow=c(1,2),plt=c(0.25, 0.9, 0.15, 0.8),col.main="black",col.axis="black",cex=0.5,cex.main=1.7)
+snp.clust.plot(ab.signals[['rs27']], GenTrain1[,'rs27'], title='rs27 GenTrain1')
+snp.clust.plot(ab.signals[['rs27']], GenTrain2[,'rs27'], title='rs27 GenTrain2')
+@
+
+SNP rs27 is almost monomorphic --- while one is inclined to say GenTrain 2 is better, GenTrain 2 also mis-behaves more than
+GenTrain 1 in calling some of the outliers (which were not called by GenTrain 1).
+
+There are often wishful thinking along the line that higher call rates are always better. This bias often comes from the idea that
+since one already spent the effort for the samples to be processed, it is nicer to get {\em a} genotype than not getting one.
+
+{\bf Lesson 2: Being optimistic (calling more) can be wrong.}
+
+% rs62
+
+<<plot-clus1gtrs62,fig=TRUE,echo=FALSE,width=6,height=3>>=
+par(mfrow=c(1,2),plt=c(0.25, 0.9, 0.15, 0.8),col.main="black",col.axis="black",cex=0.5,cex.main=1.7)
+snp.clust.plot(ab.signals[['rs62']], GenTrain1[,'rs62'], title='rs62 GenTrain1')
+snp.clust.plot(ab.signals[['rs62']], GenTrain2[,'rs62'], title='rs62 GenTrain2')
+@
+
+% rs80
+
+<<plot-clus1gtrs80,fig=TRUE,echo=FALSE,width=6,height=3>>=
+par(mfrow=c(1,2),plt=c(0.25, 0.9, 0.15, 0.8),col.main="black",col.axis="black",cex=0.5,cex.main=1.7)
+snp.clust.plot(ab.signals[['rs80']], GenTrain1[,'rs80'], title='rs80 GenTrain1')
+snp.clust.plot(ab.signals[['rs80']], GenTrain2[,'rs80'], title='rs80 GenTrain2')
+@
+
+SNP rs80 is somewhat similar to rs27 in that the SNP is near monomorphic and GenTrain 2 decides
+(somewhat arbitrarily) to classify outliers into minor clusters.
+
+% rs94
+
+<<plot-clus1gtrs94,fig=TRUE,echo=FALSE,width=6,height=3>>=
+par(mfrow=c(1,2),plt=c(0.25, 0.9, 0.15, 0.8),col.main="black",col.axis="black",cex=0.5,cex.main=1.7)
+snp.clust.plot(ab.signals[['rs94']], GenTrain1[,'rs94'], title='rs94 GenTrain1')
+snp.clust.plot(ab.signals[['rs94']], GenTrain2[,'rs94'], title='rs94 GenTrain2')
+@
+
+GenTrain 2 works very well on SNP rs94.
+
+\subsection{Does GenTrain 2 ever work less well than GenTrain1?}
+
+GenTrain 2 gives almost uniformly higher call rate across all SNPs:
+
+<<lothist2,fig=TRUE>>=
+count.signed <- result$count.signed
+hist(count.signed,breaks=50,col='black')
+@
+
+The two SNPs which give somewhat lower call rates under GenTrain 2 are:
+
+<<>>=
+result$count.signed[result$count.signed < -30]
+@
+
+The differences are some what subtle when the cluster plots are examined:
+
+<<plot-clus1gtrs13,fig=TRUE,echo=FALSE,width=6,height=3>>=
+par(mfrow=c(1,2),plt=c(0.25, 0.9, 0.15, 0.8),col.main="black",col.axis="black",cex=0.5,cex.main=1.7)
+snp.clust.plot(ab.signals[['rs13']], GenTrain1[,'rs13'], title='rs13 GenTrain1')
+snp.clust.plot(ab.signals[['rs13']], GenTrain2[,'rs13'], title='rs13 GenTrain2')
+@
+
+<<plot-clus1gtrs69,fig=TRUE,echo=FALSE,width=6,height=3>>=
+par(mfrow=c(1,2),plt=c(0.25, 0.9, 0.15, 0.8),col.main="black",col.axis="black",cex=0.5,cex.main=1.7)
+snp.clust.plot(ab.signals[['rs69']], GenTrain1[,'rs69'], title='rs69 GenTrain1')
+snp.clust.plot(ab.signals[['rs69']], GenTrain2[,'rs69'], title='rs69 GenTrain2')
+@
+
+
+
+\section{Call rates and HWE}
+
+Let's have a look at the call rates, etc of those 5 worst SNPs again:
+
+<<>>=
+col.summary(GenTrain1)[worst.snps,2:7]
+col.summary(GenTrain2)[worst.snps,2:7]
+@
+
+In all cases, GenTrain 2 gives higher rates. We also see that GenTrain 2 allows HWE to deviate from normal a lot.
+Looking back at the cluster plots, we can see how that happens: GenTrain 2 calls more outliers when MAF
+is low and the SNP is near monomorphic. Or, conversely, near-monomorphic SNPs (which could also be clustering errors,
+i.e. where two of the clusters are mis-clustered as one, and lone outliers are classified as the 3rd cluster) shows up as low
+call-rates under GenTrain 1 (which tends to put an arbitrary cut in the middle), while GenTrain 2 draws in outliers
+and the SNP shows up with strong deviation from HWE.
+
+Under the conventional filtering rules: a sufficiently high call rate (say 95\%) and good HWE (|HWE| < 5), all 5 are rather poor under GenTrain 1,
+but rs94 becomes almost acceptable (as is shown in the cluster plot) under GenTrain 2.
+
+In any case, as a final remark: GenTrain 2 is the new default --- it doesn't necessarily mean it is any good, but
+3rd-party alternative needs to compared well with it under ``fair'' conditions where both are run optimally.
+
+\end{document}

@@ -106,10 +106,10 @@ pos.pres <- snp.support$position[in.target]
 The next step is to calculate a set of rules which
 for imputing the {\tt missing} SNPs from the {\tt
   present} SNPs. This is carried out by the function 
-  {\tt snp.imputation}:\footnote{Sometimes this command generates a 
+  {\tt snp.imputation}\footnote{Sometimes this command generates a
     warning message concerning the maximum number of EM iterations. If this 
     only concerns a small proportion of the SNPs to be imputed it can be 
-    ignored}
+    ignored.}:
 
 <<rules>>=
 rules <- snp.imputation(present, missing, pos.pres, pos.miss)
@@ -139,6 +139,12 @@ A short listing of the first 10 rules follows:
 <<rule1>>=
 rules[1:10]
 @ 
+
+The rules are also selectable by SNP for detailed examination:
+<<rule2>>=
+rules[c('rs7898275', 'rs9419496')]
+@
+
 Regression-based rules are shown with a {\tt +} symbol separating
 predictor SNPs, while haplotype-based rules are shown with a {\tt *}
 separator. 
@@ -153,7 +159,7 @@ represent grouping on $R^2$. The last column (headed {\tt <NA>})
 represents SNPs for which an imputation rule could  not be computed,
 either because they were monomorphic or because there was insufficient
 data (as determined by the {\tt minA} optional argument in the call to
-\tt{snp.imputation}). The same information may be displayed graphically by
+{\tt snp.imputation}). The same information may be displayed graphically by
 
 <<ruleplot,fig=TRUE>>=
 plot(rules)
@@ -218,7 +224,7 @@ The function {\tt snp.rhs.glm} also allows testing imputed SNPs. In
 its simplest form, it can be used to calculate essentially the same
 tests as carried out with 
 {\tt single.snp.tests}\footnote{There is a small discrepancy, of the 
-  order of $(N-1):N$}
+  order of $(N-1):N$ .}
 (although, being a more flexible function, this will run
   somewhat slower). The next commands recalculate the 1 df tests for
   the imputed SNPs using {\tt snp.rhs.tests}, and plot the results
@@ -247,9 +253,9 @@ of no association. Denote this by $U$. We also calculate an estimate
 of its variance,  also under the null hypothesis --- $V$ say. Then
 $U^2/V$ provides the chi-squared test on 1~df. This procedure extends
 easily to meta-analysis; given two independent studies of the same
-hypothesis, we simply add together to two values of $U$ and the two
+hypothesis, we simply add together the two values of $U$ and the two
 values of $V$, and then calculate $U^2/V$ as before. These ideas also
-extend naturally to tests of several parameters (2 or more df tests)
+extend naturally to tests of several parameters (2 or more df tests).
 
 In {\tt snpMatrix}, the statistical testing functions can be
 called with the option {\tt score=TRUE}, causing an extended object to
@@ -264,7 +270,7 @@ class(imp)
 This object contains the imputed SNP tests in our target set. However,
 these SNPs were observed in our training set, so we can test
 them. We will also recalculate the imputed tests. In both cases we
-will saving the score information:
+will save the score information:
 <<save-scores>>=
 obs <- single.snp.tests(cc, stratum, data=subject.support, snp.data=missing, 
                         score=TRUE)
@@ -315,9 +321,9 @@ Reversal of sign can be the explanation of a puzzling phenomenon when
 two studies give significant results individually, but no significant
 association when pooled. Although it is not impossible that such
 results are genuine, a more usual explanation is that the two alleles
-have been differently coded in the two studies: allele~1 in the first
+have been coded differently in the two studies: allele~1 in the first
 study is allele~2 in the second study and vice versa. To allow for
-this {\tt snpMatrix} provides the {\tt switch.alleles} function, which
+this, {\tt snpMatrix} provides the {\tt switch.alleles} function, which
 reverses the coding of specified SNPs. It can be applied to {\tt
   snp.matrix} objects but, because allele switches are often
 discovered quite late on in the analysis and recoding the original

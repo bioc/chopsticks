@@ -88,5 +88,8 @@ data(testdata)
 sle3 <- snp.rhs.estimates(cc~strata(region), family="binomial",
    data=subject.data, snp.data= Autosomes, sets=1:10)
 print(sle3)
+sle3.robust <- snp.rhs.estimates(cc~strata(region), family="binomial",
+   data=subject.data, snp.data= Autosomes, sets=1:10, robust=TRUE)
+print(sle3.robust)
 }
 \keyword{htest}

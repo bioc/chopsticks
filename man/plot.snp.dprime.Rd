@@ -61,8 +61,14 @@ metric=NULL, ...)
   on LaTeX pdfpage, or eps can be included with scaling in another
   document, to stay inside 200 inches.
 
-  In the future, one might want to put some additional scaling code
-  to fit the whole drawing within an A4, for example.
+  The eps output is curently scaled to fit the long edge to A4
+  Landscape. Users of gsview (up to version 4.9, a popular postcript
+  file viewer on windows) should configure "A4" and "Rotate Media" under
+  "Media" for correct display. Other useful options for running
+  ghostscript are "-dEPSCrop" (for clipping again the bounding box) and
+  "-dAutoRotatePages=/None" (to disable the automatic rotation based on
+  text-run direction, i.e. not to rotate for SNP names running
+  the right-way up).
   
   There is a Google Summer of code \url{http://code.google.com/soc/}
   2006 project to improve kpdf's annotation support.

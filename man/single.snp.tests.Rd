@@ -95,7 +95,12 @@ single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data,
 data(testdata)
 results <- single.snp.tests(cc, stratum=region, data=subject.data,
    snp.data=Autosomes, snp.subset=1:10)
-summary(results)
+print(summary(results))
+
+# writing to an (anonymous and temporary) csv file
+csvfile <- tempfile()
+write.csv(file=csvfile, as(results, 'data.frame'))
+unlink(csvfile)
 # QQ plot 
 qq.chisq(chi.squared(results, 1), 1)
 qq.chisq(chi.squared(results, 2), 2)

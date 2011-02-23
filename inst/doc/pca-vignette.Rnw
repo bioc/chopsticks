@@ -58,7 +58,8 @@ component scores, $S$, and the loadings are calculated by
 $B = X\tr.S.D^{-1/2}$, where $D$ is  a $C\times C$ diagonal matrix
 containing the first $C$ eigenvalues.  Using this method of
 calculation, it is only (!) necessary to find the eigenvalues and eigenvectors
-of an $N\times N$ matrix.
+of an $N\times N$ matrix. Current microarray-based genotyping studies
+are such that $N$ is typically a few thousands and $P$ is a few tens of thousands.
 
 \section*{An example}
 
@@ -70,7 +71,7 @@ unduly reflect case/control differences; using such components to
 correct for population structure would seriously reduce the power to
 detect association since one would, to some extent, be ``correcting''
 for case/control differences\footnote{An alternative approach is to
-  standardise the $X$ matrix so that each column has mean zero in
+  standardise the $X$ matrix so that each column has zero mean in
   both cases and controls. This can be achieved by using the {\tt
     strata} argument in the call to {\tt xxt}. Here, however, we have
   used controls only since this reduces the size of the matrix for
@@ -82,6 +83,10 @@ disequilibrium (LD), to reduce the risk that the larger
 components may simply reflect unusually long stretches of LD rather
 than population structure. Of course, this would require a more
 sophisticated approach to thinning than that used in this demonstration.
+
+In a more sophisticated approach, one might use the output of
+{\tt snp.imputation} to eliminate all but one of a groups of SNPs in strong LD
+for thinning.
 
 We shall use the data introduced in the main vignette. We shall first
 load the data and extract the controls. 
@@ -135,37 +140,38 @@ par(mfrow=c(1,2))
 boxplot(pcs[,1]~pop)
 boxplot(pcs[,2]~pop)
 @ 
-Clearly the component has captured the difference between the
+Clearly the first component has captured the difference between the
 populations. Equally clearly, the second principal component has not.
 
 The next step in the calculation is to obtain the SNP loadings in the
 components. This requires calculation of $B = X\tr.S.D^{-1/2}$. Here
 we calculate the transpose of this matrix, $B\tr = D^{-1/2}S\tr.X$,
-using the special function {\tt snp.pre} which pre-multiplies a {\tt
+using the special function {\tt snp.pre.multiply} which pre-multiplies a {\tt
   snp.matrix} object by a matrix after first standardizing it to zero
 mean and unit standard deviation. 
 <<pre-multiply>>=
-btr <- snp.pre(ctl.10, diag(1/sqrt(evals)) %*% t(pcs))
+btr <- snp.pre.multiply(ctl.10, diag(1/sqrt(evals)) %*% t(pcs))
 @ 
 We can now apply these loadings back to the entire dataset (cases as
 well as controls) to derive scores that we can use to correct for
-population structure. To do that we use the function {\tt snp.post}
+population structure. To do that we use the function {\tt snp.post.multiply}
 which post-multiplies a {\tt snp.matrix} by a general matrix, after first
 standardizing the columns of the {\tt snp.matrix} 
 to zero mean and unit standard deviation. Note that it
 is first necessary to select out those SNPs that we have actually used
 in the calculation of components.
 <<post-multiply>>=
-pcs <- snp.post(snps.10[,use], t(btr))
+pcs <- snp.post.multiply(snps.10[,use], t(btr))
 @ 
 
 Finally we shall evaluate how successful the first principal component
 is in correcting for population structure effects. 
+({\tt snp.rhs.tests} return {\tt glm} objects.)
 <<testing,fig=TRUE>>=
 cc <- subject.support$cc
 uncorrected <- single.snp.tests(cc, snp.data=snps.10)
 corrected <- snp.rhs.tests(cc~pcs[,1], snp.data=snps.10)
-par(mfrow=c(1,2))
+par(mfrow=c(1,2),cex.sub=0.85)
 qq.chisq(chi.squared(uncorrected,1), df=1)
 qq.chisq(chi.squared(corrected), df=1)
 @ 

@@ -11,18 +11,18 @@ Implements classes and methods for large-scale SNP association studies
 \details{
 \tabular{ll}{
 Package: \tab snpMatrix\cr
-Version: \tab 1.11.7\cr
-Date: \tab 2010-04-09\cr
+Version: \tab 1.11.8\cr
+Date: \tab 2010-04-12\cr
 Depends: \tab R(>= 2.3.0), survival, methods\cr
 Imports: \tab graphics, grDevices, methods, stats, survival, utils\cr
 Suggests: \tab hexbin\cr
 Enhances: \tab genetics\cr
 License: \tab GPL-3\cr
 URL: \tab http://www-gene.cimr.cam.ac.uk/clayton/software/\cr
-Collate: \tab ld.with.R ss.R contingency.table.R glm-test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq-chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R tdt-single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
+Collate: \tab ld.with.R ss.R contingency.table.R glm-test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq-chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R snp.compare.R tdt-single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
 LazyLoad: \tab yes\cr
 biocViews: \tab Microarray, SNP, GeneticVariability\cr
-Built: \tab R 2.11.0; x86_64-unknown-linux-gnu; 2010-04-09 10:35:31 UTC; unix\cr
+Built: \tab R 2.11.0; x86_64-unknown-linux-gnu; 2010-04-12 13:20:03 UTC; unix\cr
 }
 
 Index:
@@ -74,6 +74,9 @@ single.snp.tests        1-df and 2-df tests for genetic associations
                         with SNPs (or imputed SNPs)
 snp-class               Class "snp"
 snp.cbind               Bind together two or more snp.matrix objects
+snp.clust.plot          function to do colorized cluster plots
+snp.compare             function to do compare two snp.matrix class
+                        object
 snp.cor                 Correlations with columns of a snp.matrix
 snp.dprime-class        Class "snp.dprime" for Results of LD
                         calculation
@@ -85,7 +88,7 @@ snp.lhs.estimates       Logistic regression with SNP genotypes as
 snp.lhs.tests           Score tests with SNP genotypes as dependent
                         variable
 snp.matrix-class        Class "snp.matrix"
-snp.pre                 Pre- or post-multiply a snp.matrix object by a
+snp.pre.multiply        Pre- or post-multiply a snp.matrix object by a
                         general matrix
 snp.reg.imputation-class
                         Class "snp.reg.imputation"
@@ -114,6 +117,7 @@ xxt                     X.X-transpose for a standardized snp.matrix
 
 Further information is available in the following vignettes:
 \tabular{ll}{
+\code{clustering-comparison-vignette} \tab Rill (source)\cr
 \code{imputation-vignette} \tab Imputation and meta-analysis (source)\cr
 \code{pca-vignette} \tab Principal components analysis (source)\cr
 \code{snpMatrix-vignette} \tab snpMatrix introduction (source)\cr

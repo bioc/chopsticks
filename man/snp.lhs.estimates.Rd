@@ -71,8 +71,19 @@ snp.lhs.estimates(snp.data, base.formula, add.formula, subset, snp.subset,
 \seealso{\code{\link{snp.estimates.glm-class}}, \code{\link{snp.lhs.tests}}}
 \examples{
 data(testdata)
+test1 <-
 snp.lhs.estimates(Autosomes[,1:10], ~cc, ~region, data=subject.data)
+test2 <-
 snp.lhs.estimates(Autosomes[,1:10], ~strata(region), ~cc,
    data=subject.data)
+test3 <-
+snp.lhs.estimates(Autosomes[,1:10], ~cc, ~region, data=subject.data, robust=TRUE)
+test4 <-
+snp.lhs.estimates(Autosomes[,1:10], ~strata(region), ~cc,
+   data=subject.data, robust=TRUE)
+print(test1)
+print(test2)
+print(test3)
+print(test4)
 }
 \keyword{htest}

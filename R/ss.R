@@ -536,20 +536,25 @@ setMethod("[",
                 score = x@score[i])
           })
                    
+setAs("snp.tests.single", "data.frame",
+      function(from) {
+        if (length(from@N.r2)>0)
+          data.frame(N=from@N, N.r2=from@N.r2,
+                     Chi.squared=from@chisq,
+                     P.1df=pchisq(from@chisq[,1], df=1, lower.tail=FALSE),
+                     P.2df=pchisq(from@chisq[,2], df=2, lower.tail=FALSE),
+                     row.names=from@snp.names)
+        else
+          data.frame(N=from@N,
+                     Chi.squared=from@chisq,
+                     P.1df=pchisq(from@chisq[,1], df=1, lower.tail=FALSE),
+                     P.2df=pchisq(from@chisq[,2], df=2, lower.tail=FALSE),
+                     row.names=from@snp.names)
+      })
+
 setMethod("summary", "snp.tests.single",
           function(object) {
-            if (length(object@N.r2)>0)
-              summary(data.frame(N=object@N, N.r2=object@N.r2,
-                        Chi.squared=object@chisq,
-                        P.1df=pchisq(object@chisq[,1], df=1, lower.tail=FALSE),
-                        P.2df=pchisq(object@chisq[,2], df=2, lower.tail=FALSE)
-                        ))
-            else
-               summary(data.frame(N=object@N,
-                        Chi.squared=object@chisq,
-                        P.1df=pchisq(object@chisq[,1], df=1, lower.tail=FALSE),
-                        P.2df=pchisq(object@chisq[,2], df=2, lower.tail=FALSE)
-                        ))
+            summary(as(object, 'data.frame'))
           })
 
 setMethod("summary", "snp.tests.glm",
@@ -563,19 +568,8 @@ setMethod("summary", "snp.tests.glm",
 
 setMethod("show", "snp.tests.single",
           function(object) {
-            if (length(object@N.r2)>0)
-              print(data.frame(N=object@N, N.r2=object@N.r2,
-                        Chi.squared=object@chisq,
-                        P.1df=pchisq(object@chisq[,1], df=1, lower.tail=FALSE),
-                        P.2df=pchisq(object@chisq[,2], df=2, lower.tail=FALSE),
-                        row.names=object@snp.names))
-            else
-              print(data.frame(N=object@N,
-                        Chi.squared=object@chisq,
-                        P.1df=pchisq(object@chisq[,1], df=1, lower.tail=FALSE),
-                        P.2df=pchisq(object@chisq[,2], df=2, lower.tail=FALSE),
-                        row.names=object@snp.names))
-            })
+            print(as(object, 'data.frame'))
+          })
 
 setMethod("show", "snp.tests.glm",
           function(object) {

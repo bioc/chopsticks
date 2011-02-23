@@ -468,11 +468,11 @@ SEXP snpcov_test(const SEXP X, const SEXP i, const SEXP j, const SEXP minA) {
   double ma = *REAL(minA);
   unsigned char *x = RAW(X);
   double mycov = snpcov(x+N*ii, x+N*jj, 0, N, 0, ma);
-  printf("N = %d, cov = ", N);
+  Rprintf("N = %d, cov = ", N);
   if (ISNA(mycov))
-    printf("NA_REAL\n");
+    Rprintf("NA_REAL\n");
   else
-    printf("%lf\n", mycov);
+    Rprintf("%lf\n", mycov);
   SEXP Result = allocVector(REALSXP, 1);
   *REAL(Result) = mycov;
   return Result;
