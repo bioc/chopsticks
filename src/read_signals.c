@@ -198,6 +198,7 @@ SEXP read_signals(SEXP signalfile, SEXP snp_list) {
     /* set DimSymbol has the side-effect of erasing DimNames */
     setAttrib(AB, R_DimNamesSymbol, part); 
     SET_VECTOR_ELT(ans, i_part, AB);
+    UNPROTECT(4); /* protected once part of ans */
   }
 
   if(array_count_down) {
@@ -215,6 +216,6 @@ SEXP read_signals(SEXP signalfile, SEXP snp_list) {
      garbage-collected eventually?
    */
 
-  UNPROTECT(3 + (array_length - array_count_down) *4);
+  UNPROTECT(3);
   return ans;
 }
