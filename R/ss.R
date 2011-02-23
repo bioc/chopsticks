@@ -547,8 +547,6 @@ setMethod("pool2",
           signature(x="snp.tests.single.score",y="snp.tests.single.score",
                     score="logical"),
           function(x, y, score) {
-            if (length(intersect(x@snp.names, y@snp.names))>0)
-              stop("Same SNP(s) appear in objects to be pooled")
             all.snps <- union(x@snp.names, y@snp.names)
             can.pool <- intersect(x@snp.names, y@snp.names)
             x.only <- setdiff(x@snp.names, can.pool)
