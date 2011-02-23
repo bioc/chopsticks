@@ -19,30 +19,30 @@ col.summary(object)
     returns a data frame with rows corresponding to rows of the input object
     and with columns/elements:
     \itemize{
-      \item{Call.rate }{Proportion of SNPs called}
-      \item{Heterozygosity}{Proportion of called SNPs which are
-	heterozygous}
+      \item Call.rate: Proportion of SNPs called
+      \item Heterozygosity: Proportion of called SNPs which are
+	  heterozygous
     }
   }
   \item{col.summary}{
     returns a data frame with rows corresponding to columns of the input object
     and with columns/elements:
     \itemize{
-      \item{Calls}{The number of valid calls}
-      \item{Call rate}{The proportion of genotypes called}
-      \item{MAF}{The minor allele frequency}
-      \item{P.AA}{The frequency of homozygous genotype 1 (A/A)}
-      \item{P.AB}{The frequency of heterozygous genotype 2 (A/B)}
-      \item{P.BB}{The frequency of homozygous genotype 3 (B/B)}
-      \item{z.HWE}{A z-test for Hardy-Weinberg equilibrium}
+      \item Calls: The number of valid calls
+      \item Call rate: The proportion of genotypes called
+      \item MAF: The minor allele frequency
+      \item P.AA: The frequency of homozygous genotype 1 (A/A)
+      \item P.AB: The frequency of heterozygous genotype 2 (A/B)
+      \item P.BB: The frequency of homozygous genotype 3 (B/B)
+      \item z.HWE: A z-test for Hardy-Weinberg equilibrium
     }
     For objects of class \code{"X.snp.matrix"}, the following
     additional columns are returned:
     \itemize{
-      \item{P.AY}{The frequency of allele A in males}
-      \item{P.BY}{The frequency of allele B in males}
-      \item{Calls.female}{The number of valid calls in females (only
-	these calls are used in the z-test for HWE)}
+      \item P.AY: The frequency of allele A in males
+      \item P.BY: The frequency of allele B in males
+      \item Calls.female: The number of valid calls in females (only
+	  these calls are used in the z-test for HWE)
     }
   }
 }

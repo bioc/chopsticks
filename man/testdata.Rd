@@ -18,27 +18,26 @@
 \format{
   There are five data objects in the dataset:
   \itemize{
-  \item{\code{Autosomes}}{An object of class \code{"snp.matrix"} containing
-    genotype calls for 400 subjects at 9445 autosomal SNPs}
-  \item{\code{Xchromosome}}{An object of class \code{"X.snp.matrix"}
-    containing  
-    genotype calls for 400 subjects at 155 SNPs on the X chromosome}
-  \item{\code{Asnps}}{A dataframe containing information about the autosomal
-    SNPs. Here it contains only one variable, \code{chromosome},
-    indicating the chromosomes on which the SNPs are
-    located} 
-  \item{\code{Xsnps}}{A dataframe containing information about the X
-    chromosome 
-    SNPs. Here it is empty and is only included for completeness}
-  \item{\code{subject.data}}{A dataframe containing information about the
-    subjects from whom each row of SNP data was obtained. Here it
+    \item \code{Autosomes}: An object of class \code{"snp.matrix"}
+    containing genotype calls for 400 subjects at 9445 autosomal SNPs
+    \item \code{Xchromosome}: An object of class \code{"X.snp.matrix"}
+    containing genotype calls for 400 subjects at 155 SNPs on the X
+    chromosome
+    \item \code{Asnps}: A dataframe containing information about the
+    autosomal SNPs. Here it contains only one variable,
+    \code{chromosome}, indicating the chromosomes on which the SNPs are
+    located
+    \item \code{Xsnps}: A dataframe containing information about the X
+    chromosome SNPs. Here it is empty and is only included for
+    completeness
+    \item \code{subject.data}: A dataframe containing information about
+    the subjects from whom each row of SNP data was obtained. Here it
     contains:
     \itemize{
-      \item{\code{cc}}{Case-control status}
-      \item{\code{sex}}{Sex}
-      \item{\code{region}}{Geographical region of residence}
+      \item \code{cc}: Case-control status
+      \item \code{sex}: Sex
+      \item \code{region}: Geographical region of residence
     }
-  }
   }
 }
 \source{

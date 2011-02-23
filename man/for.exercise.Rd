@@ -26,22 +26,19 @@ multiplicative effects of 1.3, 1.4 and 1.5 for each copy of the risk allele.
 \format{
   There are three data objects in the dataset:
   \itemize{
-    \item{\code{snps.10}}{
+    \item \code{snps.10}: 
       An object of class "\code{snp.matrix}"
       containing a matrix of SNP genotype calls. Rows of the matrix
       correspond to subjects and columns correspond to SNPs.
-    }
-    \item{\code{snp.support}}{
+    \item \code{snp.support}: 
       A conventional R
       data frame containing information about the
       SNPs typed (the chromosome position and the nucleotides
       corresponding to the two alleles of the SNP).
-    }
-    \item{\code{subject.support}}{
+    \item \code{subject.support}:
       A conventional R dataframe containing information about the study
       subjects. There are two variables; \code{cc} gives case/control
       status (1=case), and \code{stratum} gives ethnicity.
-    }
   }
 }
 \source{
