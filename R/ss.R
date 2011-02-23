@@ -38,31 +38,32 @@ setMethod("initialize",
           "X.snp.matrix", 
           function(.Object, ...) {
             .Object <- callNextMethod()
-            # The accessor methods transparently passes to .Data, the assignment methods are different...
             if (length(.Object@Female)==0){
-              warning("Sex guessed from heterozygosity")
+              warning("Sex not supplied; it has been guessed from heterozygosity")
               guess <- .guessSex(.Object)
               .Object@Female <- guess$Female
-              if (any(!guess$Female & (guess$Heterozygosity>0), na.rm=T)) {
-                warning("heterozygous calls for males set to NA")
-                .Object@.Data <- .forceHom(.Object@.Data, guess$Female)
-              }
+              het <- guess$Heterozygosity
             }
             else {
               if (length(.Object@Female)!=nrow(.Object))
                 stop("female argument incorrect length")
-              if (any(is.na(.Object@Female)))
-                warning("female argument contains NAs")
-              het <- row.summary(.Object)$Heterozygosity
-              hetm <- !.Object@Female & (!is.na(het)&(het>0))
-              if (any(hetm)){
-                warning(sum(hetm, na.rm=TRUE),
-                        " heterozygous calls for males set to NA")
-                .Object@.Data <- .forceHom(.Object@.Data, .Object@Female)
-              }                
+              if (any(is.na(.Object@Female))) {
+                warning("female argument contains NAs; these were replaced by guesses based on heterozygosity")
+                guess <- .guessSex(.Object, .Object@Female)
+                .Object@Female <- guess$Female
+                het <- guess$Heterozygosity
+              }
+              else
+                het <- row.summary(.Object)$Heterozygosity               
             }
-          .Object
-        })
+            hetm <- !.Object@Female & (!is.na(het)&(het>0))
+            if (any(hetm)){
+              warning(sum(hetm, na.rm=TRUE),
+                      "some heterozygous calls for males; these were set to NA")
+              .Object@.Data <- .forceHom(.Object@.Data, .Object@Female)
+            }
+            .Object
+          })
 
 setMethod("[", signature(x="snp.matrix",i="ANY",j="ANY",drop="ANY"),
           function(x, i, j, drop) {

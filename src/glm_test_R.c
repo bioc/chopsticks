@@ -91,6 +91,7 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
   else if (TYPEOF(X)!=NILSXP)
     error("Argument error - X");
 
+
   /* Stratum */
 
   int S = 1;
@@ -402,6 +403,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   else
     error("Argument error - X");
 
+
   /* Stratum */
 
   int S = 1;
@@ -415,6 +417,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   }
   else if (TYPEOF(Stratum)!=NILSXP)
     error("Argument error - Stratum");
+
 
   /* Z should be a snp.matrix or an X.snp.matrix */
 
@@ -453,6 +456,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   }
   if (Nz!=N)
     error("Dimension error - Z");
+
 
   /* If X-chromosome, indicators of female sex */
 
@@ -518,6 +522,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   else if (tests_type!=NILSXP)
     error("Argument error - tests");
 
+
   /* Robust */
 
   if (TYPEOF(Robust)!=LGLSXP)
@@ -565,6 +570,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 
   int if_score = *LOGICAL(If_score);
 
+
   /* Work arrays */
 
   double *zw = (double *) R_alloc(N*test_size, sizeof(double));
@@ -581,7 +587,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
     xb_all = (double *) R_alloc(N*M, sizeof(double));
   }
   else 
-    xb =xb_all =  NULL;
+    xb = xb_all =  NULL;
   
   /* Fit base model to full data */
 

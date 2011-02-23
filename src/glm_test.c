@@ -39,13 +39,13 @@ weights      weights (N-vector)
 scale        scale factor (scalar)
 df_resid     residual degrees of freedom
 
-Output for coefficients to be estimated: 
+Output for coefficients to be estimated (can be set NULL if not required): 
 
 P_est        # coefficients which could be estimated
 which        which columns in the X matrix were estimated (first = 0)
 betaQ        vector of parameter estimates (in terms of basis matrix, Xb)
 tri          upper unit triangular transformation matrix, with Xb-tr.Xb
-             placed in the diagonal
+             placed in the diagonal 
 
 Return
 
@@ -65,6 +65,7 @@ int glm_fit(int family, int link, int N, int M, int P, int S,
   int Mskip=M-P; /* Number of parameters NOT estimated */
   int Nu, dfr, irls;
   int empty = 0;
+  int estimate = P_est && which && betaQ && tri;
 
   /*  Is iteration necessary? */
 
@@ -132,7 +133,7 @@ int glm_fit(int family, int link, int N, int M, int P, int S,
 	  double *xbj = Xb;
 	  for (int j=0; j<x_rank; j++, xbj+=N) {
 	    double bij = wresid(xbi, N, weights, xbj, xbi);
-	    if (j>=skip_rank)
+	    if (j>=skip_rank && estimate)
 	      tri[ij++] = bij; /* Off-diagonal (upper triangle)  elements */
 	  }
 	  double ssr = wssq(xbi, N, weights);
@@ -141,7 +142,7 @@ int glm_fit(int family, int link, int N, int M, int P, int S,
 	    bij = wresid(resid, N, weights, xbi, resid);
 	    x_rank++;
 	    xbi+=N;	
-	    if (i>=Mskip) {
+	    if (i>=Mskip && estimate) {
 	      tri[ij++] = ssr; /* Diagonal elements */
 	      which[ii] = i;
 	      betaQ[ii++] = bij;
@@ -198,7 +199,7 @@ int glm_fit(int family, int link, int N, int M, int P, int S,
 	double *xbj = Xb;
 	for (int j=0; j<x_rank; j++, xbj+=N) {
 	  double bij = wresid(xbi, N, weights, xbj, xbi);
-	  if (j>=skip_rank)
+	  if (j>=skip_rank && estimate)
 	    tri[ij++] = bij; /* Off-diagonal  */
 	}
 	double ssr = wssq(xbi, N, weights);
@@ -206,7 +207,7 @@ int glm_fit(int family, int link, int N, int M, int P, int S,
 	  double bij = wresid(resid, N, weights, xbi, resid);
 	  x_rank++;
 	  xbi+=N;
-	  if (i>=Mskip) {
+	  if (i>=Mskip && estimate) {
 	    tri[ij++] = ssr; /* Diagonal */
 	    which[ii] = i;
 	    betaQ[ii++] = bij;

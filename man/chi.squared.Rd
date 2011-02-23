@@ -21,7 +21,8 @@ effective.sample.size(x)
 \arguments{
   \item{x}{An object of class \code{"snp.tests.single"}, 
      \code{"snp.tests.single.score"}, or \code{"snp.tests.glm"}}
-   \item{df}{Either the numeric value 1 or 2}
+   \item{df}{Either the numeric value 1 or 2 (not used when \code{x} is
+     of class \code{"snp.tests.glm"})}
    \item{simplify}{This switch is relevant when \code{x} is of class
      \code{"snp.tests.glm"} and plays the same role as it does in
      \code{\link{sapply}}. If \code{simplify=TRUE}, where possible
