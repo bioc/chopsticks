@@ -15,7 +15,7 @@
   max.width <- dim(ld.data$dprime)[1]
   if ((max.width + 1) != no.of.snps)
     stop("malformed ld data object")
-  names.components <- names(ld.data)
+#  names.components <- names(ld.data)
 #  pos <- which(snp.names %in% snps.wanted)
 #  start.snp.pos <- pmax(1, (pos - max.depth))
 #  end.snps.pos <- pmin((pos + max.depth), no.of.snps)
@@ -55,7 +55,7 @@
     return(ld.return)
   
   snps.for.each <- lapply(ld.return,rownames)
-  nsnps.for.each <- unlist(lapply(snps.for.each,length))
+  #nsnps.for.each <- unlist(lapply(snps.for.each,length))
   all.snps <- unique(unlist(snps.for.each))
   all.snps <- snp.names[snp.names %in% all.snps] # order correctly
   rsq2 <- dprime <- lod <- 

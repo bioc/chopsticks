@@ -78,7 +78,7 @@
 
     if (pvals) {
       nvals <- length(lp.vals)
-      lab <- paste("10^{-", lp.vals, "}", sep="")
+      #lab <- paste("10^{-", lp.vals, "}", sep="")
       for (i in 1:nvals) 
         axis(side=4, at=chi2.vals[i],
              labels=substitute(10^{a}, list(a=-lp.vals[i])),  xaxt="n")

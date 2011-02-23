@@ -1,9 +1,9 @@
 read.HapMap.data <- function(url, verbose=FALSE, save=NULL, ...) {
   # in the future we might want to construct the URL
-  base <- "http://ftp.hapmap.org/genotypes"
-  build <- "latest"
-  strand <- "forward"
-  finish <- "non-redundant"
+  #base <- "http://ftp.hapmap.org/genotypes"
+  #build <- "latest"
+  #strand <- "forward"
+  #finish <- "non-redundant"
 
   if (length(save)) {
     saved.file <-  save

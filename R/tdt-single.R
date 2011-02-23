@@ -12,8 +12,8 @@ tdt.snp <- function(ped, id, father, mother, affected,
   mcall <- match.call()
   if (!is(snp.data, "snp.matrix"))
     stop("snp.data argument must be of class snp.matrix")
-  nr.snps = nrow(snp.data)
-  nc.snps = ncol(snp.data)
+  #nr.snps = nrow(snp.data)
+  #nc.snps = ncol(snp.data)
   if (missing(data)) { # ped data are in calling environment
     ped <- as.character(ped)
     nped <- length(ped)
@@ -157,8 +157,8 @@ misinherits <- function(ped, id, father, mother, data=sys.parent(), snp.data){
   if (!is(snp.data, "snp.matrix"))
     stop("snp.data argument must be of class snp.matrix")
   X <- is(snp.data, "X.snp.matrix")
-  nr.snps = nrow(snp.data)
-  nc.snps = ncol(snp.data)
+  #nr.snps = nrow(snp.data)
+  #nc.snps = ncol(snp.data)
   if (missing(data)) { # ped data are in calling environment
     ped <- as.character(ped)
     nped <- length(ped)
