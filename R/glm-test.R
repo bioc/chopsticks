@@ -327,7 +327,10 @@ function(formula, family="binomial", link, weights, subset,
     } else {
       tests <- as.integer(-(1:length(rules)))
     }
-  } 
+  }
+  else if (is.logical(tests)) {
+    tests <- as.integer(1:ncol(snp.data))[tests]
+  }
   else if (is.character(tests)) {
     tests <- .col.numbers(tests, colnames(snp.data), names(rules))
   }
@@ -689,7 +692,10 @@ function(formula, family="binomial", link, weights, subset,
 
   if(is.null(sets)) {
     sets <- as.integer(1:ncol(snp.data))
-  } 
+  }
+  else if (is.logical(sets)) {
+    sets <- as.integer(1:ncol(snp.data))[sets]
+  }
   else if (is.character(sets)) {
     sets <- .col.numbers(sets, colnames(snp.data))
   }
