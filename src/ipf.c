@@ -13,7 +13,7 @@
 
 inline int bitcount(unsigned int x) {
   return((x * 0x200040008001ULL & 0x111111111111111ULL) % 0xf);
-}
+};
 
 /* Extract specified bits (mask) and shift to end of word */
 

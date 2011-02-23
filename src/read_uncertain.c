@@ -231,7 +231,7 @@ SEXP read_impute(const SEXP Filename, const SEXP Rownames, const SEXP Nsnp,
 
   /* Build output object */ 
 
-  SEXP Result, Dimnames, Colnames, Package, Class, Rnames=R_NilValue;
+  SEXP Result, Dimnames, Colnames, Package, Class, Rnames;
   PROTECT(Result = allocMatrix(RAWSXP, N, nsnp));
   unsigned char *result = RAW(Result);
   memset(result, 0x00, N*nsnp);

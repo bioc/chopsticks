@@ -265,11 +265,11 @@ probabilities are represented by the perpendicular distances from each
 side, the vertices of the triangle corresponding to certain
 assignments. Thus, the SNP {\tt rs4880568} is accurately imputed
 ($R^2 = 0.94$)
-<<uncert1,fig=TRUE>>=
+<<<uncert1,fig=TRUE>>=
 plotUncertainty(imputed[, "rs4880568"])
 @ 
 while {\tt rs2050968} is rather less so ($R^2 = 0.77$
-<<uncert2,fig=TRUE>>=
+<<<uncert2,fig=TRUE>>=
 plotUncertainty(imputed[, "rs2050968"])
 @ 
 
