@@ -207,7 +207,7 @@ function(formula, family="binomial", link, weights, subset,
   if (is(snp.data, "snp.matrix")) 
     snames <- rownames(snp.data)
   else
-    stop("snp.data must be stored as a snp.data.frame")
+    stop("snp.data must be stored as a snp.matrix")
 
   if (no.data) {
     map <- m[["(rows)"]]
@@ -580,7 +580,7 @@ function(formula, family="binomial", link, weights, subset,
   if (is(snp.data, "snp.matrix")) 
     snames <- rownames(snp.data)
   else
-    stop("snp.data must be stored as a snp.data.frame")
+    stop("snp.data must be stored as a snp.matrix")
 
   if (no.data) {
     map <- m[["(rows)"]]
