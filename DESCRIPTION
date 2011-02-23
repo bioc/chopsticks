@@ -1,6 +1,6 @@
 Package: snpMatrix 
 Title: The snp.matrix and X.snp.matrix classes
-Version: 1.9.6
+Version: 1.10.0
 Date: 2009-10-23
 Author: David Clayton <david.clayton@cimr.cam.ac.uk> and 
   Hin-Tak Leung <htl10@users.sourceforge.net>
