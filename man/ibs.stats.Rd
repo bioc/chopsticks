@@ -25,7 +25,6 @@ ibs.stats(x)
   \item{Fraction}{fraction of identical calls comparied to actual
     calls being made in both samples}
 }
-\references{}
 \author{Hin-Tak Leung \email{htl10@users.sourceforge.net}}
 \note{ 
   This is mostly written to find mislabelled and/or duplicate samples.
@@ -46,7 +45,6 @@ ibs.stats(x)
   samples and M = 3000 SNPs, the calculation time is about 1 minute. A
   full GWA scan could take hours, and quite unnecessary for simple
   applications such as checking for duplicate or related samples.}
-\seealso{}
 \examples{
 data(testdata)
 result <- ibs.stats(Autosomes[11:20,])

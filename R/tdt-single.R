@@ -80,11 +80,13 @@ tdt.snp <- function(ped, id, father, mother, affected,
 
   # Father and mother locations in ped file
 
-  unique <- paste(ped, id, sep=":")
+  s.unique <- paste(ped, id, sep=":")
+  if (any(duplicated(s.unique)))
+    warning("Combination of pedigree ID and ID within pedigree does not generate unique IDs")
   f.unique <-  paste(ped, father, sep=":")
-  fpos <- match(f.unique, unique)
+  fpos <- match(f.unique, s.unique)
   m.unique <-  paste(ped, mother, sep=":")
-  mpos <- match(m.unique, unique)
+  mpos <- match(m.unique, s.unique)
 
   # Potentially complete trios
   
@@ -203,11 +205,13 @@ misinherits <- function(ped, id, father, mother, data=sys.parent(), snp.data){
 
   # Father and mother locations in ped file
 
-  unique <- paste(ped, id, sep=":")
+  s.unique <- paste(ped, id, sep=":")
+  if (any(duplicated(s.unique)))
+    warning("Combination of pedigree ID and ID within pedigree does not generate unique IDs")
   f.unique <-  paste(ped, father, sep=":")
-  fpos <- match(f.unique, unique)
+  fpos <- match(f.unique, s.unique)
   m.unique <-  paste(ped, mother, sep=":")
-  mpos <- match(m.unique, unique)
+  mpos <- match(m.unique, s.unique)
 
   # Potentially complete trios
   

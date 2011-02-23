@@ -55,7 +55,6 @@ read.wtccc.signals(file, snp.list)
   May want to seek backwards, re-read and dynamically expand if
   the buffer is too small. 
 }
-\seealso{}
 \examples{
 \dontrun{
 answer <-

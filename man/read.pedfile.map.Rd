@@ -28,8 +28,6 @@ read.pedfile.map(file)
   to read an accompanying map file.
 }
 \seealso{\code{\link{read.snps.pedfile}}}
-\examples{
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{manip}

@@ -58,7 +58,7 @@ metric=NULL, ...)
   current implementation of the drawing code, hence a warning is
   emitted that pdf written this way is not viewable by Acrobat
   Reader.(but viewable by xpdf, etc). A work around is possible based
-  on \LaTeX/pdfpage, or eps can be included with scaling in another
+  on LaTeX pdfpage, or eps can be included with scaling in another
   document, to stay inside 200 inches.
 
   In the future, one might want to put some additional scaling code

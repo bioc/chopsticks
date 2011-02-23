@@ -4,7 +4,7 @@
     sub=paste("Expected distribution: chi-squared (",df," df)", sep=""), 
     xlab="Expected", ylab="Observed",
     conc=c(0.025, 0.975), overdisp=FALSE, trim=0.5,  
-    slope.one=FALSE, slope.lambda=FALSE, 
+    slope.one=FALSE, slope.lambda=FALSE, pvals=FALSE,
     thin=c(0.25,50), oor.pch=24, col.shade="gray", ...) {
 
     # Function to shade concentration band
@@ -18,11 +18,14 @@
     
     obsvd <- sort(x, na.last=NA)
     N <- length(obsvd)
+    top <- obsvd[N]
     if (missing(x.max)) {
       Np <- N
     }
     else {
-      Np <- sum(obsvd<=x.max)
+      Np <- sum(obsvd<=abs(x.max))
+      if (Np<N || x.max<0) 
+        top <- abs(x.max)
     }
     if(Np==0)
       stop("Nothing to plot")
@@ -53,15 +56,35 @@
       }
     }
     
-    # Plot outline
     
-    if (Np < N)
-      top <- x.max
-    else
-      top <- obsvd[N]
     right <- expctd[N]
+    par(mar=c(5,4,4,2)+0.1, las=1)
+    if (pvals){
+      mlp <- floor(-log10(pchisq(top, df=df, lower.tail=FALSE)))
+      if (mlp>0) {
+        gap <- ceiling(mlp/5)
+        lp.vals <- seq(mlp, 1, -gap)
+        chi2.vals <- qchisq(10^(-lp.vals), df=df, lower.tail=FALSE)
+        par(mar=c(5,4,4,4)+0.1, las=1)
+      }
+      else 
+        pvals <- FALSE
+    }
+    
     plot(c(0, right), c(0, top), type="n", xlab=xlab, ylab=ylab,
          main=main, sub=sub)
+
+    # log p axis
+
+    if (pvals) {
+      nvals <- length(lp.vals)
+      lab <- paste("10^{-", lp.vals, "}", sep="")
+      for (i in 1:nvals) 
+        axis(side=4, at=chi2.vals[i],
+             labels=substitute(10^{a}, list(a=-lp.vals[i])),  xaxt="n")
+      mtext("P-value", side=4, line=3, las=0, padj=0)
+    }
+    
     
     # Thinning
     
@@ -98,7 +121,7 @@
     # Overflow
     if (Np<N) {
       over <- (Np+1):N
-      points(expctd[over], rep(x.max, N-Np), pch=oor.pch)
+      points(expctd[over], rep(top, N-Np), pch=oor.pch)
     }
     # Lines
     line.types <- c("solid", "dashed", "dotted")

@@ -16,7 +16,6 @@
 single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data,
    rules=NULL, subset, snp.subset, score=FALSE)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{phenotype}{A vector containing the values of the phenotype}
   \item{stratum}{Optionally, a factor defining strata for the analysis}
@@ -64,7 +63,8 @@ single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data,
 \value{
   An object of class
   \code{"snp.tests.single"}. 
-  If \code{score=TRUE}, the output object will be of the extended class
+  If \code{score} is set to \code{TRUE},
+  the output object will be of the extended class
   \code{"snp.tests.single.score"}
   containing additional slots holding the score statistics and their
   variances (and covariances). This allows meta-analysis using the
@@ -74,7 +74,7 @@ single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data,
   Chapman J.M., Cooper J.D., Todd J.A. and Clayton D.G. (2003)
   \emph{Human Heredity}, \bold{56}:18-31.\cr
   Clayton (2008) Testing for association on the X chromosome
-  \emph{Biostatistics}, In press)
+  \emph{Biostatistics}, \bold{9}:593-600.)
 }
 \note{
   The 1 df imputation tests are described by Chapman et al. (2008)
@@ -96,7 +96,7 @@ data(testdata)
 results <- single.snp.tests(cc, stratum=region, data=subject.data,
    snp.data=Autosomes, snp.subset=1:10)
 summary(results)
-# QQ plot - see \code{\link{qq.chisq}}
+# QQ plot 
 qq.chisq(chi.squared(results, 1), 1)
 qq.chisq(chi.squared(results, 2), 2)
 }

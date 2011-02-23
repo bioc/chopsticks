@@ -15,13 +15,15 @@ qq.chisq(x, df=1, x.max, main="QQ plot",
     sub=paste("Expected distribution: chi-squared (",df," df)", sep=""), 
     xlab="Expected", ylab="Observed",
     conc=c(0.025, 0.975), overdisp=FALSE, trim=0.5,  
-    slope.one=FALSE, slope.lambda=FALSE, 
+    slope.one=FALSE, slope.lambda=FALSE, pvals=FALSE,
     thin=c(0.25,50), oor.pch=24, col.shade="gray", ...)
 }
 \arguments{
   \item{x}{A vector of observed chi-squared test values}
   \item{df}{The degreees of freedom for the tests}
-  \item{x.max}{If present, truncate the observed value (Y) axis here}
+  \item{x.max}{If present, truncate the observed value (Y) axis at
+    \code{abs(x.max)}. If \code{x.max} is negative, the y-axis will
+    extend to \code{abs(x.max)} even if the observed data do not}
   \item{main}{The main heading}
   \item{sub}{The subheading}
   \item{xlab}{x-axis label (default "Expected")}
@@ -35,6 +37,8 @@ qq.chisq(x, df=1, x.max, main="QQ plot",
   \item{slope.one}{Is a line of slope one to be superimpsed?}
   \item{slope.lambda}{Is a line of slope lambda 
     to be superimposed?}
+  \item{pvals}{Are P-values to be indicated on an axis drawn
+     on the right-hand side of the plot?}
   \item{thin}{A pair of numbers indicating how points will be thinned
     before plotting (see Details).
     If \code{NA}, no thinning will be carried out}
@@ -63,7 +67,7 @@ qq.chisq(x, df=1, x.max, main="QQ plot",
   Note that this is not a simultaneous confidence region; the probability 
   that the plot will stray outside the band at some point exceeds 95%.
 
-  When required, he dispersion factor is estimated by the ratio 
+  When required, the dispersion factor is estimated by the ratio 
   of the observed trimmed mean to its expected value under the chi-squared 
   assumption.
 }

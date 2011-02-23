@@ -84,7 +84,7 @@ tdt.snp(ped, id, father, mother, affected, data = sys.parent(), snp.data,
 }
 \references{
   Clayton (2008) Testing for association on the X chromosome
-  \emph{Biostatistics}, Advanced on-line access)
+  \emph{Biostatistics}, \bold{9}:593-600.)
 }
 \note{When the snps are on the X chromosome (i.e. when the \code{snp.data} 
   argument is of class \code{"X.snp.matrix"}), the tests are constructed 

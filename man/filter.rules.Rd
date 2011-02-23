@@ -25,7 +25,7 @@ filter.rules(rules, snps.excluded, exclusions = TRUE)
   A character vector containing the names of imputed SNPs to be removed
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
-\seealso{{\code{\link{snp.reg.imputation-class}}},
+\seealso{\code{\link{snp.reg.imputation-class}},
     \code{\link{snp.imputation}}
 }
 \examples{

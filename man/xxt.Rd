@@ -66,7 +66,7 @@ just its lower triangle
 }
 \references{
 Price et al. (2006) Principal components analysis corrects for
-stratification in genome-wide association studies. \it{Nature Genetics},
+stratification in genome-wide association studies. \emph{Nature Genetics},
 \bold{38}:904-9
 }
 \note{

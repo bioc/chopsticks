@@ -11,14 +11,16 @@
 }
 \usage{data(families)}
 \format{
-  Theer are two objects in the loaded data file:
+  There are two objects in the loaded data file:
+  \itemize{
   \item{\code{genotypes}}{An object of class
     \code{"\link[=snp.matrix-class]{snp.matrix}"} containing the SNP
     genotype data for both parents and affected offspring}
   \item{\code{pedfile}}{A data frame containing the standard six fields
     for a \emph{LINKAGE} pedfile. The are named \code{familyid},
     \code{member}, \code{father}, \code{mother} \code{sex}, and
-    \code{affected}} 
+    \code{affected}}
+  }
   The two objects are linked by common row names.
 }
 \details{

@@ -34,8 +34,6 @@ read.snps.chiamo(filename, sample.list, threshold)
   Jonathan L. Marchini <marchini@stats.ox.ac.uk>.
 }
 \author{Hin-Tak Leung \email{htl10@users.sourceforge.net}}
-\note{
-}
 \seealso{\code{\link{wtccc.sample.list}}, \code{\link{read.wtccc.signals}}}
 \examples{
 #

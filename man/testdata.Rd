@@ -17,6 +17,7 @@
 \usage{data(testdata)}
 \format{
   There are five data objects in the dataset:
+  \itemize{
   \item{\code{Autosomes}}{An object of class \code{"snp.matrix"} containing
     genotype calls for 400 subjects at 9445 autosomal SNPs}
   \item{\code{Xchromosome}}{An object of class \code{"X.snp.matrix"}
@@ -37,6 +38,7 @@
       \item{\code{sex}}{Sex}
       \item{\code{region}}{Geographical region of residence}
     }
+  }
   }
 }
 \source{

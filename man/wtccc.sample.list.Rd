@@ -33,11 +33,7 @@ See also \code{\link{read.wtccc.signals}} for more details.
 }
 \references{\url{http://www.wtccc.org.uk}}
 \author{Hin-Tak Leung \email{htl10@users.sourceforge.net}}
-\note{
-}
 \seealso{\code{\link{read.wtccc.signals}}}
-\examples{
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{IO}

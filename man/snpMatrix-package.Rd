@@ -11,8 +11,8 @@ Implements classes and methods for large-scale SNP association studies
 \details{
 \tabular{ll}{
 Package: \tab snpMatrix\cr
-Version: \tab 1.7.3\cr
-Date: \tab 2008-11-04\cr
+Version: \tab 1.7.4\cr
+Date: \tab 2009-01-13\cr
 Depends: \tab R(>= 2.3.0), survival, methods\cr
 Suggests: \tab hexbin\cr
 Enhances: \tab genetics\cr
@@ -22,7 +22,7 @@ Collate: \tab ld.with.R ss.R contingency.table.R glm-test.R ibs.stats.R imputati
 LazyLoad: \tab yes\cr
 biocViews: \tab Microarray, SNPsAndGeneticVariability\cr
 Packaged: \tab Tue Nov  4 10:08:21 GMT 2008\cr
-Built: \tab R 2.8.0; x86\_64-pc-linux-gnu; 2008-11-04 10:10:09; unix\cr
+Built: \tab R 2.8.1; x86\_64-pc-linux-gnu; 2009-01-13 17:08:31; unix\cr
 }
 
 Index:
