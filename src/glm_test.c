@@ -550,12 +550,12 @@ void meat_matrix(int N, int P, int C, const int *cluster,
       for (int j=0, ij=i, ijc=ic; j<P; j++, ij+=N, ijc+=C) 
 	Uc[ijc] += w*Xb[ij];
     }
-    for (int i=0, ij=0, ik=0; i<P; i++) {
-      for (int j=0, jk=0; j<=i; j++, ij++) {
+    for (int i=0, ij=0, ik0=0; i<P; i++, ik0+=C) {
+      for (int j=0, jk=0; j<=i; j++) {
 	double w=0.0;
-	for (int k=0; k<C; k++)
-	  w+= (Uc[ik++]*Uc[ij++]);
-	meatrix[ij] = w;
+	for (int k=0, ik=ik0; k<C; k++)
+	  w+= (Uc[ik++]*Uc[jk++]);
+	meatrix[ij++] = w;
       }
     }
     Free(Uc);
@@ -566,8 +566,9 @@ void meat_matrix(int N, int P, int C, const int *cluster,
       double w=resid[i]*weights[i];
       w = w*w;
       for (int j=0, ij=i, jk=0; j<P; j++, ij+=N) {
+	double Xbij = Xb[ij];
 	for (int k=0, ik=i; k<=j; k++, ik+=N, jk++) 
-	  meatrix[jk] += w*Xb[ij]*Xb[ik];
+	  meatrix[jk] += w*Xbij*Xb[ik];
       }
     }
   }
