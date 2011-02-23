@@ -156,7 +156,7 @@ int g2post(unsigned char code, double *pAA, double *pAB, double *pBB) {
   *pBB = lup3[first];
   *pAA = 1.0-(*pAB)-(*pBB);
   return(1);
-};
+}
 
 /* Maximum entropy mapping of posterior mean genotype into one byte code */
 
