@@ -29,7 +29,7 @@ except that missing data are coded \code{NA} rather than zero
 }
 \examples{
 data(families)
-summary(summary(genotypes))
+summary(genotypes)
 summary(pedfile)
 }
 \keyword{datasets}

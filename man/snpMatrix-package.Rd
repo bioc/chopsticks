@@ -11,8 +11,8 @@ Implements classes and methods for large-scale SNP association studies
 \details{
 \tabular{ll}{
 Package: \tab snpMatrix\cr
-Version: \tab 1.7.5\cr
-Date: \tab 2009-01-20\cr
+Version: \tab 1.7.6\cr
+Date: \tab 2009-03-12\cr
 Depends: \tab R(>= 2.3.0), survival, methods\cr
 Suggests: \tab hexbin\cr
 Enhances: \tab genetics\cr
@@ -21,8 +21,8 @@ URL: \tab http://www-gene.cimr.cam.ac.uk/clayton/software/\cr
 Collate: \tab ld.with.R ss.R contingency.table.R glm-test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq-chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R tdt-single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
 LazyLoad: \tab yes\cr
 biocViews: \tab Microarray, SNPsAndGeneticVariability\cr
-Packaged: \tab Tue Jan 20 13:43:55 GMT 2009\cr
-Built: \tab R 2.8.1; x86\_64-redhat-linux-gnu; 2009-01-20 13:49:12; unix\cr
+Packaged: \tab Thu Mar 12 13:41:11 GMT 2009\cr
+Built: \tab R 2.8.1; x86\_64-pc-linux-gnu; 2009-03-12 13:56:34; unix\cr
 }
 
 Index:
@@ -67,12 +67,10 @@ read.pedfile.map        function to read the accompanying map file of a
 read.plink              Read a PLINK binary data file as a snp.matrix
 read.snps.chiamo        Read genotype data from the output of Chiamo
 read.snps.long          Read SNP data in long format
-read.snps.long.old      Read SNP input data in "long" format (old
-                        version)
 read.snps.pedfile       Read genotype data from a LINKAGE "pedfile"
 read.wtccc.signals      read normalized signals in the WTCCC signal
                         file format
-row.summary             Summarize rows of a snp matrix
+row.summary             Summarize rows or columns of a snp matrix
 single.snp.tests        1-df and 2-df tests for genetic associations
                         with SNPs (or imputed SNPs)
 snp-class               Class "snp"
@@ -95,6 +93,7 @@ snp.tests.glm-class     Classes "snp.tests.glm" and
 snp.tests.single-class
                         Classes "snp.tests.single" and
                         "snp.tests.single.score"
+snpMatrix-package       The snp.matrix and X.snp.matrix classes
 switch.alleles          Switch alleles in columns of a snp.matrix or in
                         test results
 tdt.snp                 1-df and 2-df tests for genetic associations

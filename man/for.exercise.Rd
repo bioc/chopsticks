@@ -54,7 +54,7 @@ multiplicative effects of 1.3, 1.4 and 1.5 for each copy of the risk allele.
 \examples{
 data(for.exercise)
 snps.10
-summary(summary(snps.10))
+summary(snps.10)
 summary(snp.support)
 summary(subject.support)
 }

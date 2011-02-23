@@ -6,6 +6,7 @@
 \alias{names,snp.tests.single-method}
 \alias{p.value,snp.tests.single,numeric-method}
 \alias{sample.size,snp.tests.single-method}
+\alias{effective.sample.size,snp.tests.single-method}
 \alias{show,snp.tests.single-method}
 \alias{summary,snp.tests.single-method}
 
@@ -64,6 +65,10 @@ provide methods for pooling results from several studies or parts of a study
       List all tests and p-values}
     \item{sample.size}{\code{signature(object = "snp.tests.single")}:
       Extract sample sizes for tests}
+    \item{effective.sample.size}{\code{signature(object = "snp.tests.single")}:
+      Extract effective sample sizes for tests. For imputed tests, these
+      are the real sample sizes multiplied by the corresponding
+      R-squared values for imputation}
     \item{summary}{\code{signature(object = "snp.tests.single")}:
       Summarize all tests and p-values}
     \item{pool2}{\code{signature(x = "snp.tests.single.score",

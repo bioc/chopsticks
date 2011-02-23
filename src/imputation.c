@@ -15,7 +15,7 @@ int nearest_N(const double *sorted, const int len, const double value,
 	      const int N);
 double covariances(int i, int j, va_list ap);
 double snpcov(const unsigned char *x, const unsigned char *y, 
-	      const int *female, const int N);
+	      const int *female, const int N, const int phase);
 double snpmean(const unsigned char *x, 
 	       const int *female, const int N);
 void utinv(double *, const int);
@@ -86,112 +86,122 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
       double maf = (double) (na - ng)/ (double) (2*ng);
       if (maf>0.5)
 	maf = 1.0 - maf;
-      int start = nearest_N(xpos, nx, ypos[i], try);
-      double yy = snpcov(yi, yi, female, nsubject);
-      for (int j=0; j<try; j++) { 
-	int jx = nsubject*(xord[start+j]-1);
-	xy[j] = snpcov(x+jx, yi, female, nsubject);
-      }
-      move_window(cache, start);
-      get_diag(cache, xxd, covariances, x, nsubject, xord, female, phase);
-      int nregr = 0;
-      double resid = yy;
-      double rsq = 0.0;
-      int ic = 0;
-      while (1) {
-	/* Find next snp to be included */
-	double max_due = 0.0;
-	int best = -1;
-	for (int j=0; j<try; j++) {
-	  double xxj = xxd[j];
-	  if (xxj>0.0) {
-	    double xyj = xy[j];
-	    double xyj2 = xyj*xyj;
-	    if (xyj2>(xxj*resid)) {
-	      xy[j] = xyj>0.0? sqrt(xxj*resid): -sqrt(xxj*resid);
-	      best = j;
-	      max_due = resid;
-	    }
-	    else {
-	      double due = xyj2/xxj;
-	      if (due>max_due) {
-		max_due = due;
+      if (maf) {
+	int start = nearest_N(xpos, nx, ypos[i], try);
+	double yy = snpcov(yi, yi, female, nsubject, phase);
+	for (int j=0; j<try; j++) { 
+	  int jx = nsubject*(xord[start+j]-1);
+	  xy[j] = snpcov(x+jx, yi, female, nsubject, phase);
+	}
+	move_window(cache, start);
+	get_diag(cache, xxd, covariances, x, nsubject, xord, female, phase);
+	int nregr = 0;
+	double resid = yy;
+	double rsq = 0.0;
+	int ic = 0;
+	while (1) {
+	  /* Find next snp to be included */
+	  double max_due = 0.0;
+	  int best = -1;
+	  for (int j=0; j<try; j++) {
+	    double xxj = xxd[j];
+	    if (xxj>0.0) {
+	      double xyj = xy[j];
+	      double xyj2 = xyj*xyj;
+	      if (xyj2>(xxj*resid)) {
+		xy[j] = xyj>0.0? sqrt(xxj*resid): -sqrt(xxj*resid);
 		best = j;
+		max_due = resid;
+	      }
+	      else {
+		double due = xyj2/xxj;
+		if (due>max_due) {
+		  max_due = due;
+		  best = j;
+		}
 	      }
 	    }
 	  }
+	  sel[nregr] = best; /* Save index */
+	  double bestc = xy[best]/xxd[best]; 
+	  ycoef[nregr] = bestc; /* Save regression coefficient */
+	  double dX2 = (double) (nsubject-nregr-1) * max_due/resid;
+	  resid -= max_due;
+	  rsq = 1.0 - resid/yy; 
+	  nregr++;
+	  double *xxin = xxi + try*(nregr-1);
+	  get_row(cache, start+best, xxin, 
+		  covariances, x, nsubject, xord, female, phase);
+	  double *xxik = xxi;
+	  for (int k=0; k<(nregr-1); k++, xxik+=try) {
+	    int selk = sel[k];
+	    double ck = xxin[selk]/xxik[selk];
+	    coef[ic++] = ck;
+	    for (int j=0; j<try; j++)
+	      xxin[j] -= ck*xxik[j];
+	  }
+	  int stop = (rsq>=r2stop)||(nregr==pmax)||((r2stop==1)&&(dX2<=2.0)); 
+	  if (stop) {
+	    break;
+	  }
+	  else {
+	    for (int j=0; j<try; j++) 
+	      xy[j] -= bestc*xxin[j];
+	    double vn = xxd[best];
+	    for (int j=0; j<try; j++) 
+	      xxd[j] -= xxin[j]*xxin[j]/vn;
+	  }
 	}
-	sel[nregr] = best; /* Save index */
-	double bestc = xy[best]/xxd[best]; 
-	ycoef[nregr] = bestc; /* Save regression coefficient */
-	double dX2 = (double) (nsubject-nregr-1) * max_due/resid;
-	resid -= max_due;
-	rsq = 1.0 - resid/yy; 
-	nregr++;
-	double *xxin = xxi + try*(nregr-1);
-	get_row(cache, start+best, xxin, 
-		covariances, x, nsubject, xord, female, phase);
-	double *xxik = xxi;
-	for (int k=0; k<(nregr-1); k++, xxik+=try) {
-	  int selk = sel[k];
-	  double ck = xxin[selk]/xxik[selk];
-	  coef[ic++] = ck;
-	  for (int j=0; j<try; j++)
-	    xxin[j] -= ck*xxik[j];
-	}
-	int stop = (rsq>=r2stop)||(nregr==pmax)||((r2stop==1)&&(dX2<=2.0)); 
-	if (stop) {
-	  break;
-	}
-	else {
-	  for (int j=0; j<try; j++) 
-	    xy[j] -= bestc*xxin[j];
-	  double vn = xxd[best];
-	  for (int j=0; j<try; j++) 
-	    xxd[j] -= xxin[j]*xxin[j]/vn;
-	}
-      }
-      for (int k=0; k<nregr; k++)
-	coef[ic++] = ycoef[k];
-      utinv(coef, nregr+1);
+	for (int k=0; k<nregr; k++)
+	  coef[ic++] = ycoef[k];
+	utinv(coef, nregr+1);
 
  
-      SEXP Rule, Rlnames, Maf, R2, Pnames, Coefs;
-      PROTECT(Rule = allocVector(VECSXP, 4));
+	SEXP Rule, Rlnames, Maf, R2, Pnames, Coefs;
+	PROTECT(Rule = allocVector(VECSXP, 4));
+	
+	PROTECT(Rlnames = allocVector(STRSXP, 4));
+	SET_STRING_ELT(Rlnames, 0, mkChar("maf"));
+	SET_STRING_ELT(Rlnames, 1, mkChar("r.squared"));
+	SET_STRING_ELT(Rlnames, 2, mkChar("snps"));
+	SET_STRING_ELT(Rlnames, 3, mkChar("coefficients"));
+	setAttrib(Rule, R_NamesSymbol, Rlnames);
+	
+	PROTECT(Maf = allocVector(REALSXP, 1));
+	*REAL(Maf) = maf;
+	PROTECT(R2 = allocVector(REALSXP, 1));
+	*REAL(R2) = rsq;
+	PROTECT(Pnames = allocVector(STRSXP, nregr));
+	PROTECT(Coefs = allocVector(REALSXP, nregr+1));
+	double intcpt = snpmean(yi, female, nsubject);
+	for (int j=0, ic=(nregr*(nregr-1))/2; j<nregr; j++, ic++) {
+	  int xsnp = xord[start+sel[j]]-1;
+	  SET_STRING_ELT(Pnames, j, STRING_ELT(Xsnpnames, xsnp));
+	  double beta =  (-coef[ic]);
+	  REAL(Coefs)[j+1] = beta;
+	  intcpt -= beta*snpmean(x+nsubject*xsnp, female, nsubject);
+	}
+	*REAL(Coefs) = intcpt;
       
-      PROTECT(Rlnames = allocVector(STRSXP, 4));
-      SET_STRING_ELT(Rlnames, 0, mkChar("maf"));
-      SET_STRING_ELT(Rlnames, 1, mkChar("r.squared"));
-      SET_STRING_ELT(Rlnames, 2, mkChar("snps"));
-      SET_STRING_ELT(Rlnames, 3, mkChar("coefficients"));
-      setAttrib(Rule, R_NamesSymbol, Rlnames);
-      
-      PROTECT(Maf = allocVector(REALSXP, 1));
-      *REAL(Maf) = maf;
-      PROTECT(R2 = allocVector(REALSXP, 1));
-      *REAL(R2) = rsq;
-      PROTECT(Pnames = allocVector(STRSXP, nregr));
-      PROTECT(Coefs = allocVector(REALSXP, nregr+1));
-      double intcpt = snpmean(yi, female, nsubject);
-      for (int j=0, ic=(nregr*(nregr-1))/2; j<nregr; j++, ic++) {
-	int xsnp = xord[start+sel[j]]-1;
-	SET_STRING_ELT(Pnames, j, STRING_ELT(Xsnpnames, xsnp));
-	double beta =  (-coef[ic]);
-	REAL(Coefs)[j+1] = beta;
-	intcpt -= beta*snpmean(x+nsubject*xsnp, female, nsubject);
+	SET_VECTOR_ELT(Rule, 0, Maf);
+	SET_VECTOR_ELT(Rule, 1, R2);
+	SET_VECTOR_ELT(Rule, 2, Pnames);
+	SET_VECTOR_ELT(Rule, 3, Coefs);
+    
+	SET_VECTOR_ELT(Result, yord[i]-1, Rule);
+	UNPROTECT(6);
       }
-      *REAL(Coefs) = intcpt; 
-      SET_VECTOR_ELT(Rule, 0, Maf);
-      SET_VECTOR_ELT(Rule, 1, R2);
-      SET_VECTOR_ELT(Rule, 2, Pnames);
-      SET_VECTOR_ELT(Rule, 3, Coefs);
-      SET_VECTOR_ELT(Result, yord[i]-1, Rule);
-      UNPROTECT(6);
+      else {
+	/* MAF == 0 */
+	SET_VECTOR_ELT(Result, yord[i]-1, R_NilValue);
+      }
     }
     else {
+      /* No data */
       SET_VECTOR_ELT(Result, yord[i]-1, R_NilValue);
     }
   }
+
   SEXP IrClass, Package;
   PROTECT(IrClass = allocVector(STRSXP, 1));
   SET_STRING_ELT(IrClass, 0, mkChar("snp.reg.imputation"));
@@ -218,44 +228,52 @@ double covariances(int i, int j, va_list ap) {
   int N = va_arg(ap, int);
   int *cols = va_arg(ap, int *);
   int *female = va_arg(ap, int *);
-  /* int phase = va_arg(ap, int); */
+  int phase = va_arg(ap, int); 
   int ik = N*(cols[i]-1), jk = N*(cols[j]-1);
-  return snpcov(snps+ik, snps+jk, female, N);
+  return snpcov(snps+ik, snps+jk, female, N, phase);
 }
 
 double snpcov(const unsigned char *x, const unsigned char *y, 
-	      const int *female, const int N) {
+	      const int *female, const int N, const int phase) {
   int sum=0, sumi=0, sumj=0, sumij=0;
-  if (female) {
-    for (int k=0; k<N; k++) {
-      int wt = female[k]? 2: 1;
-      int si = (int) *(x++);
-      int sj = (int) *(y++);
-     if (si && sj) { 
-	sum += wt;
-	sumi += wt*si;
-	sumj += wt*sj;
-	sumij += wt*si*sj;
-      }
-    }
+  if (phase) {
+    if (female)
+      error("phase=TRUE not yet implemented for the X chromosome");
+    error("phase=TRUE not yet implemented");
+    return NA_REAL;
   }
   else {
-    for (int k=0; k<N; k++) {
-      int si = (int) *(x++);
-      int sj = (int) *(y++);
-      if (si && sj) {
-	sum ++;
-	sumi += si;
-	sumj += sj;
-	sumij += si*sj;
+    if (female) {
+      for (int k=0; k<N; k++) {
+	int wt = female[k]? 2: 1;
+	int si = (int) *(x++);
+	int sj = (int) *(y++);
+	if (si && sj) { 
+	  sum += wt;
+	  sumi += wt*si;
+	  sumj += wt*sj;
+	  sumij += wt*si*sj;
+	}
       }
     }
+    else {
+      for (int k=0; k<N; k++) {
+	int si = (int) *(x++);
+	int sj = (int) *(y++);
+	if (si && sj) {
+	  sum ++;
+	  sumi += si;
+	  sumj += sj;
+	  sumij += si*sj;
+	}
+      }
+    }
+    if (sum>1) 
+      return ((double) sumij - ((double) sumi* (double) sumj/(double) sum))/
+	(double) (sum - 1);
+    else
+      return 0.0;
   }
-  if (sum>1) 
-    return ((double) sumij - ((double) sumi* (double) sumj/(double) sum))/
-      (double) (sum - 1);
-  else
-    return 0.0;
 }
 
 double snpmean(const unsigned char *x, const int *female, const int N) {

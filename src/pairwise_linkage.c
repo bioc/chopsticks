@@ -1,6 +1,8 @@
 /*
  *  Copyright (C) 2006  Hin-Tak Leung
  *
+ *  Some addition by David Clayton 22/01/2009 to add covariance and odds ratios
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -33,6 +35,7 @@
 #include <R.h>
 #define my_warning  if(0) Rprintf
 #define my_error    if(0) Rprintf
+#define MISSING_VALUE NA_REAL
 #else
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,6 +44,7 @@
 #define my_warning  printf
 #define my_error    printf
 #define pairwise_linkage_main main
+#define MISSING_VALUE -1.0
 #endif
 
 #define MIN(x,y)  ((x) > (y) ? (y) : (x))
@@ -172,6 +176,7 @@ int pairwise_linkage_main(int argc, char **argv)
   res->expt = NULL;  
   count = res->count;
   memset(count, 0, sizeof(count));
+  printf("Reading data\n");
 
   sscanf(argv[1], "%i", &(count[0]));
   sscanf(argv[2], "%i", &(count[1]));
@@ -182,6 +187,8 @@ int pairwise_linkage_main(int argc, char **argv)
   sscanf(argv[7], "%i", &(count[6]));
   sscanf(argv[8], "%i", &(count[7]));
   sscanf(argv[9], "%i", &(count[8]));
+
+  printf("Data read\n");
 
   res->a = count[0];
   res->b = count[1];
@@ -324,6 +331,9 @@ geno_cptr do_geno_cal(geno_cptr res)
   if(res->total)
     {
       res->bigD = res->u * res->x - res->w * res->v;
+
+      /* D-prime */
+
       if (res->bigD > 0) 
 	{
 	  int bottom = MIN(vx *uv , wx * uw);
@@ -331,7 +341,7 @@ geno_cptr do_geno_cal(geno_cptr res)
 	  if(bottom !=0)
 	    res->dprime = res->bigD / bottom;
 	  else
-	    res->dprime = -1.0;
+	    res->dprime = MISSING_VALUE;
 	}
       else    
 	{
@@ -340,22 +350,37 @@ geno_cptr do_geno_cal(geno_cptr res)
 	  if (bottom !=0)
 	    res->dprime = - res->bigD / bottom ;
 	  else
-	    res->dprime = -1.0;
+	    res->dprime = MISSING_VALUE;
 	}
+      
+      /* R-squared */
       
       {
 	/* integer over flow if multiplying all 4 first */
 	if ((uw) && (uv) && (wx) && (vx))
 	  res->rsq2 = (res->bigD /uw/uv) * (res->bigD /wx/vx);
 	else
-	  res->rsq2 = -1.0;
+	  res->rsq2 = MISSING_VALUE;
       }
+
+      /* Covariance */
+
+      
+      res->covar = 0.25*(res->bigD / res->total)/res->total;
+
+      /* Odds ratio */
+
+      res->odds_ratio = res->p/(1.0 - res->p);
+      	  
+
     }
   else
     {
-      res->rsq2   = -1.0;
-      res->dprime = -1.0;
-      res->bigD   =  0.0;
+      res->rsq2   = MISSING_VALUE;
+      res->dprime = MISSING_VALUE;
+      res->odds_ratio = MISSING_VALUE;
+      res->covar = MISSING_VALUE;
+      res->bigD   = 0.0;
     }
 
   res->lod = 0.0;
@@ -386,6 +411,6 @@ geno_cptr do_geno_cal(geno_cptr res)
   my_warning("%f %f %f %f\n",
 	     res->u /res->total * 0.5, res->v/res->total * 0.5, res->w/res->total * 0.5, res->x/res->total * 0.5);
 
-  my_warning("d\' = %f , r^2 = %f, lod= %f\n", res->dprime, res->rsq2, res->lod);
+  my_warning("d\' = %f , r^2 = %f, lod= %f, cov= %f, odds_ratio= %f, \n", res->dprime, res->rsq2, res->lod, res->covar, res->odds_ratio);
   return res;
 }

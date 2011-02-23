@@ -44,8 +44,8 @@ library(snpMatrix)
 data(testdata)
 which <-  c("173774", "173811")
 Asw <- switch.alleles(Autosomes, which)
-summary(Autosomes)[which,]
-summary(Asw)[which,]
+col.summary(Autosomes[,which])
+col.summary(Asw[,which])
 }
 \keyword{utilities}
 

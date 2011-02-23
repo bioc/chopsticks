@@ -17,7 +17,10 @@
  *  Fifth Floor, Boston, MA 02110-1301  USA.
  */
 
+
 /* see sdfpw.h for description of these routines */
+
+/* Modified by David Clayton, Jan 2009, for change in missing value code */
 
 #include <R.h>
 #include <Rinternals.h>
@@ -29,6 +32,8 @@
 #include "hash_index.h"
 
 #include "sdfpw.h"
+
+
 
 /* "getListElement" was taken from R extension manual */
 /* static so as to hide from the rest of the library */
@@ -307,9 +312,9 @@ SEXP snp_dprime_draw(SEXP list_in, SEXP fileoutput, SEXP color_scheme, SEXP do_n
 	  res->dprime = REAL(dprime)[idx_i + rows * idx_j];
 	  if (is_r) 
 	    {
-	      if (rmaybe < -1.1) /* invalid value of r is -2, but is less than -1 anyway */
+	      if (ISNA(rmaybe)) /* invalid value of r (DC modified 01/09) */
 		{
-		  res->rsq2 = -1; /* invalid value */
+		  res->rsq2 = NA_REAL; /* invalid value */
 		}
 	      else
 		{
@@ -431,7 +436,7 @@ SEXP snp_pair_range(SEXP v, SEXP i, SEXP j, SEXP depth, SEXP signed_r)
 		}
 	      else
 		{
-		  REAL(rmisc)[offset + idx_j * width] = -2;
+		  REAL(rmisc)[offset + idx_j * width] = NA_REAL;
 		}
 	    }
 	  else

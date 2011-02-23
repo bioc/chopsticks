@@ -1,6 +1,8 @@
 /*
  *  Copyright (C) 2006  Hin-Tak Leung
  *
+ *  Some addition by David Clayton 22/01/2009 to add covariance and odds ratios
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -56,6 +58,8 @@ typedef struct {
   double rsq2;
   double dprime;
   double lod;
+  double odds_ratio;
+  double covar;
   /* */
   double post_p;
   signed char sign_of_r; /* sign_of_r is really just sign of bigD, but eventually

@@ -62,8 +62,8 @@ the packages and the data to be used in the first part of this
 exercise, which concerns a population--based case--control study:
 
 <<init>>=
-library(snpMatrix)
-library(hexbin)
+require(snpMatrix)
+require(hexbin)
 data(for.exercise)
 @ 
 
@@ -94,6 +94,7 @@ You have loaded three objects:
 <<>>=
 show(snps.10)
 @ 
+
 \item {\tt snp.support}, a conventional R
 data frame containing information about the
 SNPs typed. To see its contents:
@@ -125,18 +126,25 @@ Support files are usually read in with general tools such as {\tt
 for reading SNP genotype data into an object of class ``{\tt
   snp.matrix}''.}.
 
-You may have noticed that it was not suggested that you should examine
-the contents of {\tt snps.10} by typing {\tt summary(snps.10)}. The
-reason is that this command produces one line of summary statistics
-for each of the 12,400 SNPs. Instead we shall compute the summary and
-then summarise it!
+A short summary of the contents of {\tt snps.10} is provided by the
+{\tt summary} function. This operation actually produces two ``summaries of
+summaries''. First, summary 
+statistics are calculated for each row, and their results
+summarised. Then summary statistics are calculated for each column and
+their results summarised.
 <<>>=
-snpsum <- summary(snps.10)
+summary(snps.10)
+@ 
+The row-wise and column-wise summaries are
+calculated with the functions {\tt row.summary} and {\tt col.summary}.
+For example, to calculate summary statistics for each SNP (column):
+<<>>=
+snpsum <- col.summary(snps.10)
 summary(snpsum)
 @
-
-The contents of {\tt snpsum} are fairly obvious from the output from
-the last command.
+The second command duplicates the latter part of the result of {\tt
+  summary(snps.10)}, and the contents of {\tt snpsum} are fairly
+self-explanatory. 
 We could look at a couple of summary statistics in more detail:
 <<plot-snpsum,fig=TRUE>>=
 par(mfrow = c(1, 2))
@@ -150,14 +158,17 @@ the hypothesis of Hardy--Weinberg equilibrium (HWE). Quite clearly there is
 extreme deviation from HWE, but this can be accounted for by the
 manner in which this synthetic dataset was created.
 
-A useful tool to detect samples that have genotyped poorly is
-{\tt row.summary}. This calculates call rate and mean heterozygosity
+The function {\tt row.summary} is useful for detecting samples that
+have genotyped poorly. This calculates call rate and mean heterozygosity
 across all SNPs for each subject in turn:
 <<sample-qc>>=
 sample.qc <- row.summary(snps.10)
 summary(sample.qc)
 @
-
+(note that the last command yields the same as the first part of 
+{\tt summary(snps.10)}).
+The plot of heterozygosity against call rate is useful in detecting
+poor quality samples:
 <<plot-outliners-qc,fig=TRUE>>=
 par(mfrow = c(1, 1))
 plot(sample.qc)
@@ -182,11 +193,11 @@ order. Otherwise a slightly more complicated derivation is necessary.}
 if.case <- subject.support$cc == 1
 if.control <- subject.support$cc == 0
 @
-Now we recompute the genotype summary separately for cases and
+Now we recompute the genotype column summaries separately for cases and
 controls:
 <<sum-case-control>>=
-sum.cases <- summary(snps.10[if.case, ])
-sum.controls <- summary(snps.10[if.control, ])
+sum.cases <- col.summary(snps.10[if.case, ])
+sum.controls <- col.summary(snps.10[if.control, ])
 @
 and plot the call rates, using hexagonal binning and 
 superimposing a line of slope 1 through the origin:
@@ -383,14 +394,14 @@ variables in {\tt subject.support} in the current working environment
 <<top1>>=
 cc <- subject.support$cc
 stratum <- subject.support$stratum
-top <- as.numeric(snps.10[, "rs870041"])
+top <- as(snps.10[, "rs870041"], "numeric")
 glm(cc ~ top + stratum, family = "binomial")
 @
 The coefficient of {\tt top} in this regression is estimated as 0.5048,
 equivalent to a relative risk of $\exp(.5048) =1.657$.  
 For the other top SNP we have:
 <<top2>>=
-top2 <- as.numeric(snps.10[, "rs10882596"])
+top2 <- as(snps.10[, "rs10882596"], "numeric")
 glm(cc ~ top2 + stratum, family = "binomial")
 @
 This relative risk is $\exp(0.4103)=1.507$. Both estimates are

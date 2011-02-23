@@ -258,12 +258,17 @@ setGeneric("summary")
 
 setMethod("summary", "snp.matrix",
    function(object) {
-     .Call("snp_summary", object, PACKAGE="snpMatrix")
+     list(rows = summary(row.summary(object)),
+          cols = summary(col.summary(object)))
    })
 
 setMethod("summary", "X.snp.matrix",
    function(object) {
-     .Call("X_snp_summary", object, PACKAGE="snpMatrix")
+     tab <- table(object@Female)
+     names(tab) <- ifelse(as.logical(names(tab)), "Female", "Male")
+     list(sex = tab,
+          rows = summary(row.summary(object)),
+          cols = summary(col.summary(object)))
    })
 
 # Imputation
@@ -295,7 +300,10 @@ setMethod("show", "snp.reg.imputation",
    function(object) {
      to <- names(object)
      for (i in 1:length(object)) {
-       cat(to[i], " ~ ", paste(object[[i]]$snps, collapse="+"),
+       if (is.null(object[i]$snps))
+         cat(to[i], "~ No imputation available\n")
+       else 
+         cat(to[i], " ~ ", paste(object[[i]]$snps, collapse="+"),
            " (MAF = ", object[[i]]$maf, 
            ", R-squared = ", object[[i]]$r.squared,
            ")\n", sep="")
@@ -584,6 +592,10 @@ setGeneric("effect.sign", function(x, simplify) standardGeneric("effect.sign"),
 setGeneric("sample.size", function(x) standardGeneric("sample.size"),
            useAsDefault=FALSE)
 
+setGeneric("effective.sample.size",
+           function(x) standardGeneric("effective.sample.size"),
+           useAsDefault=FALSE)
+
 setGeneric("pool2", function(x, y, score) standardGeneric("pool2"),
            useAsDefault=FALSE)
 
@@ -655,7 +667,17 @@ setMethod("sample.size", signature(x="snp.tests.glm"),
 setMethod("sample.size", signature(x="snp.tests.single"),
           function(x) {
             res <- x@N
-            names(res) <- x@snp.tests
+            names(res) <- x@snp.names
+            res
+          })
+
+setMethod("effective.sample.size", signature(x="snp.tests.single"),
+          function(x) {
+            if (length(x@N.r2)==0)
+              res <- x@N
+            else
+              res <- x@N.r2
+            names(res) <- x@snp.names
             res
           })
 

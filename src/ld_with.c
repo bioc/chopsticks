@@ -85,10 +85,10 @@ SEXP ld_with(SEXP x, SEXP snps, SEXP signed_r) {
 				     rows);
       REAL(dprime)[offset] = res->dprime;
       if (need_signed_r) {
-	if (res->rsq2 > 0) {
+	if (!ISNA(res->rsq2)) {
 	  REAL(rmisc)[offset] = res->sign_of_r * sqrt(res->rsq2);
 	} else {
-	  REAL(rmisc)[offset] = -2;
+	  REAL(rmisc)[offset] = NA_REAL;
 	}
       } else {
 	REAL(rmisc)[offset] = res->rsq2;

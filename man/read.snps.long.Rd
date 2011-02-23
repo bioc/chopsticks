@@ -8,14 +8,14 @@
   input files can be read, the input fields can be in any order on the
   line, and irrelevant fields can be skipped. The samples and SNPs
   to be read  must be pre-specified, and define rows and columns of an
-  output object of class \code{"snp.matrix"}.  
+  output object of class \code{"snp.matrix"}. 
 }
 \usage{
 read.snps.long(files, sample.id = NULL, snp.id = NULL, female = NULL,
               fields = c(sample = 1, snp = 2, genotype = 3, confidence = 4),
               codes = c("0", "1", "2"), threshold = 0.9, lower = TRUE,
               sep = " ", comment = "#", skip = 0, simplify = c(FALSE,FALSE),
-              verbose = FALSE, every = 1000)
+              verbose = FALSE, in.order=TRUE, every = 1000)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -54,6 +54,8 @@ read.snps.long(files, sample.id = NULL, snp.id = NULL, female = NULL,
     \code{snp.matrix} }
   \item{verbose}{If \code{TRUE}, a progress report is generated as
     every \code{every} lines of data are read}
+  \item{in.order}{If \code{TRUE}, input lines are assumed to be in the
+    correct order (see details)}
   \item{every}{See \code{verbose}}
 }
 \details{
@@ -87,14 +89,18 @@ read.snps.long(files, sample.id = NULL, snp.id = NULL, female = NULL,
   for any subject the latter course \emph{must} be followed, since
   \code{NA}s are not accepted in the \code{female} argument.
 
-  The vectors \code{sample.id} and \code{snp.id} must be in the same
+  If the \code{in.order} argument is set \code{TRUE}, then
+  the vectors \code{sample.id} and \code{snp.id} must be in the same
   order as they  vary on the input file(s) and this ordering must be
   consistent. However, there is
-  no requirement that either SNP or sample should vary fastest; this is
-  detected from the input. 
+  no requirement that either SNP or sample should vary fastest as this is
+  detected from the input. If \code{in.order} is \code{FALSE}, then no
+  assumptions about the ordering of the input file are assumed and SNP
+  and sample identifiers are looked up in hash tables as they are
+  read. This option must be expected, therefore, to be somewhat slower.
   Each file may represent a separate sample or SNP, in which case the
-  appropriate \code{.id} argument can be omitted and row or column names
-  taken from the file names.  
+  appropriate \code{.id} argument can be omitted; row or column names
+  are then taken from the file names.  
 }
 \value{
   An object of class \code{"snp.matrix"} or \code{"X.snp.matrix"}.
@@ -102,11 +108,8 @@ read.snps.long(files, sample.id = NULL, snp.id = NULL, female = NULL,
 \note{
   The function will read gzipped files.
   
-  This function has replaced an earlier version which was much less
-  flexible. Because all features have not been fully tested, the older
-  version has been retained as \code{\link{read.snps.long.old}}.
-
-  Every combination of sample and snp listed in the
+  If \code{in.order} is \code{TRUE},
+  every combination of sample and snp listed in the
   \code{sample.id} and \code{snp.id} arguments  \emph{must} be present in the
   input file(s). Otherwise the function will search for any missing
   observation until reaching the end of the data, ignoring everything

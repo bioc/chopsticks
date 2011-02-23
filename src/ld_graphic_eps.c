@@ -22,9 +22,14 @@
    to routines here. Only internal routines are documented here.
 */
 
+/* Modified by David Clayton, Jan 2009, for change in missing value code */
+
 #include <stdio.h>  /* file operations */
 #include <stdlib.h> /* calloc */
 #include <string.h> /* memset */
+#include <R.h>
+#include <Rinternals.h>
+
 #include "pairwise_linkage.h"
 #include "ld_graphic_eps.h"
 #include "ld_graphic_eps_priv.h"
@@ -172,7 +177,7 @@ void graphic_draw_pair(ld_graphics_ptr gh, geno_cptr res, int i, int j, int do_n
 
 int get_color_std(geno_cptr res)
 {
-  if ((res->dprime < -0.01) || (res->rsq2 < -0.01))
+  if (ISNA(res->dprime) || ISNA(res->rsq2))
     {
       return 500;
     }
@@ -209,7 +214,7 @@ int get_color_std(geno_cptr res)
 
 int get_color_rsq(geno_cptr res)
 {
-  if ((res->dprime < -0.01) || (res->rsq2 < -0.01))
+  if (ISNA(res->dprime) || ISNA(res->rsq2))
     {
       return 500;
     }

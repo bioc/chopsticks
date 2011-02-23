@@ -4,6 +4,7 @@
 \alias{effect.sign}
 \alias{p.value}
 \alias{sample.size}
+\alias{effective.sample.size}
 \title{Extract test statistics and p-values}
 \description{
 Generic functions to extract values from the SNP
@@ -15,6 +16,7 @@ deg.freedom(x)
 effect.sign(x, simplify)
 p.value(x, df)
 sample.size(x)
+effective.sample.size(x)
 }
 \arguments{
   \item{x}{An object of class \code{"snp.tests.single"}, 
@@ -50,7 +52,9 @@ sample.size(x)
   single vector with one sign for each test.
   The function \code{sample.size} returns the number of observations
   actually used in the test, after exclusions due to missing data have
-  been applied.
+  been applied, and \code{effective.sample.size} returns the effective
+  sample size which is less than the true sample size for tests on
+  imperfectly imputed SNPs.
 }
 \value{
   A numeric vector containing the

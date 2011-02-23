@@ -77,11 +77,9 @@ Class \code{"vector"}, by class "matrix", with explicit coerce.
       names prompt warnings}
     \item{show}{\code{signature(object = "snp.matrix")}: shows the size
       of the matrix (since most objects will be too large to show in full)}
-    \item{summary}{\code{signature(object = "snp.matrix")}: calculate
-      call rates, allele frequencies, genotype frequencies, and z-tests for
-      Hardy-Weinberg equilibrium. Results are returned as a dataframe with
-      column names \code{Calls}, \code{Call.rate}, \code{MAF}, \code{P.AA},
-      \code{P.AB}, \code{P.BB}, and \code{z.HWE}}
+    \item{summary}{\code{signature(object = "snp.matrix")}: returns
+      summaries of the data frames returned by
+      \code{\link{row.summary}} and \code{\link{col.summary}}}
     \item{is.na}{\code{signature(x = "snp.matrix")}: returns a logical
       matrix of missing call indicators}
     \item{switch.alleles}{\code{signature(x = "snp.matrix", snps
@@ -98,7 +96,7 @@ Class \code{"vector"}, by class "matrix", with explicit coerce.
 }
 \examples{
 data(testdata)
-summary(summary(Autosomes))
+summary(Autosomes)
 
 # Just making it up - 3-10 will be made into NA during conversion
 snps.class<-new("snp.matrix", matrix(1:10))

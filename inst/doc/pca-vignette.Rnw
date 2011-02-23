@@ -104,8 +104,9 @@ mean. This is quite adequate when the proportion of missing data is
 low. The default method is more sophisticated but introduces
 complications later so we will keep it simple.
 
-Two comments should be made at this point. Secondly, the data from genome-wide studies
-will usually not fit inside a single {\tt snp.matrix} object and will
+When performing a genome-wide analysis, it will usually be the case
+that all the data cannot be stored   
+in a single {\tt snp.matrix} object. Usually they will
 be organized with one matrix for each chromosome. In these cases, it
 is straightforward to write a script which carries out the above
 calculations for each chromosome in turn, saving the resultant matrix
@@ -149,8 +150,9 @@ btr <- snp.pre(ctl.10, diag(1/sqrt(evals)) %*% t(pcs))
 We can now apply these loadings back to the entire dataset (cases as
 well as controls) to derive scores that we can use to correct for
 population structure. To do that we use the function {\tt snp.post}
-which post-multiplies a {\tt snp.matrix} by a matrix, after first
-standardizing to zero mean and unit standard deviation. Note that it
+which post-multiplies a {\tt snp.matrix} by a general matrix, after first
+standardizing the columns of the {\tt snp.matrix} 
+to zero mean and unit standard deviation. Note that it
 is first necessary to select out those SNPs that we have actually used
 in the calculation of components.
 <<post-multiply>>=

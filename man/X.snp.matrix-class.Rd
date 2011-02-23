@@ -40,8 +40,8 @@ Class \code{"vector"}, by class "snp.matrix", with explicit coerce.
 }
 \section{Methods}{
   \describe{
-    \item{[]}{\code{signature(x = "X.snp.matrix")}: subset
-      operations. Currently rather slow owing to excessive copying}
+    \item{[}{\code{signature(x = "X.snp.matrix")}: subset
+      operations}
     \item{[<-}{\code{signature(x = "X.snp.matrix")}: subset
       assignment operation to replace part of an object}
     \item{coerce}{\code{signature(from = "X.snp.matrix", to =
@@ -54,18 +54,10 @@ Class \code{"vector"}, by class "snp.matrix", with explicit coerce.
       \code{NA}}
      \item{show}{\code{signature(object = "X.snp.matrix")}: map to codes
       "A/A", "A/B", "B/B", "A/Y", "B/Y" or ""}
-    \item{summary}{\code{signature(object = "X.snp.matrix")}: calculate
-      call rates, allele frequencies, genotype frequencies,
-      and chi-square tests for
-      Hardy-Weinberg equilibrium. Genotype frequencies are calculated for
-      males and females separately and Hardy-Weinberg equilibrium tests
-      use only the female data. Allele frequencies are calculated using
-      data from both males and females. Results are returned as a
-      dataframe with
-      column names \code{Calls}, \code{Call.rate}, \code{MAF}, \code{P.AA},
-      \code{P.AB}, \code{P.BB},  \code{P.AY}, \code{P.BY}, and
-      \code{z.HWE}
-    }
+    \item{summary}{\code{signature(object = "X.snp.matrix")}: returns
+      the sex distribution, together with
+      summaries of the data frames returned by
+      \code{\link{row.summary}} and \code{\link{col.summary}}}
   }
 }
 \references{\url{http://www-gene.cimr.cam.ac.uk/clayton}}
@@ -75,6 +67,6 @@ Class \code{"vector"}, by class "snp.matrix", with explicit coerce.
 }
 \examples{
 data(testdata)
-summary(summary(Xchromosome))
+summary(Xchromosome)
 }
 \keyword{classes}
