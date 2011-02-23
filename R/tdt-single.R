@@ -25,7 +25,7 @@ tdt.snp <- function(ped, id, father, mother, affected,
     father <- as.character(father)
     if (length(father)!=nped)
       stop("incompatible length for `father' and `ped' arguments")
-    mother <- as.character(father)
+    mother <- as.character(mother)
     if (length(mother)!=nped)
       stop("incompatible length for `mother' and `ped' arguments")
     affected <- as.logical(affected)
@@ -170,19 +170,16 @@ misinherits <- function(ped, id, father, mother, data=sys.parent(), snp.data){
     father <- as.character(father)
     if (length(father)!=nped)
       stop("incompatible length for `father' and `ped' arguments")
-    mother <- as.character(father)
+    mother <- as.character(mother)
     if (length(mother)!=nped)
       stop("incompatible length for `mother' and `ped' arguments")
-    affected <- as.logical(affected)
-    if (length(affected)!=nped)
-      stop("incompatible length for `affected' and `ped' arguments")
     subject.names <- id
            
     # Correspondence between ped data and snp data
 
     subject.names <- rownames(snp.data)
     in.snp <- 1:nped
-    have.snps <- TRUE
+    have.snps <- rep(TRUE, nped)
            
   } else { # ped data are in data dataframe
     data <- as.data.frame(data)
