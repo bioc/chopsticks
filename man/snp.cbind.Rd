@@ -11,6 +11,8 @@ These functions bind together two or more objects of class
 \code{"snp.matrix"} or \code{"X.snp.matrix"}. 
 }
 \usage{
+cbind(...)
+rbind(...)
 snp.cbind(...)
 snp.rbind(...)
 }
@@ -19,9 +21,9 @@ snp.rbind(...)
 }
 \details{
 These functions  reproduce the action of the standard functions
-\code{\link{cbind}} and \code{\link{rbind}}. These are constrained to
-work by recursive calls to the generic functions  \code{\link{cbind2}}
-and \code{\link{rbind2}} which take just two arguments. This
+\code{cbind} and \code{rbind}. These are constrained to
+work by recursive calls to the generic functions  \code{cbind2}
+and \code{rbind2} which take just two arguments. This
 is somewhat inefficient in both time and memory use when binding more
 than two objects, so the functions \code{snp.cbind} and
 \code{snp.rbind}, which take multiple arguments, are also supplied.
@@ -30,14 +32,14 @@ When matrices are bound together by column, row names must be identical,
 column names must not be duplicated and, for objects of class
 \code{X.snp.matrix} the contents of the \code{Female} slot much match.
 When matrices are bound by row,
-column names must be identical. and duplications of row names generate
+column names must be identical and duplications of row names generate
 warnings. 
 }
 \value{
   A new matrix, of the same type as the input matrices.
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
-\seealso{\code{\link[base]{cbind}}, \code{\link[base]{rbind}}}
+\seealso{\code{\link[base:cbind]{cbind}}, \code{\link[base:rbind]{rbind}}}
 \examples{
 data(testdata)
 # subsetting ( Autosomes[c(1:9,11:19,21:29),] ) is quicker. this is just for illustrating

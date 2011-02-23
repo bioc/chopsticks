@@ -12,8 +12,8 @@ Implements classes and methods for large-scale SNP association studies
 \details{
 \tabular{ll}{
 Package: \tab snpMatrix\cr
-Version: \tab 1.9.1\cr
-Date: \tab 2009-06-10\cr
+Version: \tab 1.9.3\cr
+Date: \tab 2009-09-14\cr
 Depends: \tab R(>= 2.3.0), survival, methods\cr
 Suggests: \tab hexbin\cr
 Enhances: \tab genetics\cr
@@ -22,7 +22,7 @@ URL: \tab http://www-gene.cimr.cam.ac.uk/clayton/software/\cr
 Collate: \tab ld.with.R ss.R contingency.table.R glm-test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq-chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R tdt-single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
 LazyLoad: \tab yes\cr
 biocViews: \tab Microarray, SNPsAndGeneticVariability\cr
-Built: \tab R 2.9.0; x86\_64-pc-linux-gnu; 2009-06-10 10:32:01 UTC; unix\cr
+Built: \tab R 2.9.1; x86_64-pc-linux-gnu; 2009-09-14 09:24:41 UTC; unix\cr
 }
 
 Index:
@@ -43,8 +43,7 @@ ibs.stats               function to calculate the identity-by-state
 ibsCount                Count alleles identical by state
 ibsDist                 Distance matrix based on identity by state
                         (IBS)
-imputation.maf          Extract MAF and R-squared values from
-                        imputation rules
+imputation.maf          Extract statistics from imputation rules
 impute.snps             Impute snps
 ld.snp                  Function to calculate pairwise D', r-squared
 ld.with                 function to calculate the LD measures of
@@ -109,16 +108,16 @@ xxt                     X.X-transpose for a standardized snp.matrix
 
 Further information is available in the following vignettes:
 \tabular{ll}{
-\code{imputation-vignette} \tab Imputation and meta-analysis (source)\cr
-\code{pca-vignette} \tab Principal components analysis (source)\cr
-\code{snpMatrix-vignette} \tab snpMatrix introduction (source)\cr
-\code{tdt-vignette} \tab TDT tests (source)\cr
+\code{imputation-vignette} \tab Imputation and meta-analysis (source, pdf)\cr
+\code{pca-vignette} \tab Principal components analysis (source, pdf)\cr
+\code{snpMatrix-vignette} \tab snpMatrix introduction (source, pdf)\cr
+\code{tdt-vignette} \tab TDT tests (source, pdf)\cr
 }
 }
 \author{
-David Clayton <david.clayton@cimr.cam.ac.uk> and
-Hin-Tak Leung <htl10@users.sourceforge.net>
+David Clayton \email{david.clayton@cimr.cam.ac.uk} and
+Hin-Tak Leung \email{htl10@users.sourceforge.net}
 
-Maintainer: David Clayton <david.clayton@cimr.cam.ac.uk>
+Maintainer: David Clayton \email{david.clayton@cimr.cam.ac.uk}
 }
 \keyword{ package }

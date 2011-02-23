@@ -7,8 +7,8 @@
   from the other in a subsequent sample.
 }
 \usage{
-snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try = 50,
-     stopping = c(0.95, 4, 0.05), use.hap = c(0.95, 0.1), em.cntrl=c(50, 0.01))
+snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try=50, stopping=c(0.95, 4, 0.05),
+               use.hap=c(0.95, 0.1), em.cntrl=c(50,0.01), minA=5)
 }
 \arguments{
   \item{X}{An object of class \code{"snpMatrix"} or
@@ -29,18 +29,22 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try = 50,
     method (see below)}
   \item{em.cntrl}{Parameters to control test for convergence of EM
     algorithm for fitting phased haplotypes (see below)}
+  \item{minA}{A minimum data quantity measure for estimating pairwise
+    linkage disequilibrium (see below)}
 }
 \details{
   The routine first carries out a series of step-wise regression analyses in
   which each Y SNP is regressed on the nearest \code{try} regressor (X)
   SNPs. If
-  \code{phase} is \code{TRUE}, the regressions are calculated at the
+  \code{phase} is \code{TRUE}, the regressions will be calculated at the
   chromosome (haplotype) level, variances being simply  \eqn{p(1-p)} and
   covariances estimated 
-  using the same algorithm used in \code{\link{ld.snp}}. Otherwise, the
-  analysis is carried out at the diplotype level based on  
+  using the same algorithm used in \code{\link{ld.snp}} (this option is
+  not yet implemented). Otherwise, the
+  analysis is carried out at the genotype level based on  
   conventional variance and covariance estimates using the
-  \code{"all.obs"} missing value treatment (see \code{\link{cov}}). New
+  \code{"pairwise.complete.obs"} missing value treatment
+  (see \code{\link{cov}}). New
   SNPs are added to the regression until either (a) the value of
   \eqn{R^2} exceeds the first parameter of \code{stopping}, (b) the
   number of "tag" SNPs has reached the maximum set in the second parameter of
@@ -63,6 +67,15 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try = 50,
   first parameter is the maximum number of iterations, and the second
   parameter is the threshold for the change in log likelihood
   below which the iteration is judged to have converged.
+
+  All SNPs selected for imputation must have sufficient data for
+  estimating pairwise linkage disequilibrium with each other and with
+  the target SNP. The statistic chosen is based on the four-fold tables
+  of two-locus haplotype frequencies. If the frequencies in such a table
+  are labelled \eqn{a, b, c} and \eqn{d} then, if \eqn{ad>bc} then
+  \eqn{t = min(a,d)} and, otherwise,  \eqn{t = min(b,c)}. The cell
+  frequencies \eqn{t} must exceed \code{minA} for all pairwise
+  comparisons.  
 }
 \value{
   An object of class

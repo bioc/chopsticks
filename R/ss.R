@@ -198,6 +198,7 @@ setAs("X.snp.matrix", "character",
         to <- c("", "A/Y", "Error", "B/Y", "", "A/A", "A/B", "B/B")[
             1+as.integer(from)+ 4*rep(from@Female, ncol(from))]
         dim(to) <- df
+        dimnames(to) <- dimnames(from)
         to
       })
 

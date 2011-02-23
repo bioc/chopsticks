@@ -36,37 +36,48 @@ tdt.snp <- function(ped, id, father, mother, affected,
 
     subject.names <- rownames(snp.data)
     in.snp <- 1:nped
-    have.snps <- TRUE
+    have.snps <- rep(TRUE, nped)
     
   } else { # ped data are in data dataframe
     data <- as.data.frame(data)
     nped <- nrow(data)
     subject.names <- rownames(data)
+
     if (missing(ped))
       ped <- as.character(data[,1])
     else
       ped <- as.character(eval(mcall$ped, envir=data))
-    
+    if (is.null(ped))
+      stop("pedigree identifiers not found in data frame")
+
     if (missing(id))
       id <- as.character(data[,2])
     else
       id <- as.character(eval(mcall$id, envir=data))
-    
+    if(is.null(id))
+      stop("subject identifiers not found in data frame")   
+
     if (missing(father))
       father <- as.character(data[,3])
     else
       father <- as.character(eval(mcall$father, envir=data))
+    if(is.null(father))
+      stop("father identifiers not found in data frame")   
     
     if (missing(mother))
       mother <- as.character(data[,4])
     else
       mother <- as.character(eval(mcall$mother, envir=data))
+    if(is.null(mother))
+      stop("mother identifiers not found in data frame")   
     
     if (missing(affected))
       affected <- (data[,6]==2)
     else
       affected <- as.logical(eval(mcall$affected, envir=data))
-
+    if(is.null(affected))
+      stop("disease status not found in data frame")   
+  
     # Correspondence between ped data and snp data
 
     in.snp <- match(subject.names, rownames(snp.data))

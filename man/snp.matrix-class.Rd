@@ -111,5 +111,15 @@ pretend.A <- as(Xchromosome, 'snp.matrix')
 if(!isS4(pretend.A)) stop("coersion to base class is not S4")
 if(class(pretend.A) != 'snp.matrix') stop("coersion to base class is not working")
 
+# display the first 10 snps of the first 10 samples
+print(as(Autosomes[1:10,1:10], 'character'))
+
+# convert the empty strings (no-calls) explicitly to "NC" before
+# writing to an (anonymous and temporary) csv file
+csvfile <- tempfile()
+write.csv(file=csvfile, gsub ('^$', 'NC',
+                              as(Autosomes[1:10,1:10], 'character')
+                             ), quote=FALSE)
+unlink(csvfile)
 }
 \keyword{classes}

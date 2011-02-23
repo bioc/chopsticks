@@ -18,7 +18,7 @@
  */
 
 /* the maximum length of strings the look-up table */
-#define MAX_ID 64
+#define MAX_ID 128
 
 /* for MAX_ID < 4 or 8, name[] is smaller than 
    *name and also have better locality */

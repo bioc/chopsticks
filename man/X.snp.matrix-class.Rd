@@ -68,5 +68,16 @@ Class \code{"vector"}, by class "snp.matrix", with explicit coerce.
 \examples{
 data(testdata)
 summary(Xchromosome)
+
+# display the first 10 snps of the first 10 samples
+print(as(Xchromosome[1:10,1:10],'character'))
+
+# convert the empty strings (no-calls) explicitly to "NC" before
+# writing to an (anonymous and temporary) csv file
+csvfile <- tempfile()
+write.csv(file=csvfile, gsub ('^$', 'NC',
+                              as(Xchromosome[1:10,1:10], 'character')
+                             ), quote=FALSE)
+unlink(csvfile)
 }
 \keyword{classes}

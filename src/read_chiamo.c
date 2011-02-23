@@ -29,7 +29,7 @@ SNP_A-2186786 rs3097718 341390 A G 0.9988 0.0012 0 1 0 0
 SNP_A-4298665 --- 344301 A G 0 0 1 0.0019 0.9930 0 0 0
 */
 
-#define MAX_ID_LENGTH 64
+#define MAX_ID_LENGTH 128
 
 typedef struct linecontent {
   struct linecontent *next;

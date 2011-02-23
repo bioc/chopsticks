@@ -150,8 +150,10 @@ summary(rules)
 
 Columns represent the number of SNPs and the type of rule, while rows
 represent grouping on $R^2$. The last column (headed {\tt <NA>})
-represents SNPs which were monomorphic in the sample. The same
-information may be displayed graphically by
+represents SNPs for which an imputation rule could  not be computed,
+either because they were monomorphic or because there was insufficient
+data (as determined by the {\tt minA} optional argument in the call to
+\tt{snp.imputation}). The same information may be displayed graphically by
 
 <<ruleplot,fig=TRUE>>=
 plot(rules)
@@ -326,7 +328,7 @@ coding had been switched in the original data. The use of this is
 demonstrated below.
 <<switch>>=
 effect.sign(obs)[1:6]
-sw.obs <- switch.alleles(obs, c("rs12773042", "rs10904596"))
+sw.obs <- switch.alleles(obs, c("rs7093061", "rs7475011"))
 class(sw.obs)
 effect.sign(sw.obs)[1:6]
 @ 

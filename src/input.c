@@ -572,7 +572,8 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 	    if (finished)
 	      break;
 	    else
-	      continue;
+	      advance = 1;
+	    continue;
 	  }
 	}
 	

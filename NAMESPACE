@@ -6,7 +6,7 @@ exportMethods(cbind2, chi.squared, deg.freedom, effect.sign, is.na, ld.with,
               plot, sample.size, effective.sample.size,
               "[", "[<-", coerce, initialize)
 export(epsout.ld.snp, filter.rules, glm.test.control, ibs.stats, ibsCount,
-       ibsDist, impute.snps, imputation.maf, imputation.r2,
+       ibsDist, impute.snps, imputation.maf, imputation.r2, imputation.nsnp,
        ld.snp, ld.with, misinherits,
        niceprint, pair.result.ld.snp, plot.snp.dprime, pool,
        print.snp.dprime, qq.chisq, read.HapMap.data, read.pedfile.info,

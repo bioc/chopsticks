@@ -15,7 +15,7 @@ gtypes      Array of char's, length nchip*nsnp, to hold genotype data
 #include <string.h>
 #include <stdio.h>
 
-#define MAX_ID 64
+#define MAX_ID 128
 #define MAX_GT 16
 
 void insnp(char *filename, char *tmpdir,  
@@ -118,7 +118,7 @@ int main() {
   char* chips[2] = {"1", "2"};
   char* snps[3] = {"a", "b", "c"};
   char* codes[3] = {"aa", "ab", "bb"};
-  int counts[2];
+  int counts[2] = {0,0};
   char res[6];
   int nchips = 2;
   int nsnps = 3;

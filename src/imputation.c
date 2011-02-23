@@ -10,12 +10,15 @@
 #include "hash_index.h"
 #include "imputation.h"
 
+#define min2(x, y) (x<y? x: y)
+
 int bin_search(const double *sorted, const int len, const double value);
 int nearest_N(const double *sorted, const int len, const double value, 
 	      const int N);
 double covariances(int i, int j, va_list ap);
 double snpcov(const unsigned char *x, const unsigned char *y, 
-	      const int *female, const int N, const int phase);
+	      const int *female, const int N, const int phase, 
+	      const double minA);
 double snpmean(const unsigned char *x, 
 	       const int *female, const int N);
 void utinv(double *, const int);
@@ -24,7 +27,8 @@ void utinv(double *, const int);
 SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
 		const SEXP Xpos, const SEXP Ypos, const SEXP Phase, 
 		const SEXP Try, const SEXP Stop,
-		const SEXP Hapcontr, const SEXP EMcontr){
+		const SEXP Hapcontr, const SEXP EMcontr,
+		const SEXP MinA){
 
   int try =  *INTEGER(Try);   /* Number to search */
   if (LENGTH(Stop)!=3)
@@ -39,6 +43,7 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
   if (dR2<0)
     dR2 = NA_REAL;
   int phase = *LOGICAL(Phase);   /* haploid or diploid computation */
+  double minA = *REAL(MinA);     /* min paired data test */
 
   /* Fully phased haplotype-based  imputation control args */
 
@@ -108,15 +113,10 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
   PROTECT(Result = allocVector(VECSXP, ny));
   setAttrib(Result, R_NamesSymbol, 
 	    VECTOR_ELT(getAttrib(Y, R_DimNamesSymbol),1));
-  SEXP Maxpred;
-  PROTECT(Maxpred = allocVector(INTSXP, 1));
-  INTEGER(Maxpred)[0] = pmax;
-  setAttrib(Result, install("Max.predictors"), Maxpred);
-  UNPROTECT(1);
 
   /* Main loop */
 
-  int n_em_fail=0;
+  int n_em_fail=0, maxpred=0;
   for (int i=0; i<ny; i++) {
     unsigned char *yi = y + nsubject*(yord[i]-1);
     /* Minor allele frequency */
@@ -132,72 +132,90 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
       double maf = (double) (na - ng)/ (double) (2*ng);
       if (maf>0.5)
 	maf = 1.0 - maf;
-      if (maf) {
+      double yy = snpcov(yi, yi, female, nsubject, phase, minA);
+      if (!ISNA(yy)) {
 	int start = nearest_N(xpos, nx, ypos[i], try);
-	double yy = snpcov(yi, yi, female, nsubject, phase);
 	for (int j=0; j<try; j++) { 
 	  int jx = nsubject*(xord[start+j]-1);
-	  xy[j] = snpcov(x+jx, yi, female, nsubject, phase);
+	  xy[j] = snpcov(x+jx, yi, female, nsubject, phase, minA);
 	}
 	move_window(cache, start);
-	get_diag(cache, xxd, covariances, x, nsubject, xord, female, phase);
-	int nregr = 0;
+	get_diag(cache, xxd, covariances, x, nsubject, xord, female, phase, 
+		 minA);
 	double resid = yy;
 	double rsq = 0.0;
-	int ic = 0;
+	int nregr=0, ic = 0;
 	while (1) {
 	  /* Find next snp to be included */
 	  double max_due = 0.0;
 	  int best = -1;
 	  for (int j=0; j<try; j++) {
 	    double xxj = xxd[j];
-	    if (xxj>0.0) {
-	      double xyj = xy[j];
-	      double xyj2 = xyj*xyj;
-	      if (xyj2>(xxj*resid)) {
-		xy[j] = xyj>0.0? sqrt(xxj*resid): -sqrt(xxj*resid);
+	    double xyj = xy[j];
+	    if (xxj==0.0 || ISNA(xxj) || ISNA(xyj))
+	      continue;
+	    double xyj2 = xyj*xyj;
+	    if (xyj2>(xxj*resid)) { /* r^2 > 1 */
+	      xy[j] = xyj>0.0? sqrt(xxj*resid): -sqrt(xxj*resid);
+	      best = j;
+	      max_due = resid;
+	    }
+	    else {
+	      double due = xyj2/xxj;
+	      if (due>max_due) {
+		max_due = due;
 		best = j;
-		max_due = resid;
-	      }
-	      else {
-		double due = xyj2/xxj;
-		if (due>max_due) {
-		  max_due = due;
-		  best = j;
-		}
 	      }
 	    }
+	  }
+	  if (best<0)
+	    break;
+	  double *xxin = xxi + try*nregr;
+	  get_row(cache, start+best, xxin, 
+		  covariances, x, nsubject, xord, female, phase, minA);
+	  double *xxik = xxi;
+	  int reject = 0;
+	  for (int k=0; k<nregr; k++, xxik+=try) {
+	    int selk = sel[k];
+	    double xxink = xxin[selk], xxikk = xxik[selk];
+	    if (ISNA(xxink) || ISNA(xxikk)) {
+	      reject = 1;
+	      ic -= k;
+	      break;
+	    }
+	    double ck = xxink/xxikk;
+	    coef[ic++] = ck;
+	    for (int j=0; j<try; j++) {
+	      double w1 = xxin[j], w2 = xxik[j];
+	      xxin[j] = ISNA(w1) || ISNA(w2)? NA_REAL: w1 - ck*w2;
+	    }
+	  }
+	  if (reject) {
+	    xxd[best] = 0.0;
+	    continue;
 	  }
 	  sel[nregr] = best; /* Save index */
 	  double bestc = xy[best]/xxd[best]; 
 	  ycoef[nregr] = bestc; /* Save regression coefficient */
 	  if (ISNA(dR2))
-	    dR2 = 2/ (double) (nsubject-nregr-1);
+	    dR2 = 2/ (double) (nsubject-nregr-2);
 	  double deltaR2 =  max_due/resid;
 	  resid -= max_due;
 	  rsq = 1.0 - resid/yy; 
 	  nregr++;
-	  double *xxin = xxi + try*(nregr-1);
-	  get_row(cache, start+best, xxin, 
-		  covariances, x, nsubject, xord, female, phase);
-	  double *xxik = xxi;
-	  for (int k=0; k<(nregr-1); k++, xxik+=try) {
-	    int selk = sel[k];
-	    double ck = xxin[selk]/xxik[selk];
-	    coef[ic++] = ck;
-	    for (int j=0; j<try; j++)
-	      xxin[j] -= ck*xxik[j];
-	  }
 	  int stop = (rsq>=r2stop)||(nregr==pmax)||(deltaR2<dR2); 
-	  if (stop) {
+	  if (stop) 
 	    break;
-	  }
-	  else {
-	    for (int j=0; j<try; j++) 
-	      xy[j] -= bestc*xxin[j];
-	    double vn = xxd[best];
-	    for (int j=0; j<try; j++) 
-	      xxd[j] -= xxin[j]*xxin[j]/vn;
+
+	  double vn = xxd[best];
+	  xxd[best] = 0.0;
+	  for (int j=0; j<try; j++) {
+	    double w = xxin[j];
+	    if (!ISNA(w)) {
+	      xy[j] -=  bestc*w;
+	      w = xxd[j]-w*w/vn;
+	      xxd[j] = w>0.0? w: 0.0;
+	    }
 	  }
 	}
 
@@ -227,7 +245,6 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
 	    else
 	      contin[tcell[j]]++;
 	  }
-
 	  /* EM algorithm */
 	  int em_fail = emhap(dim, contin, hcontin, tables[nregr], 
 			      maxit, emtol, phap);
@@ -238,68 +255,78 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
 	  }
 	}
 
-        /* save imputation rule */
+	if (nregr>0) {
 
-	SEXP Rule, Rlnames, Maf, R2, Pnames, Coefs;
-	PROTECT(Rule = allocVector(VECSXP, 4));
+	  /* save imputation rule */
 	
-	PROTECT(Rlnames = allocVector(STRSXP, 4));
-	SET_STRING_ELT(Rlnames, 0, mkChar("maf"));
-	SET_STRING_ELT(Rlnames, 1, mkChar("r.squared"));
-	SET_STRING_ELT(Rlnames, 2, mkChar("snps"));
+	  if (nregr>maxpred)
+	    maxpred = nregr;
+
+	  SEXP Rule, Rlnames, Maf, R2, Pnames, Coefs;
+	  PROTECT(Rule = allocVector(VECSXP, 4));
 	  
-	PROTECT(Maf = allocVector(REALSXP, 1));
-	*REAL(Maf) = maf;
-	PROTECT(R2 = allocVector(REALSXP, 1));
-	PROTECT(Pnames = allocVector(STRSXP, nregr));
-	for (int j=0; j<nregr; j++) {
-	  int xsnp =  xord[start+sel[j]]-1;
-	  SET_STRING_ELT(Pnames, j, STRING_ELT(Xsnpnames, xsnp));
-	}
-
-	if (r2gain<hapimp) {
-
-	  /* Save regression imputation */
-
-	  SET_STRING_ELT(Rlnames, 3, mkChar("coefficients"));
-	  *REAL(R2) = rsq;
-
-	  for (int k=0; k<nregr; k++)
-	    coef[ic++] = ycoef[k];
-	  utinv(coef, nregr+1);
-	  PROTECT(Coefs = allocVector(REALSXP, nregr+1));
-	  double *coefs = REAL(Coefs);
-	  double intcpt = snpmean(yi, female, nsubject);
-	  for (int j=0, ic=(nregr*(nregr-1))/2; j<nregr; j++, ic++) {
-	    int xsnp = xord[start+sel[j]]-1;
-	    double beta =  (-coef[ic]);
-	    coefs[j+1] = beta;
-	    intcpt -= beta*snpmean(x+nsubject*xsnp, female, nsubject);
+	  PROTECT(Rlnames = allocVector(STRSXP, 4));
+	  SET_STRING_ELT(Rlnames, 0, mkChar("maf"));
+	  SET_STRING_ELT(Rlnames, 1, mkChar("r.squared"));
+	  SET_STRING_ELT(Rlnames, 2, mkChar("snps"));
+	  
+	  PROTECT(Maf = allocVector(REALSXP, 1));
+	  *REAL(Maf) = maf;
+	  PROTECT(R2 = allocVector(REALSXP, 1));
+	  PROTECT(Pnames = allocVector(STRSXP, nregr));
+	  for (int j=0; j<nregr; j++) {
+	    int xsnp =  xord[start+sel[j]]-1;
+	    SET_STRING_ELT(Pnames, j, STRING_ELT(Xsnpnames, xsnp));
 	  }
-	  coefs[0] = intcpt;
+
+	  if (r2gain<hapimp) {
+
+	    /* Save regression imputation */
+	    
+	    SET_STRING_ELT(Rlnames, 3, mkChar("coefficients"));
+	    *REAL(R2) = rsq>1.0? 1.0: rsq;
+
+	    for (int k=0; k<nregr; k++)
+	      coef[ic++] = ycoef[k];
+	    utinv(coef, nregr+1);
+	    PROTECT(Coefs = allocVector(REALSXP, nregr+1));
+	    double *coefs = REAL(Coefs);
+	    double intcpt = snpmean(yi, female, nsubject);
+	    for (int j=0, ic=(nregr*(nregr-1))/2; j<nregr; j++, ic++) {
+	      int xsnp = xord[start+sel[j]]-1;
+	      double beta =  (-coef[ic]);
+	      coefs[j+1] = beta;
+	      intcpt -= beta*snpmean(x+nsubject*xsnp, female, nsubject);
+	    }
+	    coefs[0] = intcpt;
+	  }
+	  else {
+
+	    /* save phased  haplotype imputation */
+	    
+	    SET_STRING_ELT(Rlnames, 3, mkChar("hap.probs"));
+	    *REAL(R2) = r2hap;
+	    int lenp = 1 << (nregr+1);
+	    PROTECT(Coefs = allocVector(REALSXP, lenp));
+	    double *coefs = REAL(Coefs);
+	    for (int j=0; j<lenp; j++) 
+	      coefs[j] = phap[j];
+	  }
+	  SET_VECTOR_ELT(Rule, 0, Maf);
+	  SET_VECTOR_ELT(Rule, 1, R2);
+	  SET_VECTOR_ELT(Rule, 2, Pnames);
+	  SET_VECTOR_ELT(Rule, 3, Coefs);
+	  setAttrib(Rule, R_NamesSymbol, Rlnames);
+	  SET_VECTOR_ELT(Result, yord[i]-1, Rule);
+	  UNPROTECT(6);
 	}
 	else {
-
-	  /* save phased  haplotype imputation */
-
-	  SET_STRING_ELT(Rlnames, 3, mkChar("hap.probs"));
-	  *REAL(R2) = r2hap;
-	  int lenp = 1 << (nregr+1);
-	  PROTECT(Coefs = allocVector(REALSXP, lenp));
-	  double *coefs = REAL(Coefs);
-	  for (int j=0; j<lenp; j++) 
-	    coefs[j] = phap[j];
+	  /* No valid predictors */
+	  SET_VECTOR_ELT(Result, yord[i]-1, R_NilValue);
 	}
-	SET_VECTOR_ELT(Rule, 0, Maf);
-	SET_VECTOR_ELT(Rule, 1, R2);
-	SET_VECTOR_ELT(Rule, 2, Pnames);
-	SET_VECTOR_ELT(Rule, 3, Coefs);
-	setAttrib(Rule, R_NamesSymbol, Rlnames);
-	SET_VECTOR_ELT(Result, yord[i]-1, Rule);
-	UNPROTECT(6);
-	}
+      }
       else {
-	/* MAF == 0 */
+	/*MAF too low  */
 	SET_VECTOR_ELT(Result, yord[i]-1, R_NilValue);
       }
     }
@@ -318,6 +345,10 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
   SET_STRING_ELT(Package, 0, mkChar("snpMatrix"));
   setAttrib(IrClass, install("package"), Package);
   classgets(Result, IrClass);
+  SEXP Maxpred;
+  PROTECT(Maxpred = allocVector(INTSXP, 1));
+  INTEGER(Maxpred)[0] = maxpred;
+  setAttrib(Result, install("Max.predictors"), Maxpred);
   SET_S4_OBJECT(Result);
 
   /* Tidy up */
@@ -338,7 +369,7 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
       destroy_gtype_table(tables[i], i+1);
     Free(tables);
   }
-  UNPROTECT(3);
+  UNPROTECT(4);
   return Result;
 }
 
@@ -348,13 +379,16 @@ double covariances(int i, int j, va_list ap) {
   int *cols = va_arg(ap, int *);
   int *female = va_arg(ap, int *);
   int phase = va_arg(ap, int); 
+  double minA = va_arg(ap, double);
   int ik = N*(cols[i]-1), jk = N*(cols[j]-1);
-  return snpcov(snps+ik, snps+jk, female, N, phase);
+  return snpcov(snps+ik, snps+jk, female, N, phase, minA);
 }
 
+
 double snpcov(const unsigned char *x, const unsigned char *y, 
-	      const int *female, const int N, const int phase) {
-  int sum=0, sumi=0, sumj=0, sumij=0;
+	  const int *female, const int N, const int phase, const double minA) {
+  int n1=0, n2=0, nt=0, sx=0, sy=0, sxy=0;
+  double cov, n11;
   if (phase) {
     if (female)
       error("phase=TRUE not yet implemented for the X chromosome");
@@ -364,37 +398,86 @@ double snpcov(const unsigned char *x, const unsigned char *y,
   else {
     if (female) {
       for (int k=0; k<N; k++) {
-	int wt = female[k]? 2: 1;
-	int si = (int) *(x++);
-	int sj = (int) *(y++);
-	if (si && sj) { 
-	  sum += wt;
-	  sumi += wt*si;
-	  sumj += wt*sj;
-	  sumij += wt*si*sj;
+	int xk = (int) *(x++);
+	int yk = (int) *(y++);
+	if (xk && yk) { 
+	  xk--;
+	  yk--;
+	  if (female[k]) {
+	    n2++;
+	  }
+	  else {
+	    n1++;
+	    xk/=2;
+	    yk/=2;
+	  }
+	  sx += xk;
+	  sy += yk;
+	  sxy += xk*yk;
 	}
       }
+      nt = 2*n2 + n1;
+      if (nt<2)
+	return NA_REAL;
+      int nt_1 = nt-1;
+      double p2 = (double)(2*n2)/(double)nt;
+      double ps = (double)sx * (double)sy;
+      cov = ((double)sxy - (1.0+p2)*ps/(double)nt)/
+	((double)nt_1 - p2);
+      n11 = (double)nt_1*(sxy - p2*ps/(double)nt_1)/((double)nt_1-p2);
     }
     else {
       for (int k=0; k<N; k++) {
-	int si = (int) *(x++);
-	int sj = (int) *(y++);
-	if (si && sj) {
-	  sum ++;
-	  sumi += si;
-	  sumj += sj;
-	  sumij += si*sj;
+	int xk = (int) *(x++);
+	int yk = (int) *(y++);
+	if (xk && yk) {
+	  xk--;
+	  yk--;
+	  n2++;
+	  sx += xk;
+	  sy += yk;
+	  sxy += xk*yk;
 	}
       }
+      if (n2 < 2)
+	return NA_REAL;
+      nt = 2*n2;
+      double ps = (double)sx * (double)sy;
+      double n_1 = n2 - 1;
+      cov = 0.5*((double)sxy - ps/(double)n2)/(double)n_1;
+      double twon_1 = nt - 1;
+      n11 = (double)twon_1*((double)sxy - ps/(double)twon_1)/
+	(2.0*(double)n_1);
     }
-    if (sum>1) 
-      return ((double) sumij - ((double) sumi* (double) sumj/(double) sum))/
-	(double) (sum - 1);
-    else
-      return 0.0;
+    double test = (cov > 0.0)?
+      min2(n11, nt - sx - sy + n11):
+      min2(sx - n11, sy - n11);
+    /*    printf("n11 = %lf, test = %lf, ", n11, test); */
+    if (test < minA)
+      return NA_REAL;
+    return cov;
   }
 }
 
+/*  Routine for testing snpcov */
+
+SEXP snpcov_test(const SEXP X, const SEXP i, const SEXP j, const SEXP minA) {
+  int ii = *INTEGER(i) - 1;
+  int jj = *INTEGER(j) - 1;
+  int N = nrows(X);
+  double ma = *REAL(minA);
+  unsigned char *x = RAW(X);
+  double mycov = snpcov(x+N*ii, x+N*jj, 0, N, 0, ma);
+  printf("N = %d, cov = ", N);
+  if (ISNA(mycov))
+    printf("NA_REAL\n");
+  else
+    printf("%lf\n", mycov);
+  SEXP Result = allocVector(REALSXP, 1);
+  *REAL(Result) = mycov;
+  return Result;
+}
+ 
 double snpmean(const unsigned char *x, const int *female, const int N) {
   int sum=0, sumx=0;
   if (female) {
@@ -429,6 +512,8 @@ void utinv(double *mat, const int N){
   for (int j=1, ij=0; j<N; j++) {
     for (int i=0, is=0; i<j; i++, ij++) {
       double w = mat[ij];
+      if (ISNA(w))
+	warning("Bug: NAs in triangular coefficients matrix");
       for (int k=(i+1), k1=ij+1, k2=is; k<j; k++){ 
 	w += mat[k1]*mat[k2];
 	k1++;

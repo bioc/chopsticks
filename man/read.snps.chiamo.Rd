@@ -31,7 +31,7 @@ read.snps.chiamo(filename, sample.list, threshold)
   \item{snp.support}{The information from the first 5 columns of \code{\link{read.wtccc.signals}}.}
 }
 \references{To obtain a copy of the Chiamo software please email
-  Jonathan L. Marchini <marchini@stats.ox.ac.uk>.
+  Jonathan L. Marchini \email{marchini@stats.ox.ac.uk}.
 }
 \author{Hin-Tak Leung \email{htl10@users.sourceforge.net}}
 \seealso{\code{\link{wtccc.sample.list}}, \code{\link{read.wtccc.signals}}}

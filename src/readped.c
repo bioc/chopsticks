@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#define MAX_ID 81    /* Max space to store an id */
+#define MAX_ID 128    /* Max space to store an id */
 
 #define SET_TO_NA_IF_ZERO(x) if (!(x)) { (x) = NA_INTEGER ; }
 

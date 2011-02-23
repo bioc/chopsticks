@@ -96,34 +96,48 @@ read.HapMap.data(url, verbose=FALSE, save=NULL, ...)
 
 ## ** Please be aware that the HapMap project generates new builds from
 ## ** to time and the build number in the URL changes.
+## ** The follow is valid as of Aug 2009:
 
 > library(snpMatrix)
-> testurl <- "http://www.hapmap.org/genotypes/latest/fwd_strand/non-redundant/genotypes_chr1_CEU_r21_nr_fwd.txt.gz"
+> testurl <- "http://ftp.hapmap.org/genotypes/latest/forward/non-redundant/genotypes_chr1_CEU_r27_nr.b36_fwd.txt.gz"
 > result1 <- read.HapMap.data(testurl)
-> sum1 <- summary(result1$snp.data)
+trying URL
+> 'http://ftp.hapmap.org/genotypes/latest/forward/non-redundant/genotypes_chr1_CEU_r27_nr.b36_fwd.txt.gz'
+Content type 'application/x-gzip' length 20059083 bytes (19.1 Mb)
+opened URL
+==================================================
+downloaded 19.1 Mb
+ 
+Reading 174 samples
+...
+EOF reached after 314024 snps
+ ...conversion complete...
+> sum1 <- col.summary(result1$snp.data)
 
 > head(sum1[is.finite(sum1$z.HWE),], n=10)
-           Calls Call.rate         MAF      P.AA       P.AB      P.BB      z.HWE
-rs1933024     87 0.9666667 0.005747126 0.0000000 0.01149425 0.9885057 0.05391549
-rs11497407    89 0.9888889 0.005617978 0.0000000 0.01123596 0.9887640 0.05329933
-rs12565286    88 0.9777778 0.056818182 0.0000000 0.11363636 0.8863636 0.56511033
-rs11804171    83 0.9222222 0.030120482 0.0000000 0.06024096 0.9397590 0.28293272
-rs2977656     90 1.0000000 0.005555556 0.9888889 0.01111111 0.0000000 0.05299907
-rs12138618    89 0.9888889 0.050561798 0.0000000 0.10112360 0.8988764 0.50240136
-rs3094315     88 0.9777778 0.136363636 0.7272727 0.27272727 0.0000000 1.48118392
-rs17160906    89 0.9888889 0.106741573 0.0000000 0.21348315 0.7865169 1.12733108
-rs2519016     85 0.9444444 0.047058824 0.0000000 0.09411765 0.9058824 0.45528615
-rs12562034    90 1.0000000 0.088888889 0.0000000 0.17777778 0.8222222 0.92554468
-
+           Calls Call.rate         MAF      P.AA       P.AB       P.BB        z.HWE
+rs6650104    164 0.9425287 0.012195122 0.9756098 0.02439024 0.00000000   0.15810183
+rs9629043     88 0.5057471 0.085227273 0.8295455 0.17045455 0.00000000   0.87399051
+rs11510103   161 0.9252874 0.006211180 0.9937888 0.00000000 0.00621118 -12.68857754
+rs11497407    89 0.5114943 0.005617978 0.0000000 0.01123596 0.98876404   0.05329933
+rs12565286   160 0.9195402 0.028125000 0.0000000 0.05625000 0.94375000   0.36605143
+rs11804171    83 0.4770115 0.030120482 0.0000000 0.06024096 0.93975904   0.28293272
+rs2977670     85 0.4885057 0.058823529 0.8823529 0.11764706 0.00000000   0.57622153
+rs2977656     90 0.5172414 0.005555556 0.9888889 0.01111111 0.00000000   0.05299907
+rs12138618    89 0.5114943 0.050561798 0.0000000 0.10112360 0.89887640   0.50240136
+rs3094315    163 0.9367816 0.153374233 0.7116564 0.26993865 0.01840491   0.50328457
 ## ** Please be aware that the HapMap project generates new builds from
 ## ** to time and the build number in the URL changes.
-
+## ** The follow is valid as of Aug 2009:
+ 
 ## This URL is broken up into two to fit the width of
 ## the paper. There is no need in actual usage:
-> testurl2 <- paste("http://www.hapmap.org/genotypes/latest/",
-                  "fwd_strand/non-redundant/genotypes_chr1_JPT_r21_nr_fwd.txt.gz", sep="")
-> result2 <- read.HapMap.data(testurl2)
 
+testurl2 <- paste("http://ftp.hapmap.org/genotypes/latest/",
+                  "forward/non-redundant/genotypes_chr1_JPT_r27_nr.b36_fwd.txt.gz",
+                  sep="")
+> result2 <- read.HapMap.data(testurl2)
+...
 > head(result2$snp.support)
            dbSNPalleles Assignment Chromosome Position Strand
 rs10399749          C/T        C/T       chr1    45162      +

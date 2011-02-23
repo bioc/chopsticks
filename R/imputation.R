@@ -1,6 +1,7 @@
 snp.imputation<- function(X, Y, pos.X, pos.Y, phase=FALSE, try=50,
                           stopping=c(0.95, 4, 0.05),
-                          use.hap = c(0.95, 0.1), em.cntrl=c(50, 0.01)) {
+                          use.hap = c(0.95, 0.1), em.cntrl=c(50, 0.01),
+                          minA=5) {
   if (phase)
     stop("phase=TRUE option not yet implemented")
   if (!(is(X, "snp.matrix") && is(Y, "snp.matrix")))
@@ -16,7 +17,7 @@ snp.imputation<- function(X, Y, pos.X, pos.Y, phase=FALSE, try=50,
   .Call("snp_impute", X, Y, order.X, order.Y,
         as.double(pos.X[order.X]), as.double(pos.Y[order.Y]),
         as.logical(phase), as.integer(try),
-        stopping, use.hap, em.cntrl, PACKAGE="snpMatrix")
+        stopping, use.hap, em.cntrl, as.real(minA), PACKAGE="snpMatrix")
 }
 
 impute.snps <- function(rules, snps, subset=NULL) {
@@ -61,3 +62,6 @@ imputation.maf <- function(rules) sapply(rules,
 
 imputation.r2 <- function(rules) sapply(rules,
                     function(x) if (is.null(x$r.squared)) NA else x$r.squared)
+
+imputation.nsnp <- function(rules) sapply(rules,
+                    function(x) if (is.null(x$snps)) NA else length(x$snps))
