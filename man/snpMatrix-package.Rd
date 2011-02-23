@@ -18,11 +18,11 @@ Suggests: \tab hexbin\cr
 Enhances: \tab genetics\cr
 License: \tab GNU General Public Licence (GPLv3)\cr
 URL: \tab http://www-gene.cimr.cam.ac.uk/clayton/software/\cr
-Collate: \tab ld.with.R ss.R contingency.table.R glm_test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R qc.R qq_chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
+Collate: \tab ld.with.R ss.R contingency.table.R glm\_test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R qc.R qq\_chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
 LazyLoad: \tab yes\cr
 biocViews: \tab Microarray, SNPsAndGeneticVariability\cr
 Packaged: \tab Tue Aug  5 15:53:30 2008; david\cr
-Built: \tab R 2.7.1; x86_64-redhat-linux-gnu; 2008-08-05 15:53:57; unix\cr
+Built: \tab R 2.7.1; x86\_64-redhat-linux-gnu; 2008-08-05 15:53:57; unix\cr
 }
 
 Index:
