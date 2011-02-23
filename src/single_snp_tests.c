@@ -172,9 +172,15 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 
   double *xadd = NULL;
   double *xdom = NULL;
+  GTYPE **gt2ht = NULL;
+  int pmax = 0;
   if (nrules) {
     xadd = (double *) Calloc(nsubj, double);
     xdom = (double *) Calloc(nsubj, double);
+    pmax = *INTEGER(getAttrib(Rules, install("Max.predictors")));
+    gt2ht = (GTYPE **)Calloc(pmax, GTYPE *);
+    for (int i=0; i<pmax; i++)
+      gt2ht[i] = create_gtype_table(i+1);
   }
 
 
@@ -202,7 +208,8 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	    xadd[j] = xdom[j] = 0.0;
 	}
 	else {
-	  do_impute(snps, n, subset, nsubj, name_index, Rule, xadd, xdom);
+	  do_impute(snps, n, subset, nsubj, name_index, Rule, gt2ht, 
+		    xadd, xdom);
 	  r2 = *REAL(VECTOR_ELT(Rule, 1));
 	}
       }
@@ -305,7 +312,8 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	    xadd[j] = xdom[j] = 0.0;
 	}
 	else {
-	  do_impute(snps, n, subset, nsubj, name_index, Rule, xadd, xdom);
+	  do_impute(snps, n, subset, nsubj, name_index, Rule, gt2ht, 
+		    xadd, xdom);
 	  r2 = *REAL(VECTOR_ELT(Rule, 1));
 	}
       }
@@ -421,6 +429,9 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
   if (nrules) {
     Free(xadd);
     Free(xdom);
+    for (int i=0; i<pmax; i++) 
+      destroy_gtype_table(gt2ht[i], i+1);
+    Free(gt2ht);
   }
 
   /* Attributes of output object */

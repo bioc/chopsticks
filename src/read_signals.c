@@ -78,6 +78,7 @@ SEXP read_signals(SEXP signalfile, SEXP snp_list) {
     /* fills with NULLs first, just in case we can't find it later */
     SET_VECTOR_ELT(ans, i, R_NilValue);
   }
+  memset(line_buffer, 0x00, buffersize);
   gzgets(ginfile, line_buffer, buffersize);
   
   int space_count = 0;
@@ -98,7 +99,14 @@ SEXP read_signals(SEXP signalfile, SEXP snp_list) {
   PROTECT(sample_names = allocVector(STRSXP, pair_count));
   for (i = 0; i< pair_count ; i++) {
     char *ptr_start = line_ptr;
-    goto_next_token(line_ptr); *(line_ptr-3) = '\0'; /* chop off the last two characters */
+    goto_next_token(line_ptr);
+    if (!strncmp(line_ptr-3, "_A", 2)) {
+      *(line_ptr-3) = '\0'; /* chop off "_A" from end */
+    } else if (!strncmp(line_ptr-2, "A", 1)) {
+      *(line_ptr-2) = '\0'; /* chop off "A" from end */
+    } else {
+      *(line_ptr-1) = '\0'; /* terminate the string */
+    }
     SET_STRING_ELT(sample_names, i, mkChar(ptr_start));
     goto_next_token(line_ptr);
   }
@@ -135,6 +143,7 @@ SEXP read_signals(SEXP signalfile, SEXP snp_list) {
     }
 #endif
 
+    memset(line_buffer, 0x00, buffersize);
     gzgets(ginfile, line_buffer, buffersize);
     line_read_count ++;
 

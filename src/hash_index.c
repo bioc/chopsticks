@@ -67,7 +67,7 @@ index_db index_create(int size) {
     while ((hash_size < size) && (hash_size < MAX_HASH_SIZE))
       hash_size <<=1;
     result->nodelist =(t_node *)calloc(hash_size, sizeof(t_node));
-    result->bitmask = (hash_size > 1 ? (hash_size - 1) : 1);
+    result->bitmask = hash_size - 1;
   }
   return result;
 }

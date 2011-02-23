@@ -11,8 +11,8 @@ Implements classes and methods for large-scale SNP association studies
 \details{
 \tabular{ll}{
 Package: \tab snpMatrix\cr
-Version: \tab 1.7.6\cr
-Date: \tab 2009-03-12\cr
+Version: \tab 1.7.7\cr
+Date: \tab 2009-03-25\cr
 Depends: \tab R(>= 2.3.0), survival, methods\cr
 Suggests: \tab hexbin\cr
 Enhances: \tab genetics\cr
@@ -21,8 +21,8 @@ URL: \tab http://www-gene.cimr.cam.ac.uk/clayton/software/\cr
 Collate: \tab ld.with.R ss.R contingency.table.R glm-test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq-chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R tdt-single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
 LazyLoad: \tab yes\cr
 biocViews: \tab Microarray, SNPsAndGeneticVariability\cr
-Packaged: \tab Thu Mar 12 13:41:11 GMT 2009\cr
-Built: \tab R 2.8.1; x86\_64-pc-linux-gnu; 2009-03-12 13:56:34; unix\cr
+Packaged: \tab Wed Mar 25 09:52:40 GMT 2009\cr
+Built: \tab R 2.8.1; x86\_64-pc-linux-gnu; 2009-03-30 17:38:59; unix\cr
 }
 
 Index:
@@ -78,7 +78,7 @@ snp.cbind               Bind together two or more snp.matrix objects
 snp.cor                 Correlations with columns of a snp.matrix
 snp.dprime-class        Class "snp.dprime" for Results of LD
                         calculation
-snp.imputation          Calculate regression-based imputation rules
+snp.imputation          Calculate imputation rules
 snp.lhs.tests           Score tests with SNP genotypes as dependent
                         variable
 snp.matrix-class        Class "snp.matrix"

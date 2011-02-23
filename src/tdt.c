@@ -76,6 +76,8 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
   /* Rules */
 
   int nrules = 0;
+  int pmax = 0;
+  GTYPE **gt2ht = NULL;
   if (!isNull(Rules)) {
     const char *classR = NULL;
     if (TYPEOF(R_data_class(Rules, FALSE)) == STRSXP) {
@@ -86,6 +88,10 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
     if (strcmp(classR, "snp.reg.imputation")!=0) 
       error("Argument error - Rules");
     nrules = LENGTH(Rules);
+    pmax = *INTEGER(getAttrib(Rules, install("Max.predictors")));
+    gt2ht = (GTYPE **)Calloc(pmax, GTYPE *);
+    for (int i=0; i<pmax; i++) 
+      gt2ht[i] = create_gtype_table(i+1);
   }
 
   /* SNP subset */
@@ -184,7 +190,8 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 	  }
 	}
 	else {
-	  do_impute(snps, nsubj, NULL, nsubj, name_index, Rule, ximp, NULL);
+	  do_impute(snps, nsubj, NULL, nsubj, name_index, Rule, gt2ht, 
+		    ximp, NULL);
 	  r2 = *REAL(VECTOR_ELT(Rule, 0));
 	}
       }
@@ -299,7 +306,8 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 	    ximp[j] = 0.0;
 	}
 	else {
-	  do_impute(snps, nsubj, NULL, nsubj, name_index, Rule, ximp, NULL);
+	  do_impute(snps, nsubj, NULL, nsubj, name_index, Rule, gt2ht, 
+		    ximp, NULL);
 	  r2 = *REAL(VECTOR_ELT(Rule, 0));
 	}
       }
@@ -424,6 +432,9 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
   index_destroy(name_index);
   if (nrules) {
     Free(ximp);
+    for (int i=0; i<pmax; i++)
+      destroy_gtype_table(gt2ht[i], i+1);
+    Free(gt2ht);
   }
 
   /* Attributes of output object */

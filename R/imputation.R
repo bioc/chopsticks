@@ -1,5 +1,6 @@
 snp.imputation<- function(X, Y, pos.X, pos.Y, phase=FALSE, try=50,
-                          r2.stop = 0.9, max.X=4) {
+                          stopping=c(0.95, 4, 0.05),
+                          use.hap = c(0.95, 0.1), em.cntrl=c(50, 0.01)) {
   if (phase)
     stop("phase=TRUE option not yet implemented")
   if (!(is(X, "snp.matrix") && is(Y, "snp.matrix")))
@@ -12,12 +13,10 @@ snp.imputation<- function(X, Y, pos.X, pos.Y, phase=FALSE, try=50,
   order.Y <- order(pos.Y)
   if (try>ncol(X))
     try <- ncol(X)
-  if (max.X>try)
-    max.X <- try
   .Call("snp_impute", X, Y, order.X, order.Y,
         as.double(pos.X[order.X]), as.double(pos.Y[order.Y]),
-        as.logical(phase), as.integer(try), as.double(r2.stop),
-        as.integer(max.X), PACKAGE="snpMatrix")
+        as.logical(phase), as.integer(try),
+        stopping, use.hap, em.cntrl, PACKAGE="snpMatrix")
 }
 
 impute.snps <- function(rules, snps, subset=NULL) {

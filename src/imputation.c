@@ -23,15 +23,34 @@ void utinv(double *, const int);
 
 SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
 		const SEXP Xpos, const SEXP Ypos, const SEXP Phase, 
-		const SEXP Try, const SEXP R2stop, const SEXP MaX){
+		const SEXP Try, const SEXP Stop,
+		const SEXP Hapcontr, const SEXP EMcontr){
 
-  int pmax = *INTEGER(MaX);   /* Maximum number of predictor variables */
   int try =  *INTEGER(Try);   /* Number to search */
-  double r2stop = *REAL(R2stop); /* R^2 value to stop inclusion */
+  if (LENGTH(Stop)!=3)
+    error("Stop argument not of length 3");
+  double r2stop = REAL(Stop)[0]; /* R^2 value to stop inclusion */
   if (r2stop>1.0)
     r2stop = 1.0;
+  int pmax = (int) REAL(Stop)[1];   /* Maximum number of predictor variables */
+  if (pmax>try)
+    pmax = try;
+  double dR2 = REAL(Stop)[2]; /* Minimum increase in R^2 to include */
+  if (dR2<0)
+    dR2 = NA_REAL;
   int phase = *LOGICAL(Phase);   /* haploid or diploid computation */
-  
+
+  /* Fully phased haplotype-based  imputation control args */
+
+  if (LENGTH(Hapcontr)!=2)
+    error("Hapcntr argument not of length 2");
+  double hapr2 = REAL(Hapcontr)[0]; /* R^2 value to force try */
+  double hapimp = REAL(Hapcontr)[1]; /* Required gain in 1-R^2 to persist */
+  if (LENGTH(EMcontr)!=2)
+    error("EMcontr argument not of length 2");
+  int maxit = REAL(EMcontr)[0];  /* Max EM iterations */
+  double emtol = REAL(EMcontr)[1]; /* EM convergence tolerance */
+
   const double *xpos = REAL(Xpos);  /* Sorted list of X positions */
   int nx = LENGTH(Xpos);      /* Number of X s */
   int *xord = INTEGER(Xord);  /* Corresponding columns in X */
@@ -54,13 +73,34 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
 
   /* Work arrays */
 
-  double *xy = (double *) Calloc(try, double);       /* XY covariances */
-  double *xxd = (double *) Calloc(try, double);      /* Diagonals of XX */
-  double *xxi = (double *) Calloc(try*pmax, double); /* Row of XX covars */
-  int *sel = (int *) Calloc(pmax, int);              /* Selected SNPs */
-  double *coef =(double *) Calloc((pmax*(pmax+1))/2, double);/* Coefficients*/ 
-  double *ycoef = (double *) Calloc(pmax, double);   /* Y coefficients */
+  double *xy = (double *)Calloc(try, double);       /* XY covariances */
+  double *xxd = (double *)Calloc(try, double);      /* Diagonals of XX */
+  double *xxi = (double *)Calloc(try*pmax, double); /* Row of XX covars */
+  int *sel = (int *)Calloc(pmax, int);              /* Selected SNPs */
+  double *coef =(double *)Calloc((pmax*(pmax+1))/2, double);/* Coefficients*/ 
+  double *ycoef = (double *)Calloc(pmax, double);   /* Y coefficients */
   COV_WIN_PTR cache = new_window(try, 0);            /* Covariance cache */
+
+  /* Work arrays for haplotype phasing etc. */
+
+  int *contin=NULL, *hcontin=NULL;
+  int tmax=0, hmax=0;
+  double *phap=NULL;
+  GTYPE **tables=NULL;
+  int *tcell=NULL;
+  if (hapr2>0.0) {
+    tmax = (1 << 2*(pmax+1));  /* Space for 4x4x..x4 table */
+    hmax = (1 << (pmax+1));    /* Space for 2x2x..x2 table */
+    tcell = (int *)Calloc(nsubject, int); /* addresses in table */
+    contin = (int *)Calloc(tmax, int); 
+    if (female) 
+      hcontin = (int *)Calloc(tmax, int);
+    phap = (double *)Calloc(hmax, double);
+    /* gtype->htype lookup tables */
+    tables = (GTYPE **)Calloc(pmax+1, GTYPE *);
+    for (int i=0; i<=pmax; i++)
+      tables[i] = create_gtype_table(i+1);
+  }
 
   /* Result */
  
@@ -68,9 +108,15 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
   PROTECT(Result = allocVector(VECSXP, ny));
   setAttrib(Result, R_NamesSymbol, 
 	    VECTOR_ELT(getAttrib(Y, R_DimNamesSymbol),1));
+  SEXP Maxpred;
+  PROTECT(Maxpred = allocVector(INTSXP, 1));
+  INTEGER(Maxpred)[0] = pmax;
+  setAttrib(Result, install("Max.predictors"), Maxpred);
+  UNPROTECT(1);
 
   /* Main loop */
 
+  int n_em_fail=0;
   for (int i=0; i<ny; i++) {
     unsigned char *yi = y + nsubject*(yord[i]-1);
     /* Minor allele frequency */
@@ -125,7 +171,9 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
 	  sel[nregr] = best; /* Save index */
 	  double bestc = xy[best]/xxd[best]; 
 	  ycoef[nregr] = bestc; /* Save regression coefficient */
-	  double dX2 = (double) (nsubject-nregr-1) * max_due/resid;
+	  if (ISNA(dR2))
+	    dR2 = 2/ (double) (nsubject-nregr-1);
+	  double deltaR2 =  max_due/resid;
 	  resid -= max_due;
 	  rsq = 1.0 - resid/yy; 
 	  nregr++;
@@ -140,7 +188,7 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
 	    for (int j=0; j<try; j++)
 	      xxin[j] -= ck*xxik[j];
 	  }
-	  int stop = (rsq>=r2stop)||(nregr==pmax)||((r2stop==1)&&(dX2<=2.0)); 
+	  int stop = (rsq>=r2stop)||(nregr==pmax)||(deltaR2<dR2); 
 	  if (stop) {
 	    break;
 	  }
@@ -152,11 +200,46 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
 	      xxd[j] -= xxin[j]*xxin[j]/vn;
 	  }
 	}
-	for (int k=0; k<nregr; k++)
-	  coef[ic++] = ycoef[k];
-	utinv(coef, nregr+1);
 
- 
+	/* Use regression imputation or phased haplotypes? */
+
+	double r2hap = 0.0, r2gain = -1.0;
+	if (nregr>1 && rsq<hapr2) {
+	  /* Calculate phased haplotypes */  
+	  for (int j=0; j<nsubject; j++) {
+	    tcell[j] = (int) yi[j];
+	  }
+	  for (int k=0, sh=2; k<nregr; k++, sh+=2) {
+	    unsigned char *xk = x + nsubject*(xord[start+sel[k]]-1);
+	    for (int j=0; j<nsubject; j++) {
+	      int  xkj = (int) xk[j];
+	      tcell[j] = tcell[j] | (xkj << sh);
+	    }
+	  }
+	  /* Calculate contingency table */
+	  int dim = nregr+1;
+	  memset(contin, 0x00, tmax*sizeof(int));
+	  if (hcontin)
+	    memset(hcontin, 0x00, tmax*sizeof(int));
+	  for (int j=0; j<nsubject; j++) {
+	    if (female && !female[j])
+	      hcontin[tcell[j]]++;
+	    else
+	      contin[tcell[j]]++;
+	  }
+
+	  /* EM algorithm */
+	  int em_fail = emhap(dim, contin, hcontin, tables[nregr], 
+			      maxit, emtol, phap);
+	  if (em_fail>=0) {
+	    n_em_fail += em_fail; 
+	    r2hap = gen_r2(nregr, phap, tables[nregr-1]);
+	    r2gain = (r2hap - rsq)/(1.0 - rsq);
+	  }
+	}
+
+        /* save imputation rule */
+
 	SEXP Rule, Rlnames, Maf, R2, Pnames, Coefs;
 	PROTECT(Rule = allocVector(VECSXP, 4));
 	
@@ -164,33 +247,57 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
 	SET_STRING_ELT(Rlnames, 0, mkChar("maf"));
 	SET_STRING_ELT(Rlnames, 1, mkChar("r.squared"));
 	SET_STRING_ELT(Rlnames, 2, mkChar("snps"));
-	SET_STRING_ELT(Rlnames, 3, mkChar("coefficients"));
-	setAttrib(Rule, R_NamesSymbol, Rlnames);
-	
+	  
 	PROTECT(Maf = allocVector(REALSXP, 1));
 	*REAL(Maf) = maf;
 	PROTECT(R2 = allocVector(REALSXP, 1));
-	*REAL(R2) = rsq;
 	PROTECT(Pnames = allocVector(STRSXP, nregr));
-	PROTECT(Coefs = allocVector(REALSXP, nregr+1));
-	double intcpt = snpmean(yi, female, nsubject);
-	for (int j=0, ic=(nregr*(nregr-1))/2; j<nregr; j++, ic++) {
-	  int xsnp = xord[start+sel[j]]-1;
+	for (int j=0; j<nregr; j++) {
+	  int xsnp =  xord[start+sel[j]]-1;
 	  SET_STRING_ELT(Pnames, j, STRING_ELT(Xsnpnames, xsnp));
-	  double beta =  (-coef[ic]);
-	  REAL(Coefs)[j+1] = beta;
-	  intcpt -= beta*snpmean(x+nsubject*xsnp, female, nsubject);
 	}
-	*REAL(Coefs) = intcpt;
-      
+
+	if (r2gain<hapimp) {
+
+	  /* Save regression imputation */
+
+	  SET_STRING_ELT(Rlnames, 3, mkChar("coefficients"));
+	  *REAL(R2) = rsq;
+
+	  for (int k=0; k<nregr; k++)
+	    coef[ic++] = ycoef[k];
+	  utinv(coef, nregr+1);
+	  PROTECT(Coefs = allocVector(REALSXP, nregr+1));
+	  double *coefs = REAL(Coefs);
+	  double intcpt = snpmean(yi, female, nsubject);
+	  for (int j=0, ic=(nregr*(nregr-1))/2; j<nregr; j++, ic++) {
+	    int xsnp = xord[start+sel[j]]-1;
+	    double beta =  (-coef[ic]);
+	    coefs[j+1] = beta;
+	    intcpt -= beta*snpmean(x+nsubject*xsnp, female, nsubject);
+	  }
+	  coefs[0] = intcpt;
+	}
+	else {
+
+	  /* save phased  haplotype imputation */
+
+	  SET_STRING_ELT(Rlnames, 3, mkChar("hap.probs"));
+	  *REAL(R2) = r2hap;
+	  int lenp = 1 << (nregr+1);
+	  PROTECT(Coefs = allocVector(REALSXP, lenp));
+	  double *coefs = REAL(Coefs);
+	  for (int j=0; j<lenp; j++) 
+	    coefs[j] = phap[j];
+	}
 	SET_VECTOR_ELT(Rule, 0, Maf);
 	SET_VECTOR_ELT(Rule, 1, R2);
 	SET_VECTOR_ELT(Rule, 2, Pnames);
 	SET_VECTOR_ELT(Rule, 3, Coefs);
-    
+	setAttrib(Rule, R_NamesSymbol, Rlnames);
 	SET_VECTOR_ELT(Result, yord[i]-1, Rule);
 	UNPROTECT(6);
-      }
+	}
       else {
 	/* MAF == 0 */
 	SET_VECTOR_ELT(Result, yord[i]-1, R_NilValue);
@@ -201,6 +308,8 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
       SET_VECTOR_ELT(Result, yord[i]-1, R_NilValue);
     }
   }
+  if (n_em_fail)
+    warning("Maximum iterations for %d haplotype imputation rules", n_em_fail);
 
   SEXP IrClass, Package;
   PROTECT(IrClass = allocVector(STRSXP, 1));
@@ -219,6 +328,16 @@ SEXP snp_impute(const SEXP X, const SEXP Y, const SEXP Xord, const SEXP Yord,
   Free(coef);
   Free(ycoef);
   free_window(cache);
+  if (hapr2>0.0) {
+    Free(contin);
+    if (hcontin)
+      Free(hcontin);
+    Free(phap);
+    Free(tcell);
+    for (int i=0; i<=pmax; i++)
+      destroy_gtype_table(tables[i], i+1);
+    Free(tables);
+  }
   UNPROTECT(3);
   return Result;
 }
@@ -376,48 +495,85 @@ index_db create_name_index(const SEXP names) {
   return res;
 }
 
-
-
 /* Do an imputation (on selected rows) - no class/type checking yet */
 
 void do_impute(const unsigned char *snps, const int nrow, 
 	       const int *rows, int nuse, 
 	       index_db snp_names,
-	       SEXP Rule, 
+	       SEXP Rule, GTYPE **gt2ht, 
 	       double *value_a, double *value_d) {
   SEXP Snps = VECTOR_ELT(Rule, 2);
   int nsnp = LENGTH(Snps);
   SEXP Coefs = VECTOR_ELT(Rule, 3);
+  int ncoefs = LENGTH(Coefs);
   double *coefs = REAL(Coefs);
   double alpha = *coefs;
   if (!rows)
     nuse = nrow;
 
-  for (int j=0; j<nsnp; j++) {
-    int jj = index_lookup(snp_names, CHAR(STRING_ELT(Snps, j)));
-    if (jj<0)
-      error("Couldn't match snp name: %s", CHAR(STRING_ELT(Snps, j)));
-    double beta = coefs[j+1];
-    for (int r=0, ist=nrow*jj; r<nuse; r++) {
-      int i = rows? rows[r]-1: r;
-      unsigned char sij = snps[ist+i];
-      double var = j? value_a[r]: alpha;
-      if (sij && !ISNA(var))
-	value_a[r] = var + beta*((double)(sij - 1));
-      else 
-	value_a[r] = NA_REAL;
+  if (ncoefs==(nsnp+1)) { /* Regression imputation */
+    for (int j=0; j<nsnp; j++) {
+      int jj = index_lookup(snp_names, CHAR(STRING_ELT(Snps, j)));
+      if (jj<0)
+	error("Couldn't match snp name: %s", CHAR(STRING_ELT(Snps, j)));
+      double beta = coefs[j+1];
+      for (int r=0, ist=nrow*jj; r<nuse; r++) {
+	int i = rows? rows[r]-1: r;
+	unsigned char sij = snps[ist+i];
+	double var = j? value_a[r]: alpha;
+	if (sij && !ISNA(var))
+	  value_a[r] = var + beta*((double)(sij - 1));
+	else 
+	  value_a[r] = NA_REAL;
+      }
+    }
+    /* I think one may be able to do better than this */
+    if (value_d) {
+      for (int r=0; r<nuse; r++) {
+	double w = value_a[r];
+	value_d[r] = w*w/4.0;
+      }
     }
   }
-  /* I think one may be able to do better than this */
-  if (value_d) {
-    for (int r=0; r<nuse; r++) {
-      double w = value_a[r];
-      value_d[r] = w*w/4.0;
+  else { /* Haplotype imputation */
+    int *gt = (int *)Calloc(nuse, int);
+    memset(gt, 0x00, nuse*sizeof(int));
+    /* Calculate predictor genotypes */
+    for (int j=0, sh=0; j<nsnp; j++, sh+=2) {
+      int jj = index_lookup(snp_names, CHAR(STRING_ELT(Snps, j)));
+      if (jj<0)
+	error("Couldn't match snp name: %s", CHAR(STRING_ELT(Snps, j)));
+      for (int r=0, ist=nrow*jj; r<nuse; r++) {
+	int i = rows? rows[r]-1: r;
+	int sij = (int)snps[ist+i];
+	gt[r] = gt[r] | (sij << sh);
+      }
     }
+    /* 
+       Score genotypes
+       Perhaps more efficient to compute a lookup table at outset
+    */
+
+    const GTYPE *gtab = gt2ht[nsnp-1];
+    for (int i=0; i<nuse; i++) {
+      double score[3];
+      int gti = gt[i];
+      if (gti) {
+	predict_gt(nsnp, gti, coefs, gtab, score);
+	value_a[i] = score[1]+2.0*score[2];
+	if (value_d)
+	  value_d[i] = score[2];
+      }
+      else {
+	value_a[i] = NA_REAL;
+	if (value_d)
+	  value_d[i] = NA_REAL;
+      }
+    }
+    Free(gt);
   }
 }
- 
-
+  
 SEXP impute_snps(const SEXP Rules, const SEXP Snps, const SEXP Subset) { 
   SEXP names = getAttrib(Snps, R_DimNamesSymbol);
   index_db name_index = create_name_index(VECTOR_ELT(names, 1));
@@ -443,16 +599,27 @@ SEXP impute_snps(const SEXP Rules, const SEXP Snps, const SEXP Subset) {
   SET_VECTOR_ELT(Dimnames, 0, VECTOR_ELT(names, 0));
   SET_VECTOR_ELT(Dimnames, 1, getAttrib(Rules, R_NamesSymbol));
   setAttrib(Result, R_DimNamesSymbol, Dimnames);
+  int pmax = *INTEGER(getAttrib(Rules, install("Max.predictors")));
+  GTYPE **gt2ht = (GTYPE **)Calloc(pmax, GTYPE *); 
+  for (int i=0; i<pmax; i++)
+    gt2ht[i] = create_gtype_table(i+1);
   for (int j=0; j<M; j++, result+=nsubj) {
     SEXP Rule = VECTOR_ELT(Rules, j);
-    do_impute(snps, N, subset, nsubj, name_index, Rule, result, NULL); 
+    if (isNull(Rule))
+      for (int i=0; i<nsubj; i++)
+	result[i] = NA_REAL;
+    else
+      do_impute(snps, N, subset, nsubj, name_index, Rule, gt2ht, result, NULL); 
   }
   index_destroy(name_index);
+  for (int i=0; i<pmax; i++) 
+    destroy_gtype_table(gt2ht[i], i+1);
+  Free(gt2ht);
   UNPROTECT(2);
   return Result;
 }
 
-/* Summarize an imputation rule set */
+/* Extract r-squared and size from an imputation rule set */
 
 SEXP r2_impute(const SEXP Rules) {
   int M = LENGTH(Rules);
@@ -462,12 +629,14 @@ SEXP r2_impute(const SEXP Rules) {
   for (int i=0; i<M; i++) {
     SEXP Rule = VECTOR_ELT(Rules, i);
     if (TYPEOF(Rule)==NILSXP){
-      result[i] = 1.0;
-      result[i+M] = 0;
+      result[i] = NA_REAL;
+      result[i+M] = NA_REAL;
     }
     else {
       result[i] = *REAL(VECTOR_ELT(Rule, 1));
-      result[i+M] = LENGTH(VECTOR_ELT(Rule, 2));
+      int nsnp = LENGTH(VECTOR_ELT(Rule, 2));
+      int nco = LENGTH(VECTOR_ELT(Rule, 3));
+      result[i+M] = nsnp*2 - 1 + (nco>(1+nsnp));
     }
   }
   UNPROTECT(1);

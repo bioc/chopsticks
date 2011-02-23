@@ -1,13 +1,14 @@
 \name{snp.imputation}
 \alias{snp.imputation}
-\title{Calculate regression-based imputation rules}
+\title{Calculate imputation rules}
 \description{
   Given two set of SNPs typed in the same subjects, this function
-  calculates regression equations which can be used to impute one set
+  calculates rules which can be used to impute one set
   from the other in a subsequent sample.
 }
 \usage{
-snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try = 50, r2.stop = 0.9, max.X = 4)
+snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try = 50,
+     stopping = c(0.95, 4, 0.05), use.hap = c(0.95, 0.1), em.cntrl=c(50, 0.01))
 }
 \arguments{
   \item{X}{An object of class \code{"snpMatrix"} or
@@ -22,22 +23,46 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try = 50, r2.stop = 0.9, max.X =
     considered in the stepwise regression procedure around each target
     SNP . The nearest \code{try} regressor SNPs to each target SNP
     will be considered}
-  \item{r2.stop}{The value of \eqn{R^2} at which to stop entering new
-    variables in the step-wise regression. If set to 1.0 or greater, the
-    AIC will be used}
-  \item{max.X}{The maximum number of regressor SNPs to be used for each
-    imputation}
+  \item{stopping}{Parameters of the stopping rule for the stepwise
+    regression (see below)}
+  \item{use.hap}{Parameters to control use of the haplotype imputation
+    method (see below)}
+  \item{em.cntrl}{Parameters to control test for convergence of EM
+    algorithm for fitting phased haplotypes (see below)}
 }
 \details{
-  The routine carries out a series of step-wise regression analyses in
-  which each Y SNP is regressed on the nearest \code{try} regressor SNPs. If
+  The routine first carries out a series of step-wise regression analyses in
+  which each Y SNP is regressed on the nearest \code{try} regressor (X)
+  SNPs. If
   \code{phase} is \code{TRUE}, the regressions are calculated at the
   chromosome (haplotype) level, variances being simply  \eqn{p(1-p)} and
   covariances estimated 
   using the same algorithm used in \code{\link{ld.snp}}. Otherwise, the
   analysis is carried out at the diplotype level based on  
   conventional variance and covariance estimates using the
-  \code{"all.obs"} missing value treatment (see \code{\link{cov}}).
+  \code{"all.obs"} missing value treatment (see \code{\link{cov}}). New
+  SNPs are added to the regression until either (a) the value of
+  \eqn{R^2} exceeds the first parameter of \code{stopping}, (b) the
+  number of "tag" SNPs has reached the maximum set in the second parameter of
+  \code{stopping}, or (c) the change in \eqn{R^2} does not achieve the
+  target set by the third parameter of \code{stopping}. If the third
+  parameter of \code{stopping} is \code{NA}, this last test is replaced
+  by a test for improvement in the Akaike information criterion (AIC). 
+
+  If the prediction  as measure by  \eqn{R^2}, has not achieved a
+  threshold (the first parameter of \code{use.hap})
+  using more than one tag SNP, then a second imputation method is
+  tried. Phased
+  haplotype frequencies are estimated for the Y SNP plus the
+  tag SNPs. The  \eqn{R^2} for prediction of the Y SNP using these
+  haplotype frequencies is then calculated. If the \eqn{(1-R^2)} is reduced
+  by a proportion exceeding the second parameter of \code{use.hap}, then
+  the haplotype imputation rule is saved in preference to the faster
+  regression rule. The argument \code{em.cntrl} controls convergence
+  testing for the EM algorithm for fitting haplotype frequencies. The
+  first parameter is the maximum number of iterations, and the second
+  parameter is the threshold for the change in log likelihood
+  below which the iteration is judged to have converged.
 }
 \value{
   An object of class
@@ -49,7 +74,8 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try = 50, r2.stop = 0.9, max.X =
 }
 \note{The \code{phase=TRUE} option is not yet implemented} 
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
-\seealso{\code{\link{snp.reg.imputation-class}}, \code{\link{ld.snp}}}
+\seealso{\code{\link{snp.reg.imputation-class}}, \code{\link{ld.snp}},
+  \code{\link{imputation.maf}}, \code{\link{imputation.r2}}}
 \examples{
 # Remove 5 SNPs from a datset and derive imputation rules for them
 library(snpMatrix)

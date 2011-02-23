@@ -275,12 +275,16 @@ setMethod("summary", "X.snp.matrix",
 
 setClass("snp.reg.imputation", contains="list")
 
-
 setMethod("summary", "snp.reg.imputation",
    function(object) {
-     r2 <- .Call("r2_impute", object, PACKAGE="snpMatrix")
-     table(cut(r2[,1], c((0:9)/10, 0.95, 0.99, 1.0)), r2[,2],
-           dnn=c("R-squared", "SNPs used"))
+     info <- .Call("r2_impute", object, PACKAGE="snpMatrix")
+     i2 <- info[,2]
+     levs <- sort(unique(i2))
+     labs <- paste(ceiling(levs/2), "tags", 
+                   ifelse(levs %% 2, "(reg)", "(hap)"))
+     size <- factor(i2, levels= levs, labels=labs)
+     table(cut(info[,1], c((0:9)/10, 0.95, 0.99, 1.0)), size, 
+           dnn=c("R-squared", "SNPs used"), useNA="ifany")
    })
 
 setMethod("[",
@@ -300,27 +304,33 @@ setMethod("show", "snp.reg.imputation",
    function(object) {
      to <- names(object)
      for (i in 1:length(object)) {
-       if (is.null(object[i]$snps))
+       if (is.null(object[[i]]$snps))
          cat(to[i], "~ No imputation available\n")
-       else 
-         cat(to[i], " ~ ", paste(object[[i]]$snps, collapse="+"),
-           " (MAF = ", object[[i]]$maf, 
-           ", R-squared = ", object[[i]]$r.squared,
-           ")\n", sep="")
+       else {
+         if (is.null(object[[i]]$hap.probs)) 
+           cat(to[i], " ~ ", paste(object[[i]]$snps, collapse="+"))
+         else 
+           cat(to[i], " ~ ", paste(object[[i]]$snps, collapse="*"))
+         cat(" (MAF = ", object[[i]]$maf, 
+             ", R-squared = ", object[[i]]$r.squared,
+             ")\n", sep="")
+       }
      }
    })
-
 
 setMethod("plot", signature(x="snp.reg.imputation", y="missing"),
    function(x, y, ...) {
      mat <- summary(x)
-     if (colnames(mat)[1]=="0") 
-       mat <- mat[,-1]
      n <- nrow(mat)
      m <- ncol(mat)
-     val <- barplot(t(mat[n:1,]), legend.text=paste(1:m, "tag SNPs"),
+     if (is.na(rownames(mat)[n])) {
+       mat <- mat[-n,-m]
+       n <- n-1
+       m <- m-1
+     }
+     val <- barplot(t(mat[n:1,]), legend.text=TRUE, 
                     beside=F, col=heat.colors(m),
-                    xlab=expression(r^2), ylab="Number of SNPs",
+                    xlab=expression(r^2), ylab="Number of imputed SNPs",
                     names.arg=rep("", n), cex.lab=1.3, ...)
      mtext(rownames(mat)[n:1], at=val, side=1, las=2, line=0.5, cex=0.8)
     })

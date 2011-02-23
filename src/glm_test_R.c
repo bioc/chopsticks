@@ -462,14 +462,20 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   else
     female = NULL;
 
-  /* If imputation involved, calculate snp name index */
+  /* If imputation involved, calculate snp name index and lookup tables */
 
   index_db name_index = NULL;
   SEXP Snp_names =  VECTOR_ELT(getAttrib(Z, R_DimNamesSymbol), 1);
-  SEXP Rule_names = R_NilValue;			    
+  SEXP Rule_names = R_NilValue;	
+  int pmax = 0;
+  GTYPE **gt2ht = NULL;
   if (TYPEOF(Rules)!=NILSXP) {
     name_index = create_name_index(Snp_names);
     Rule_names = getAttrib(Rules, R_NamesSymbol);
+    pmax = *INTEGER(getAttrib(Rules, install("Max.predictors")));
+    gt2ht = (GTYPE **)Calloc(pmax, GTYPE *);
+    for (int i=0; i<pmax; i++)
+      gt2ht[i] = create_gtype_table(i+1);
   }
 
   
@@ -718,7 +724,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 	  strncpy(testname+len, CHAR(Rule_namej), space);	
 	SEXP Rule =  VECTOR_ELT(Rules, snpsj);
 	if (!isNull(Rule)){ /* Not monomorphic */
-	  do_impute(z, N, NULL, N, name_index, Rule, zw+ij, NULL);
+	  do_impute(z, N, NULL, N, name_index, Rule, gt2ht, zw+ij, NULL);
 	  for (int i=0; i<N; i++, ij++) {
 	    if (ISNA(zw[ij])) {
 	      zw[ij] = 0.0;
@@ -816,10 +822,14 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
     }
   }
 
-  /* Return hash table memory */
+  /* Return hash table memory and gt->ht tables */
 
-  if (name_index)
+  if (name_index) {
     index_destroy(name_index);
+    for (int i=0; i<pmax; i++)
+      destroy_gtype_table(gt2ht[i], i+1);
+    Free(gt2ht);
+  }
 
   SEXP Class, Package;
   PROTECT(Class = allocVector(STRSXP, 1));
