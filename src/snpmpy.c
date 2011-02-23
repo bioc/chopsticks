@@ -23,7 +23,8 @@
 #include <string.h>
 #include "Rmissing.h"
 
-SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency) {
+SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
+	     const SEXP Uncertain) {
   
   int *ifFemale = NULL;
   SEXP cl = GET_CLASS(Snps);
@@ -71,6 +72,12 @@ SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency) {
   else if (TYPEOF(Frequency) != NILSXP)
     error("Argument error: Frequency is wrong type");
      
+  /* Handling of uncertain genotypes */
+
+  if (TYPEOF(Uncertain) != LGLSXP)
+    error("Argument error: Uncertain is wrong type");
+  int uncert = *LOGICAL(Uncertain);
+
   /* Result matrix */
 
   SEXP Result, Dimnames;
@@ -141,7 +148,8 @@ SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency) {
   return(Result);
 }
 
-SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency) {
+SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency, 
+	      const SEXP Uncertain) {
   
   int *ifFemale = NULL;
   SEXP cl = GET_CLASS(Snps);
@@ -189,6 +197,12 @@ SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency) {
   else if (TYPEOF(Frequency) != NILSXP)
     error("Argument error: Frequency is wrong type");
      
+   /* Handling of uncertain genotypes */
+
+  if (TYPEOF(Uncertain) != LGLSXP)
+    error("Argument error: Uncertain is wrong type");
+  int uncert = *LOGICAL(Uncertain);
+
   /* Result matrix */
 
   SEXP Result, Dimnames;

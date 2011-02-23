@@ -17,7 +17,8 @@
 
 SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother, 
 	       const SEXP Cluster, const SEXP Snps,  const SEXP Rules, 
-               const SEXP Snp_subset, const SEXP Check, const SEXP Robust){
+               const SEXP Snp_subset, const SEXP Check, const SEXP Robust,
+	       const SEXP Uncertain){
  
   int mendelian[36] = {1, 0, 0, 1, 1, 0, 0, 1, 0,
 		       1, 1, 0, 1, 1, 1, 0, 1, 1,
@@ -125,6 +126,15 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
   if (TYPEOF(Robust)!=LGLSXP)    
     error("Argument error `Robust'");
   int robust = *LOGICAL(Robust);
+
+  /* Handling of uncertain genotypes */
+
+  if (TYPEOF(Uncertain) != LGLSXP)
+    error("Argument error: Uncertainty is wrong type");
+  int uncert = *LOGICAL(Uncertain);
+  /* Force robust variance if uncertain option used */
+  robust = robust || uncert; 
+
 
   /* Output objects */
  

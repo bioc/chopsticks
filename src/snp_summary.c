@@ -5,7 +5,7 @@
 #include <string.h>
 
 
-SEXP X_snp_summary(const SEXP Snps) {
+SEXP X_snp_summary(const SEXP Snps, const SEXP Uncertain) {
 
   /* SNPs ---- an X.snp.matrix */
 
@@ -35,6 +35,14 @@ SEXP X_snp_summary(const SEXP Snps) {
   if (snpNames == R_NilValue) {
     error("Argument error - Snps object has no snp names");
   }
+   
+
+  /* Handling of uncertain genotypes */
+
+  if (TYPEOF(Uncertain) != LGLSXP)
+    error("Argument error: Uncertain is wrong type");
+  int uncert = *LOGICAL(Uncertain);
+
   /* Output object */
 
   SEXP Result, Calls, Call_rate, MAF, P_AA, P_AB, P_BB, P_AY, P_BY, Z_HWE, Calls_female;
@@ -159,7 +167,7 @@ SEXP X_snp_summary(const SEXP Snps) {
 }
 
 
-SEXP snp_summary(const SEXP Snps) {
+SEXP snp_summary(const SEXP Snps, const SEXP Uncertain) {
 
   /* SNPs ---- a snp.matrix */
 
@@ -184,6 +192,13 @@ SEXP snp_summary(const SEXP Snps) {
   if (snpNames == R_NilValue) {
     error("Argument error - Snps object has no snp names");
   }
+
+  /* Handling of uncertain genotypes */
+
+  if (TYPEOF(Uncertain) != LGLSXP)
+    error("Argument error: Uncertain is wrong type");
+  int uncert = *LOGICAL(Uncertain);
+
   /* Output object */
 
   SEXP Result, Calls, Call_rate, MAF, P_AA, P_AB, P_BB, Z_HWE;

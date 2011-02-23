@@ -49,7 +49,7 @@
 #include "Rmissing.h"
 
 SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing, 
-	 const SEXP Lower_only) {
+	 const SEXP Lower_only, const SEXP Uncertain) {
   
   if (TYPEOF(Correct_for_missing)!=LGLSXP)
     error("Argument error - Correct_for_missing wrong type");
@@ -117,6 +117,13 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
       }
     } 
   }
+
+
+  /* Handling of uncertain genotypes */
+
+  if (TYPEOF(Uncertain) != LGLSXP)
+    error("Argument error: Uncertainty is wrong type");
+  int uncert = *LOGICAL(Uncertain);
 
   /* Result matrix */
 
@@ -278,7 +285,7 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
 */
 
  
-SEXP corsm(const SEXP Snps, const SEXP X) { 
+SEXP corsm(const SEXP Snps, const SEXP X, const SEXP Uncertain) { 
 
   if (!inherits(Snps, "snp.matrix"))
     error("Argument error - Snps wrong type");
@@ -299,6 +306,11 @@ SEXP corsm(const SEXP Snps, const SEXP X) {
   }
   int P = dim[1];
 
+  /* Handling of uncertain genotypes */
+
+  if (TYPEOF(Uncertain) != LGLSXP)
+    error("Argument error: Uncertain is wrong type");
+  int uncert = *LOGICAL(Uncertain);
 
   SEXP Result;
   PROTECT(Result = allocMatrix(REALSXP, M, P));
@@ -363,7 +375,7 @@ SEXP corsm(const SEXP Snps, const SEXP X) {
 
 */
 
-SEXP ibs_count(const SEXP Snps) { 
+SEXP ibs_count(const SEXP Snps, const SEXP Uncertain) { 
 
   int *ifFemale = NULL;
   SEXP cl = GET_CLASS(Snps);
@@ -394,6 +406,11 @@ SEXP ibs_count(const SEXP Snps) {
   N = dim[0];
   M = dim[1];
 
+  /* Handling of uncertain genotypes */
+
+  if (TYPEOF(Uncertain) != LGLSXP)
+    error("Argument error: Uncertain is wrong type");
+  int uncert = *LOGICAL(Uncertain);
 
   /* Result matrix */
 

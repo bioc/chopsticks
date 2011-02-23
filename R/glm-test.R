@@ -143,7 +143,7 @@ function(snp.data, base.formula, add.formula, subset, snp.subset,
       stop("illegal type for snp.subset")
   }
   .Call("snp_lhs_score",
-        snp.data, X, strats, Z, snp.subset, robust, clust,
+        snp.data, X, strats, Z, snp.subset, robust, clust, uncertain,
         control, as.logical(score), PACKAGE="snpMatrix")
 }
 
@@ -343,7 +343,7 @@ function(formula, family="binomial", link, weights, subset,
   }
   
   .Call("snp_rhs_score", Y, fam, lnk, X, strats, snp.data, rules,
-        weights, tests, robust, clust, control, allow.missing,
+        weights, tests, robust, clust, uncertain, control, allow.missing,
         as.logical(score),
         PACKAGE="snpMatrix")
 }  

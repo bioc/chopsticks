@@ -14,8 +14,8 @@
 
 SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum, 
 		   const SEXP Z, const SEXP Snp_subset, 
-		   const SEXP Robust, const SEXP Cluster, const SEXP Control,
-		   const SEXP If_score) {
+		   const SEXP Robust, const SEXP Cluster, const SEXP Uncertain,
+		   const SEXP Control, const SEXP If_score) {
 
   /* Y should be a snp.matrix or an X.snp.matrix */
   const char *classY = NULL;
@@ -136,6 +136,13 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
   }
   else if (TYPEOF(Cluster)!=NILSXP)
     error("Argument error - Cluster");
+
+
+  /* Handling of uncertain genotypes */
+
+  if (TYPEOF(Uncertain) != LGLSXP)
+    error("Argument error: Uncertain is wrong type");
+  int uncert = *LOGICAL(Uncertain);
   
   /* Control object */
 
@@ -355,6 +362,7 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
 SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link, 
 		   SEXP X, SEXP Stratum, SEXP Z, SEXP Rules, 
 		   SEXP Prior, SEXP Tests, SEXP Robust, SEXP Cluster, 
+		   SEXP Uncertain, 
 		   SEXP Control, SEXP MissAllow, SEXP If_score) {
 
   char testname[MAX_NAME_LENGTH];
@@ -543,7 +551,11 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   else if (TYPEOF(Cluster)!=NILSXP)
     error("Argument error - Cluster");
   
-  /* Control object */
+  /* Handling of uncertain genotypes */
+
+  if (TYPEOF(Uncertain) != LGLSXP)
+    error("Argument error: Uncertain is wrong type");
+  int uncert = *LOGICAL(Uncertain);
 
   if (TYPEOF(Control)!=VECSXP || LENGTH(Control)!=3) 
     error("Argument error - Control");

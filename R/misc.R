@@ -8,9 +8,9 @@ row.summary <- function(object) {
 col.summary <- function(object, uncertain=FALSE) {
    if (inherits(object, "snp.matrix")) {
      if (inherits(object, "X.snp.matrix")) 
-       .Call("X_snp_summary", object, PACKAGE="snpMatrix")
+       .Call("X_snp_summary", object, uncertain, PACKAGE="snpMatrix")
      else  
-       .Call("snp_summary", object, PACKAGE="snpMatrix")
+       .Call("snp_summary", object, uncertain, PACKAGE="snpMatrix")
    }
    else
      stop("not a snp.matrix object")

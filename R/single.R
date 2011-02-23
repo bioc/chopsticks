@@ -118,7 +118,7 @@ single.snp.tests <- function(phenotype, stratum, data=sys.parent(), snp.data,
       stop("illegal type for snp.subset")
   }
   scores <- .Call("score_single", phenotype, stratum, snp.data, rules, subset,
-                  snp.subset, PACKAGE="snpMatrix")
+                  snp.subset, uncertain, PACKAGE="snpMatrix")
   chisq <- .Call("chisq_single", scores, PACKAGE="snpMatrix")
   if (is.null(rules)) {
     if (is.null(snp.subset))

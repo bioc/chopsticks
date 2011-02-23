@@ -18,7 +18,8 @@
 #include "Rmissing.h"
 
 SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps, 
-		  const SEXP Rules, const SEXP Subset, const SEXP Snp_subset){
+		  const SEXP Rules, const SEXP Subset, const SEXP Snp_subset, 
+		  const SEXP Uncertain){
   double vec[4] = {1.0, 0.0, 0.0, 0.0};
   /* int i, j, k, km, m, t, su; */
 
@@ -134,6 +135,13 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
     female = LOGICAL(Female);
   }
 
+  /* Handling of uncertain genotypes */
+
+  if (TYPEOF(Uncertain) != LGLSXP)
+    error("Argument error: Uncertain is wrong type");
+  int uncert = *LOGICAL(Uncertain);
+
+ 
   /* Output objects */
  
   SEXP Result, Used, U, V;
