@@ -39,7 +39,7 @@ warnings.
   A new matrix, of the same type as the input matrices.
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
-\seealso{\code{\link[base:cbind]{cbind}}, \code{\link[base:rbind]{rbind}}}
+\seealso{\code{\link[base]{cbind}}, \code{\link[base:cbind]{rbind}}}
 \examples{
 data(testdata)
 # subsetting ( Autosomes[c(1:9,11:19,21:29),] ) is quicker. this is just for illustrating
