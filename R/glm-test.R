@@ -177,14 +177,15 @@ function (formula, family="binomial", link, weights, subset,
     if (lnk==0)
       stop("Ambiguous link argument")
   }
-  
-  if (missing(data))
+  no.data <- missing(data)
+  if (no.data) {
     data <- environment(formula)
+  }
   temp <- c("", "formula", "data", "weights", "subset")
   m <- call[match(temp, names(call), nomatch=0)]
   special <- c("strata", "cluster")
     
-  Terms <- if (missing(data))
+  Terms <- if (no.data)
     terms(formula, special)
   else terms(formula, special, data=data)
 
@@ -197,18 +198,25 @@ function (formula, family="binomial", link, weights, subset,
   # Model frame for null model
 
   m$formula <- Terms
+  if (no.data)
+    m$rows <- 1:nrow(snp.data)
   m[[1]] <- as.name("model.frame")
   m <- eval(m, parent.frame())
-
+        
   # Find common rows and mapping to line up  snp.data
 
   if (is(snp.data, "snp.matrix")) 
     snames <- rownames(snp.data)
   else
     stop("snp.data must be stored as a snp.data.frame")
-  
-  mnames <- rownames(m)
-  map <- match(mnames, snames, nomatch=0)
+
+  if (no.data) {
+    map <- m[["(rows)"]]
+  }
+  else {
+    mnames <- rownames(m)
+    map <- match(mnames, snames, nomatch=0)
+  }
   use <- map>0
   N <- sum(use)
   if (N==0)

@@ -19,7 +19,7 @@ pdftitle={snpMatrix Vignette}]
 \setlength{\oddsidemargin}{10mm}
 \setlength{\evensidemargin}{0mm}
 \setlength{\textwidth}{150mm}
-%\newcommand{\R}{\includegraphics[height=2ex]{/home/david/TeX/graphics/Rlogo.eps}}
+
 \title{snpMatrix vignette\\Example of genome-wide association testing}
 \author{David Clayton and Chris Wallace}
 \date{\today}
@@ -29,10 +29,12 @@ pdftitle={snpMatrix Vignette}]
 
 \begin{document}
 \setkeys{Gin}{width=1.0\textwidth}
-%\VignetteIndexEntry{snpMatrix}
+
+%\VignetteIndexEntry{snpMatrix introduction}
 %\VignettePackage{snpMatrix}
 
 \maketitle
+
 \section*{The {\tt snpMatrix} package}
 The package ``{\tt snpMatrix}'' was written to provide data classes
 and methods to
@@ -46,23 +48,25 @@ The object--oriented programming model introduced with version 4 of
 the S-plus package, usually termed ``S4 methods'' was used to
 implement these classes.
 
-At the current state of development the
-package only supports population--based studies, although we would
-hope to provide support for family--based studies soon. Both quantitative
-and qualitative phenotypes may be analysed. Flexible association
-testing functions are provided which can carry out single SNP tests
+For population-based studies, both quantitative
+and qualitative phenotypes may be analysed but, at present, rather
+more limited facilities are available for family--based studies. 
+Flexible functions are provided which can carry out single SNP tests
 which control for potential confounding by quantitative and
 qualitative covariates. Tests involving several SNPs taken together
 as ``tags'' are also supported. Efficient calculation of pair-wise
 linkage disequilibrium measures is implemented and data input
 functions include a function which can download data directly from
 the international HapMap project website.
+The package was described by Clayton and Leung (2007) {\it Human
+  Heredity}, {\bf 64}: 45--51. Since this publication many new
+facilities have been introduced. These are explored in further vignettes.
 
-The package is described by Clayton and Leung (2007) {\it Human
-  Heredity}, {\bf 64}: 45--51.
+
 \section*{Getting started}
 We shall start by loading  the 
-the packages and the data to be used in this exercise:
+the packages and the data to be used in the first part of this
+exercise, which concerns a population--based case--control study:
 
 <<init>>=
 library(snpMatrix)
@@ -124,7 +128,7 @@ In general, analysis of a whole--genome association study will require
 a subject support data frame, a SNP support data frame for each
 chromosome, and a SNP data file for each chromosome\footnote{
 Support files are usually read in with general tools such as {\tt
-  read.table()}. The {\tt snpMatrix} package contains a number of tools
+  read.table}. The {\tt snpMatrix} package contains a number of tools
 for reading SNP genotype data into an object of class ``{\tt
   snp.matrix}''.}.
 
@@ -154,7 +158,7 @@ extreme deviation from HWE, but this can be accounted for by the
 manner in which this synthetic dataset was created.
 
 A useful tool to detect samples that have genotyped poorly is
-{\tt row.summary()}. This calculates call rate and mean heterozygosity
+{\tt row.summary}. This calculates call rate and mean heterozygosity
 across all SNPs for each subject in turn:
 <<sample-qc>>=
 sample.qc <- row.summary(snps.10)
@@ -167,7 +171,7 @@ plot(sample.qc)
 @ 
 
 \section*{The analysis}
-We'll start by removing the three `outlying' samples above (the 3 samples with 
+We'll start by removing the `outlying' sample above (the sample with 
 Heterozygosity near zero):
 <<outliers>>=
 use <- sample.qc$Heterozygosity>0
@@ -329,7 +333,7 @@ top10
 @
 
 
-We now list the 1 df $p$-values, the corresponding SNP names and their
+We now list the 1~df $p$-values, the corresponding SNP names and their
 positions on the chromosome:
 <<top-10>>=
 names <- tests@snp.names
@@ -339,7 +343,7 @@ position[top10]
 @
 
 
-The most associated SNPs lie within 3 small regions of the genome. To
+The most associated SNPs lie within two small regions of the genome. To
 concentrate on the rightmost region (the most associated region on the left
 contains just one SNP), we'll first sort the names of the SNPs into position
 order along the chromosome and select those lying in the region approximately
@@ -374,48 +378,39 @@ viewed in a pdf viewer such as ``acroread''. The associated SNPs fall
 in a region of tight LD towards the middle of the plot.
 
 Next we shall estimate the size of the effect at the most associated SNPs for
-each region (rs870041, rs7088765, rs1916572). In the following commands, we
-extract this SNP from the matrix as a numerical variable (coded 0, 1, or 2)
-and then, using the {\tt glm()} function, carry out a logistic regression of
+each region (rs870041, rs10882596). In the following commands, we
+extract each SNP from the matrix as a numerical variable (coded 0, 1, or 2)
+and then, using the {\tt glm} function, carry out a logistic regression of
 case--control status on this numerical coding of the SNP and upon stratum. The
 variable {\tt stratum} must be included in the regression in order to allow
-for the different population structure of cases and controls.  We first attach
-{\tt subject.support} so that we can refer to {\tt cc} and {\tt stratum}
-variables directly:
+for the different population structure of cases and controls.  We
+first make copies of the {\tt cc} and {\tt stratum}
+variables in {\tt subject.support} in the current working environment
+(where the other variables reside):
 <<top1>>=
-attach(subject.support)
-top <- snps.10[, "rs870041"]
-top <- as.numeric(top)
+cc <- subject.support$cc
+stratum <- subject.support$stratum
+top <- as.numeric(snps.10[, "rs870041"])
 glm(cc ~ top + stratum, family = "binomial")
 @
-
-
-The coefficient of {\tt top} in this regression is estimated as 0.4293,
-equivalent to a relative equivalent to a relative risk of $\exp(0.4293) =
-1.536182$.  For the other top SNPs we have:
-<<top2-3>>=
-top2 <- snps.10[, "rs7088765"]
-top2 <- as.numeric(top2)
+The coefficient of {\tt top} in this regression is estimated as 0.5048,
+equivalent to a relative risk of $\exp(.5048) =1.657$.  
+For the other top SNP we have:
+<<top2>>=
+top2 <- as.numeric(snps.10[, "rs10882596"])
 glm(cc ~ top2 + stratum, family = "binomial")
-top3 <- snps.10[, "rs1916572"]
-top3 <- as(top3, "numeric")
-glm(cc ~ top3 + stratum, family = binomial)
 @
+This relative risk is $\exp(0.4103)=1.507$. Both estimates are
+close to the values used to simulate the data.
 
-
-So the relative risks are, respectively, $\exp(-0.4124)=0.6620594$ and
-$\exp(0.3979)=1.488695$.  Note that for rs7088765, the relative risk associated
-with the risk allele is $\exp(0.4124)=1.510438$, all close to the
-values used to simulate the data.
-
-Finally you might like to repeat the analysis above using the 2 df
+Finally you might like to repeat the analysis above using the 2~df
 tests. The conclusion would have been much the same. A word of caution
-however; with real data the 2 df test is less robust against
+however; with real data the 2~df test is less robust against
 artifacts due to genotyping error. On the other hand, it is much more
 powerful against recessive or near-recessive variants.
-\section*{Advanced topics: multi-locus tests}
+\section*{Multi-locus tests}
 There are two other functions  for carrying out association
-tests ({\tt snp.lhs.tests()} and {\tt snp.rhs.tests()}) in the
+tests ({\tt snp.lhs.tests} and {\tt snp.rhs.tests}) in the
 package. These are somewhat slower, but much more flexible. For
 example, the former function allows one to test for  differences in allele
 frequencies between more than two groups. An important use of the
@@ -425,10 +420,10 @@ in the final part of the exercise.
 
 A prerequisite to multi-locus analyses is to
 decide on how SNPs should be grouped in order to ``tag'' the genome
-rather more completely than by use of single markers. The {\tt
+rather more completely than by use of single markers. Hopefully, the {\tt
   snpMatrix} package will eventually contain tools to compute such
 groups, for example, by using HapMap data. The function {\tt
-  ld.snp()}, which we encountered earlier, will be an essential tool in
+  ld.snp}, which we encountered earlier, will be an essential tool in
 this process. However this work is not complete and, for now, we
 demonstrate the testing tool by grouping the 27,828 SNPs we have
 decided to use into 20kB blocks. The following commands compute such a
@@ -484,10 +479,9 @@ actually one of the SNPs typed on the Affymetrix platform.
 QQ plots are somewhat more difficult since the tests are on differing
 degrees of freedom. This difficulty is neatly circumvented by noting
 that $-2\log p$ is, under the null hypothesis, distributed as
-chi-squared on 2 df:
+chi-squared on 2~df:
 <<qqplot-mtests,fig=TRUE>>=
 qq.chisq(-2 * log(pm), df = 2)
 @
-
 \end{document}
 

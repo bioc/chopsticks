@@ -19,7 +19,7 @@ pdftitle={Imputed SNP analyses with snpMatrix}]
 \setlength{\oddsidemargin}{10mm}
 \setlength{\evensidemargin}{0mm}
 \setlength{\textwidth}{150mm}
-\title{Imputed SNP analyses with snpMatrix}
+\title{Imputed SNP analyses and meta-analysis with snpMatrix}
 \author{David Clayton}
 \date{\today}
 
@@ -28,7 +28,7 @@ pdftitle={Imputed SNP analyses with snpMatrix}]
 
 \begin{document}
 \setkeys{Gin}{width=1.0\textwidth}
-%\VignetteIndexEntry{imputation}
+%\VignetteIndexEntry{Imputation and meta-analysis}
 %\VignettePackage{snpMatrix}
 
 \maketitle
@@ -183,5 +183,110 @@ hb <- hexbin(imputation.maf(rules), imputation.r2(rules), xbin=50)
 sp <- plot(hb)
 @ 
 
+The function {\tt snp.rhs.glm} also allows testing imputed SNPs. In
+its simplest form, it can be used to calculate essentially the same
+tests as carried out with 
+{\tt single.snp.tests}\footnote{There is a small discrepancy, of the 
+  order of $(N-1):N$}
+(although, being a more flexible function, this will run
+  somewhat slower). The next commands recalculate the 1 df tests for
+  the imputed SNPs using {\tt snp.rhs.tests}, and plot the results
+  against those obtained when values are observed.
+<<imptest-rhs,fig=TRUE>>=
+imp2 <- snp.rhs.tests(cc~strata(stratum), family="binomial", 
+                      data=subject.support, snp.data=present, rules=rules)
+logP.imp2 <- -log10(p.value(imp2))
+hb <- hexbin(logP.obs, logP.imp2, xbin=50)
+sp <- plot(hb)
+hexVP.abline(sp$plot.vp, 0, 1, col="black")
+@ 
 
+
+\section*{Meta-analysis}
+As stated at the beginning of this document, one of the main reasons
+that we need imputation is to perform meta-analyses which bring
+together data from genome-wide studies which use different platforms. 
+The {\tt snpMatrix} package includes a number of tools to facilitate
+this. All the tests implemented in {\tt snpMatrix} are ``score''
+tests. In the 1 df case we calculate a score defined by 
+the first derivative of the log
+likelihood function with respect to the association parameter of
+interest at the parameter value corresponding to the null hypothesis
+of no association. Denote this by $U$. We also calculate an estimate
+of its variance,  also under the null hypothesis --- $V$ say. Then
+$U^2/V$ provides the chi-squared test on 1~df. This procedure extends
+easily to meta-analysis; given two independent studies of the same
+hypothesis, we simply add together to two values of $U$ and the two
+values of $V$, and then calculate $U^2/V$ as before. These ideas also
+extend naturally to tests of several parameters (2 or more df tests)
+
+In {\tt snpMatrix}, the statistical testing functions can be
+called with the option {\tt score=TRUE}, causing an extended object to
+be saved. The extended object contains the $U$ and $V$ values, thus
+allowing later combination of the evidence from different
+studies. We shall first see what sort of object we have calculated using {\tt
+  single.snp.tests} {\em without} the {\tt score=TRUE} argument.
+<<class-imp-obs>>=
+class(imp)
+class(obs)
+@ 
+We'll now recalculate these objects, saving the score information
+<<save-scores>>=
+obs <- single.snp.tests(cc, stratum, data=subject.support, snp.data=missing, 
+                        score=TRUE)
+imp <- single.snp.tests(cc, stratum, data=subject.support,
+                        snp.data=present, rules=rules, score=TRUE)
+class(obs)
+class(imp)
+@ 
+You will see that extended objects have been returned. These extended
+objects behave in the same way as the original objects, so that the
+same functions can be used to extract chi-squared values, $p$-values
+etc., but several additional functions, or methods, are now
+available. Chief amongst these is {\tt pool}, which combines evidence
+across independent studies as described at the beginning of this
+section. Although {\tt obs} and {\tt imp} are {\em not} from
+independent studies, so that the resulting test would not be valid, we
+can use them to demonstrate this:
+<<pool>>=
+both <- pool(obs, imp)
+class(both)
+both[1:5]
+@ 
+Note that if we wished at some later stage to combine the
+results in {\tt both} with a further study, we would also need to
+specify {\tt score=TRUE} in the call to {\tt pool}:
+<<pool-score>>=
+both <- pool(obs, imp, score=TRUE)
+class(both)
+@
+
+Another reason to save the score statistics is that this allows us to
+investigate the {\em direction} of findings. These can be extracted
+from the extended objects using the function {\tt effect.sign}. For
+example, this command tabulates the signs of the associations in {\tt obs}:
+<<sign>>=
+table(effect.sign(obs))
+@ 
+Reversal of sign can be the explanation of a puzzling phenomenon when
+two studies give significant results individually, but no significant
+association when pooled. Although it is not impossible that such
+results are genuine, a more usual explanation is that the two alleles
+have been differently coded in the two studies: allele~1 in the first
+study is allele~2 in the second study and vice versa. To allow for
+this {\tt snpMatrix} provides the {\tt switch.alleles} function, which
+reverses the coding of specified SNPs. It can be applied to {\tt
+  snp.matrix} objects but, because allele switches are often
+discovered quite late on in the analysis and recoding the original
+data matrices could have unforeseen consequences, the {\tt
+  switch.alleles} function can also be applied to the extended test
+output objects. This modifies the saved scores {\em as if} the allele
+coding had been switched in the original data. The use of this is
+demonstrated below.
+<<switch>>=
+effect.sign(obs)[1:6]
+sw.obs <- switch.alleles(obs, c("rs12773042", "rs10904596"))
+class(sw.obs)
+effect.sign(sw.obs)[1:6]
+@ 
 \end{document}

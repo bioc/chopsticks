@@ -45,7 +45,6 @@ SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency) {
   int *dim = INTEGER(getAttrib(Snps, R_DimSymbol));
   N = dim[0];
   M = dim[1];
-  printf("1\n");
   SEXP Snpnames = VECTOR_ELT(getAttrib(Snps, R_DimNamesSymbol), 1);
 
   cl = GET_CLASS(Mat);
@@ -59,7 +58,6 @@ SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency) {
     error("non-conformable arguments");
   int P = dim[0];
   double *mat = REAL(Mat);
-  printf("2\n");
   SEXP Rownames = GetRowNames(Mat);
 
   /* Allele frequencies */
@@ -165,7 +163,6 @@ SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency) {
   int *dim = INTEGER(getAttrib(Snps, R_DimSymbol));
   N = dim[0];
   M = dim[1];
-  printf("1\n");
   SEXP Sampnames = VECTOR_ELT(getAttrib(Snps, R_DimNamesSymbol), 0);
 
   cl = GET_CLASS(Mat);
@@ -179,7 +176,6 @@ SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency) {
     error("non-conformable arguments");
   int P = dim[1];
   double *mat = REAL(Mat);
-  printf("2\n");
   SEXP Colnames = GetColNames(Mat);
      
   /* Allele frequencies */

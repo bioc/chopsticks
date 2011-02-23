@@ -183,6 +183,7 @@ setAs("snp.matrix", "character",
         df <- dim(from)
         to <- c("", "A/A", "A/B", "B/B")[1+as.integer(from)]
         dim(to) <- df
+        dimnames(to) <- dimnames(from)
         to
       })
 
@@ -350,6 +351,7 @@ setMethod("show", "snp.matrix",
      else
        cat("Col name: ", colnames(object)[1],"\n")
    })
+
 
 setMethod("show", "X.snp",
           function(object) {
