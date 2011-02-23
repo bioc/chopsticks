@@ -11,8 +11,8 @@ These functions bind together two or more objects of class
 \code{"snp.matrix"} or \code{"X.snp.matrix"}. 
 }
 \usage{
-cbind(...)
-rbind(...)
+# cbind(...)
+# rbind(...)
 snp.cbind(...)
 snp.rbind(...)
 }

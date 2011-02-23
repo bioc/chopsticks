@@ -1,3 +1,12 @@
+import(methods)
+importFrom(graphics, abline, axis, barplot, legend, mtext, par, plot,
+           points, polygon)
+importFrom(grDevices, heat.colors)
+importFrom(stats, model.matrix, model.offset, model.response,
+           model.weights, pchisq, qbeta, qchisq, terms)
+importFrom(survival, cluster, strata, untangle.specials)
+importFrom(utils, download.file, flush.console, head, read.table)
+
 exportClasses(snp.matrix, X.snp.matrix, snp, X.snp, snp.dprime,
               snp.reg.imputation, snp.tests.single, snp.tests.single.score,
               snp.tests.glm)
@@ -18,5 +27,3 @@ export(epsout.ld.snp, filter.rules, glm.test.control, ibs.stats, ibsCount,
        snp.rhs.tests, tdt.snp,
        test.allele.switch, write.snp.matrix,
        xxt)
-importFrom(graphics, plot)
-importFrom(survival, untangle.specials, cluster, strata)

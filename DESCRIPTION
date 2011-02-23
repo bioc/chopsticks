@@ -1,12 +1,13 @@
 Package: snpMatrix 
 Title: The snp.matrix and X.snp.matrix classes
-Version: 1.9.4
-Date: 2009-09-22
+Version: 1.9.5
+Date: 2009-10-08
 Author: David Clayton <david.clayton@cimr.cam.ac.uk> and 
   Hin-Tak Leung <htl10@users.sourceforge.net>
 Description: Implements classes and methods for large-scale SNP association studies 
 Maintainer: David Clayton <david.clayton@cimr.cam.ac.uk>
 Depends: R(>= 2.3.0), survival, methods
+Imports: graphics, grDevices, methods, stats, survival, utils
 Suggests: hexbin
 Enhances: genetics
 License: GPL-3
