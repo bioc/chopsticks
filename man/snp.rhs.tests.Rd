@@ -40,7 +40,7 @@ allow.missing=0.01, score=FALSE)
   \item{robust}{If \code{TRUE}, robust tests will be carried out}
   \item{control}{An object giving parameters for the IRLS algorithm
     fitting of the base model and for the acceptable aliasing amongst
-    new terms to be tested. See\ code{\link{glm.test.control}}}
+    new terms to be tested. See \code{\link{glm.test.control}}}
   \item{allow.missing}{The maximum proportion of SNP genotype that can
     be missing before it becomes necessary to refit the base model}
   \item{score}{Is extended score information to be returned?}

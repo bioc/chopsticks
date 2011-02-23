@@ -71,7 +71,13 @@ read.snps.long(files, sample.id = NULL, snp.id = NULL, female = NULL,
   for the two alleles. Again, any other code is treated as
   "missing" and, for X SNPs, males should be coded either as
   homozygous or by omission of  the second allele.
-
+  
+  For nucleotide coding, nucleotides are assigned to the nominal alleles
+  in alphabetic order. Thus, for a SNP with either  "T" and "A"
+  nucleotides in the variant position,
+  the nominal genotypes AA, AB and BB will refer to A/A,
+  A/T and T/T.
+  
   Although the function allows for reading of data for the X chromosome
   directly into an object of class \code{"X.snp.matrix"},
   it will often be preferable to read such data as a \code{"snp.matrix"}
@@ -96,7 +102,7 @@ read.snps.long(files, sample.id = NULL, snp.id = NULL, female = NULL,
 \note{
   The function will read gzipped files.
   
-  This function has replaced and earlier version which was much less
+  This function has replaced an earlier version which was much less
   flexible. Because all features have not been fully tested, the older
   version has been retained as \code{\link{read.snps.long.old}}.
 

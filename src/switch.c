@@ -100,5 +100,20 @@ SEXP test_switch(const SEXP Snps, const SEXP Snps2, const SEXP Split,
 }
 	
 	
+SEXP smat_switch(SEXP X, SEXP Switch) {
+  SEXP Result = duplicate(X);
+  unsigned char *res = RAW(Result); 
+  int N = nrows(Result);
+  int nsw = length(Switch);
+  int *sw = INTEGER(Switch);
+  for (int i=0; i<nsw; i++) {
+    unsigned char *resij = res + N*(sw[i] - 1);
+    for (int j=0; j<N; j++, resij++) {
+      unsigned char g = *resij;
+      if (g) 
+	*resij = 4 - g;
+    }
+  }
+  return Result;
+}
     
-

@@ -792,11 +792,18 @@ setGeneric("switch.alleles",
 
 setMethod("switch.alleles", signature(x="snp.matrix", snps="ANY"),
           function(x, snps) {
-            all <- 1:nrow(x)
-            change <- as.integer(x[all,snps])
-            new <- ifelse(change==0, 0, 4 - change)
-            x[all,snps] <- as.raw(4 - as.integer(new))
-            x
+            if (is.character(snps)) 
+              snps <- match(snps, colnames(x))
+            else if (is.logical(snps)) {
+              if (length(snps)!=ncol(x))
+                stop("logical snp selection vector is wrong length")
+              snps <- (1:ncol(x))[snps]
+            }
+            else if (!is.integer(snps))
+              stop("snp selection must be character, logical or integer")
+            if (any(is.na(snps) | snps>ncol(x) | snps<1))
+              stop("illegal snp selection")
+            .Call("smat_switch", x, snps, PACKAGE="snpMatrix")
           })
 
 setMethod("switch.alleles", signature(x="snp.tests.single.score", snps="ANY"),

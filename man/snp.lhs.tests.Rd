@@ -34,7 +34,7 @@ snp.lhs.tests(snp.data, base.formula, add.formula, subset, snp.subset,
     Hardy-Weinberg equilibrium will be used}
   \item{control}{An object giving parameters for the IRLS algorithm
     fitting of the base model and for the acceptable aliasing amongst
-    new terms to be tested. See\ code{\link{glm.test.control}}}
+    new terms to be tested. See \code{\link{glm.test.control}}}
   \item{score}{Is extended score information to be returned?}
 }
 \details{
