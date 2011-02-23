@@ -1517,7 +1517,6 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
       nsnp_set = LENGTH(Snps);
       snps = INTEGER(Snps);
     }
-
     for (int i=0; i<N; i++) new_prior[i] = prior? prior[i]: 1.0;
  
     /* Add to XZ matrix, tracking incomplete cases  */
@@ -1589,24 +1588,23 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
 	double *b = REAL(B);
 	double *v = REAL(V);
 	PROTECT(Snames = allocVector(STRSXP, pest));
-
 	if (C) {
 	  meat_matrix(N, pest, C, cluster, xb+N*(rank-pest), resid, weights, v);
 	  glm_est(pest, beta, tri, scale, v, b, v);
 	}
 	else   
 	  glm_est(pest, beta, tri, scale, NULL, b, v);
-
 	int nunit = 0;
 	for (int i=0; i<N; i++) 
 	  if (weights[i]) nunit++;
 	*INTEGER(Nu) = nunit;
       
 	/* Names for B */
-	
-	for (int i=0; i<pest; i++) 
+
+	for (int i=0; i<pest; i++) {
 	  SET_STRING_ELT(Snames, i, 
-			 STRING_ELT(Snp_names, snps[which[i]]-1));
+			 STRING_ELT(Snp_names, snps[which[i]-1]-1));
+	}
 	setAttrib(B, R_NamesSymbol, Snames);
 	
 	SEXP Estt;

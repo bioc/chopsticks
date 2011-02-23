@@ -65,7 +65,9 @@ int glm_fit(int family, int link, int N, int M, int P, int S,
   int Mskip=M-P; /* Number of parameters NOT estimated */
   int Nu, dfr, irls;
   int empty = 0;
-  int estimate = P_est && which && betaQ && tri;
+  int estimate = P>0;
+  if (estimate && !(P_est && which && betaQ && tri))
+    error("Code bug: missing work arrays for estimation");
 
   /*  Is iteration necessary? */
 
@@ -192,7 +194,7 @@ int glm_fit(int family, int link, int N, int M, int P, int S,
       double *xbi = Xb;
       x_rank = skip_rank = 0;
       for (int i=0, ii=0, ij=0; i<M; i++, xi+=N) {
-	if (i==M)
+	if (i==Mskip)
 	  skip_rank = x_rank;
 	double ssx = wssq(xi, N, weights);
 	wcenter(xi, N, weights, stratum, S, 1, xbi);
@@ -224,6 +226,9 @@ int glm_fit(int family, int link, int N, int M, int P, int S,
     else
       *scale = 1.0;
   }
+
+  /* No covariates */
+
   else {
     if ((S>1) && invalid)  /* Need to recalculate empty stratum count  */
       empty = wcenter(fitted, N, weights, stratum, S, 0, fitted); 
@@ -236,7 +241,7 @@ int glm_fit(int family, int link, int N, int M, int P, int S,
   }
   *df_resid = dfr>0? dfr : 0;
   *rank = x_rank;
-  if (P) {
+  if (estimate) {
     *P_est = x_rank - skip_rank;
   }
   return(irls && !convg);
