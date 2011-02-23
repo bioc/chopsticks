@@ -196,7 +196,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	  error("snp_subset out of range");
 	SEXP Rule =  VECTOR_ELT(Rules, i);
 	if (isNull(Rule)){ /* Monomorphic */
-	  for (int j; j<nsubj; j++)
+	  for (int j=0; j<nsubj; j++)
 	    xadd[j] = xdom[j] = 0.0;
 	}
 	else {

@@ -269,7 +269,7 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
       Rprintf("Reading snp.matrix with %d rows and %d columns\n", 
 	      Nsample, Nsnp);
   }
-  SEXP Result, Dimnames, Class;
+  SEXP Result, Dimnames, Package, Class;
   PROTECT(Result = allocMatrix(RAWSXP, Nsample, Nsnp));
   PROTECT(Dimnames = allocVector(VECSXP, 2));
   if (simplify[0]) {
@@ -289,13 +289,20 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
 		   duplicate(file_is==2? Filenames: Snp_id));
   }
   setAttrib(Result, R_DimNamesSymbol, Dimnames);
+
+  /* Class */
+
   PROTECT(Class = allocVector(STRSXP, 1));
   if (female) {
     R_do_slot_assign(Result, mkString("Female"), Female);
     SET_STRING_ELT(Class, 0, mkChar("X.snp.matrix"));
   }
-  else
+  else {
     SET_STRING_ELT(Class, 0, mkChar("snp.matrix"));
+  }
+  PROTECT(Package = allocVector(STRSXP, 1));
+  SET_STRING_ELT(Package, 0, mkChar("snpMatrix"));
+  setAttrib(Class, install("package"), Package);
   classgets(Result, Class);
   SET_S4_OBJECT(Result);
   unsigned char *result = RAW(Result);
@@ -621,7 +628,7 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
       Rprintf("(see warnings for details)\n");
     }
   }
-  UNPROTECT(3);
+  UNPROTECT(4);
   return Result;
 }
 

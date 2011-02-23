@@ -433,6 +433,10 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
   } else {
     SET_STRING_ELT(snp_data_class, 0, mkChar("snp.matrix"));
   }
+  SEXP Package;
+  PROTECT(Package = allocVector(STRSXP, 1));
+  SET_STRING_ELT(Package, 0, mkChar("snpMatrix"));
+  setAttrib(snp_data_class, install("package"), Package);
   classgets(snp_data, snp_data_class);
   SET_S4_OBJECT(snp_data);
 
@@ -452,7 +456,7 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
     SET_VECTOR_ELT(snp_data_dimnames, 1, snp_data_colnames);
   }
   setAttrib(snp_data, R_DimNamesSymbol, snp_data_dimnames);
-  protected +=2;
+  protected +=3;
 
   /* snp support data - really, just assigment information */
   SEXP snp_support_df = R_NilValue, snp_support_names;
