@@ -26,7 +26,7 @@ ld.with(data, snps, include.itself = as.logical(length(snps) - 1), signed.r = NU
   make sense, nor fully operational.
 }
 \value{
-  The returned value is somewhat similiar to a
+  The returned value is somewhat similar to a
   \code{\link[=snp.dprime-class]{snp.dprime}}
   object, but not the same. It is a list of 3 named
   matrices \code{dprime}, \code{rsq2} (or \code{r} depending

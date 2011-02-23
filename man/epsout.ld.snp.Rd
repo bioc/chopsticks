@@ -28,7 +28,7 @@ epsout.ld.snp(snpdata, filename, start, end, depth, do.notes=FALSE)
   code}
 }
 \details{
-  The functinality of this routine has since been split into a two-stage
+  The functionality of this routine has since been split into a two-stage
   processes involving \code{\link{ld.snp}} which generates a
   \code{\link[=snp.dprime-class]{snp.dprime}}
   object which contains the result of the

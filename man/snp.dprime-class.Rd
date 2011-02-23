@@ -12,7 +12,7 @@
   named matrices.
 
   The lower right triangle of the snp.dprime object returned by \code{\link{ld.snp}} 
-  always consists zeros. This is delibrate. The associated plotting routine
+  always consists zeros. This is deliberate. The associated plotting routine
   would not normally access those elements either.
 }
 

@@ -36,7 +36,7 @@ xx <- xxt(small, correct.for.missing=TRUE)
 # Calculate the principal components
 pc <- eigen(xx, symmetric=TRUE)$vectors
 # Calculate the loadings in first 10 components,
-# for eaxample to plot against chromosome position
+# for example to plot against chromosome position
 loadings <- snp.cor(small, pc[,1:10])
 }
 \keyword{array}

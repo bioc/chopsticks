@@ -35,7 +35,7 @@ read.HapMap.data(url, verbose=FALSE, save=NULL, ...)
   If more than 2 bases are observed in the batch specified in the url,
   the routine aborts, but so far this possibility has not arisen in tests.
   If there is exactly two, then allele 1 and 2 are assigned in
-  alphabatical order (dbSNPAlleles entries seems to be always in
+  alphabetical order (dbSNPAlleles entries seems to be always in
   dictionary order, so the assignment made should agree with a shorten
   version of the dbSNPAlleles entry). Likewise, if only "A" or "T"
   is observed, then we know automatically it is the first (assigned as
@@ -76,7 +76,7 @@ read.HapMap.data(url, verbose=FALSE, save=NULL, ...)
   "A/C/T" and only "C" is observed - this can be assigned "A/C" or
   "C/T". (currently it does the former). One needs to be especially
   careful when joining two sets of snp data and it is imperative to compare
-  the assigment supplementary data to see they are compatible. (e.g. for an
+  the assignment supplementary data to see they are compatible. (e.g. for an
   "A/C/T" entry, one data set may have "C" only and thus have assignment
   "A/C" and have all of it assigned Allele 2 homozygotes, whereas
   another data set contains both "C" and "T" and thus the
@@ -84,7 +84,7 @@ read.HapMap.data(url, verbose=FALSE, save=NULL, ...)
 
   A typical run, chromosome 1 for CEU, contains about ~400,000 snps and
   ~100 samples, and the snp.matrix object is about ~60MB (40 million
-  bytes for snps plus overhead) and similiar for the support data
+  bytes for snps plus overhead) and similar for the support data
   (i.e. ~ 2x), takes about 30 seconds, and at peak memory usage requires
   ~ 4x . The actual download is ~20MB, which is compressed from
   ~200MB.  

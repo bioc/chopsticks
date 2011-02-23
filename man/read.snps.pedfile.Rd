@@ -6,7 +6,7 @@
   restrictions and returns a list of three objects: a data frame
   containing the initial 6 fields giving pedigree structure, sex and
   disease status, a vector or a data frame containing snp assignment
-  and possibly other snp infomation, and an object of class
+  and possibly other snp information, and an object of class
   \code{"snp.matrix"} or \code{"X.snp.matrix"} containing the genotype data
 }
 \usage{
@@ -38,7 +38,7 @@ read.snps.pedfile(file, snp.names=NULL, assign=NULL, missing=NULL, X=FALSE, sep=
   the restriction that the family (or pedigree) identifiers will be held
   as strings, but identifiers for members within families must be coded
   as integers. Genotype should be coded as pairs of single character
-  allele codes (which can be alphameric or numeric), from either 'A',
+  allele codes (which can be alphanumeric or numeric), from either 'A',
   'C', 'G', 'T' or '1', '2', '3', '4', with 'N', '-' and '0' denoting a
   missing; everything else is considered invalid and would invalidate
   the whole snp; also more than 2 alleles also cause the snp to be
