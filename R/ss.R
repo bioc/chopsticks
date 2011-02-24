@@ -279,7 +279,7 @@ setClass("snp.reg.imputation", contains="list")
 
 setMethod("summary", "snp.reg.imputation",
    function(object) {
-     info <- .Call("r2_impute", object, PACKAGE="snpMatrix")
+     info <- .Call("r2_impute", object, PACKAGE="chopsticks")
      i2 <- info[,2]
      levs <- sort(unique(i2))
      labs <- paste(ceiling(levs/2), "tags", 
@@ -415,20 +415,20 @@ setMethod("ld.with", signature(data="snp.matrix",snps="character", include.itsel
             snp.idx <- as.integer(snp.idx) # default real
             if(any(is.na(snp.idx)))
                stop("some of snps is not found in the snp.matrix object. Please check.")
-            .Call("ld_with", data, snp.idx, signed.r, PACKAGE="snpMatrix")
+            .Call("ld_with", data, snp.idx, signed.r, PACKAGE="chopsticks")
           })
 
 .rbind2 <- function(x,y){
-  .External("snp_rbind",x, y, PACKAGE="snpMatrix")
+  .External("snp_rbind",x, y, PACKAGE="chopsticks")
 }
 snp.rbind <- function(...){
-  .External("snp_rbind", ..., PACKAGE="snpMatrix")
+  .External("snp_rbind", ..., PACKAGE="chopsticks")
 }
 .cbind2 <- function(x,y){
-  .External("snp_cbind",x, y, PACKAGE="snpMatrix")
+  .External("snp_cbind",x, y, PACKAGE="chopsticks")
 }
 snp.cbind <- function(...){
-  .External("snp_cbind", ..., PACKAGE="snpMatrix")
+  .External("snp_cbind", ..., PACKAGE="chopsticks")
 }
 
 setMethod("rbind2", signature(x="snp.matrix", y="snp.matrix"), .rbind2)
@@ -755,7 +755,7 @@ setMethod("pool2",
               N <- c(N, y@N[ysel])
             }
             chisq <- .Call("chisq_single", list(U=U, V=V, N=N),
-                           PACKAGE="snpMatrix")
+                           PACKAGE="chopsticks")
             if (score)
               res <- new("snp.tests.single.score",
                          snp.names=c(can.pool, x.only, y.only),
@@ -778,7 +778,7 @@ setMethod("pool2",
             if (is.null(nm.x) || is.null(nm.y)) {
               if (length(x)!=length(y))
                 stop("Cannot pool unnamed snp.test.glm objects of different lengths")
-              res <- .Call("pool2_glm", x, y, score, PACKAGE="snpMatrix")
+              res <- .Call("pool2_glm", x, y, score, PACKAGE="chopsticks")
               return(res)
             }
             to.pool <- intersect(nm.x, nm.y)
@@ -786,7 +786,7 @@ setMethod("pool2",
               res <- .Call("pool2_glm",
                            x[to.pool],
                            y[to.pool], score, 
-                           PACKAGE="snpMatrix")
+                           PACKAGE="chopsticks")
  
             }
             else {
@@ -847,7 +847,7 @@ setMethod("switch.alleles", signature(x="snp.matrix", snps="ANY"),
               stop("snp selection must be character, logical or integer")
             if (any(is.na(snps) | snps>ncol(x) | snps<1))
               stop("illegal snp selection")
-            .Call("smat_switch", x, snps, PACKAGE="snpMatrix")
+            .Call("smat_switch", x, snps, PACKAGE="chopsticks")
           })
 
 setMethod("switch.alleles", signature(x="snp.tests.single.score", snps="ANY"),

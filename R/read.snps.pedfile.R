@@ -61,7 +61,7 @@ read.snps.pedfile <- function(file, snp.names=NULL, assign=NULL, missing=NULL, X
   
   if (!low.mem) {
     result <- .Call("read_pedfile", file, snp.names, missing,
-                    as.logical(X), as.character(sep), PACKAGE="snpMatrix")
+                    as.logical(X), as.character(sep), PACKAGE="chopsticks")
     if (is.null(result)) {
       stop("ped file invalid - see error message above\n")
     }
@@ -76,7 +76,7 @@ read.snps.pedfile <- function(file, snp.names=NULL, assign=NULL, missing=NULL, X
       missing <- "0"
     }
     result <-  .Call("readped", file, as.character(snp.names), as.character(missing),
-                     as.logical(X), as.character(sep), PACKAGE="snpMatrix")
+                     as.logical(X), as.character(sep), PACKAGE="chopsticks")
     # readped does not currently generate a null on error, fix it later
     if (is.null(result)) {
       stop("ped file invalid - see error message above\n")

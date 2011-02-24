@@ -19,7 +19,7 @@ read.HapMap.data <- function(url, verbose=FALSE, save=NULL, ...) {
     stop("Download has gone wrong\n");
   }
 
-  snp.result <- .Call("read_hapmap_data", saved.file, verbose, PACKAGE="snpMatrix")
+  snp.result <- .Call("read_hapmap_data", saved.file, verbose, PACKAGE="chopsticks")
   flush.console()
   
   if(length(snp.result)) {

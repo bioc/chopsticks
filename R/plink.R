@@ -28,7 +28,7 @@ read.plink <- function(bed, bim, fam) {
       stop("Sample IDs are still not unique")
   }
   cat(head(id), "...\n")
-  .Call("readbed", bed, id, snps, PACKAGE="snpMatrix") 
+  .Call("readbed", bed, id, snps, PACKAGE="chopsticks") 
 }
 
 write.plink <- function(file.base, snp.major=TRUE, snps,
@@ -272,5 +272,5 @@ write.plink <- function(file.base, snp.major=TRUE, snps,
     cat("SNP-major mode)\n")
   else
     cat("Subject-major mode)\n")
-  .Call("writebed", snps, bedfn, snp.major, PACKAGE="snpMatrix")
+  .Call("writebed", snps, bedfn, snp.major, PACKAGE="chopsticks")
 }

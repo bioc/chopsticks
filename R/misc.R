@@ -1,6 +1,6 @@
 row.summary <- function(object) {
    if (inherits(object, "snp.matrix"))
-     .Call("row_summary", object, PACKAGE="snpMatrix")
+     .Call("row_summary", object, PACKAGE="chopsticks")
    else
      stop("not a snp.matrix object")
 }
@@ -8,16 +8,16 @@ row.summary <- function(object) {
 col.summary <- function(object, uncertain=FALSE) {
    if (inherits(object, "snp.matrix")) {
      if (inherits(object, "X.snp.matrix")) 
-       .Call("X_snp_summary", object, uncertain, PACKAGE="snpMatrix")
+       .Call("X_snp_summary", object, uncertain, PACKAGE="chopsticks")
      else  
-       .Call("snp_summary", object, uncertain, PACKAGE="snpMatrix")
+       .Call("snp_summary", object, uncertain, PACKAGE="chopsticks")
    }
    else
      stop("not a snp.matrix object")
  }
 
 Fst <- function(snps, group) {
-  .Call("Fst", snps, as.factor(group), PACKAGE="snpMatrix")
+  .Call("Fst", snps, as.factor(group), PACKAGE="chopsticks")
 }
 
 plotUncertainty <- function(snp, nlevels = 10,

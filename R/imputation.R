@@ -17,7 +17,7 @@ snp.imputation<- function(X, Y, pos.X, pos.Y, phase=FALSE, try=50,
   .Call("snp_impute", X, Y, order.X, order.Y,
         as.double(pos.X[order.X]), as.double(pos.Y[order.Y]),
         as.logical(phase), as.integer(try),
-        stopping, use.hap, em.cntrl, as.real(minA), PACKAGE="snpMatrix")
+        stopping, use.hap, em.cntrl, as.real(minA), PACKAGE="chopsticks")
 }
 
 impute.snps <- function(rules, snps, subset=NULL) {
@@ -36,7 +36,7 @@ impute.snps <- function(rules, snps, subset=NULL) {
     if (any((subset<1) | (subset>nr)))
       stop("row number out of range in subset argument")
   }
-  .Call("impute_snps", rules, snps, subset, PACKAGE="snpMatrix")
+  .Call("impute_snps", rules, snps, subset, PACKAGE="chopsticks")
 }
 
 # Returns names of rules (imputed snps) which feature excluded SNPs

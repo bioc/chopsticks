@@ -54,7 +54,7 @@ ld.snp <- function(snpdata, depth=100, start=1, end=dim(snpdata)[2], signed.r=FA
       depth <- end - start
 
   ans <- .Call("snp_pair_range", snpdata, start, end, depth, signed.r,
-               PACKAGE="snpMatrix")
+               PACKAGE="chopsticks")
   # ans returns fully formed as a "snp.dprime" object
   # if we need further work we'll insert it here.
   ans
@@ -92,7 +92,7 @@ plot.snp.dprime <- function(x, filename, scheme="standard", do.notes=FALSE, metr
   #}
   
   .Call("snp_dprime_draw", x, filename, int.scheme, int.notes, metric,
-        PACKAGE="snpMatrix") 
+        PACKAGE="chopsticks") 
   # plotting operates entirely on side effects, emit a reminder before returning
   # if (do.notes)
   #   cat("Don't forget to run ps2pdf -dEPSCrop", filename, ".\n")  
@@ -116,7 +116,7 @@ epsout.ld.snp <- function (snpdata, filename, start, end, depth, do.notes=FALSE)
   end  <- as.integer(end)
   
   .Call("snp_pair_graphics", snpdata, filename, start, end, depth, do.notes,
-        PACKAGE="snpMatrix")
+        PACKAGE="chopsticks")
   invisible()
 }
 
@@ -126,7 +126,7 @@ pair.result.ld.snp <- function(snpdata, loc.snpA, loc.snpB) {
     stop("snps argument must be of class snp.matrix/X.snp.matrix")
   
   .Call("snp_pairwise", snpdata, loc.snpA, loc.snpB,
-        PACKAGE="snpMatrix")
+        PACKAGE="chopsticks")
   invisible()
 }
 

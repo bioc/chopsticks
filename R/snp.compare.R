@@ -13,7 +13,7 @@ snp.compare <- function(obj1, obj2) {
               as.integer(sample.count),
               count = integer(snp.count),
               count.signed = integer(snp.count),
-              PACKAGE="snpMatrix"
+              PACKAGE="chopsticks"
               )[c('count', 'count.signed')]
   names(result$count) <- snps.names
   names(result$count.signed) <- snps.names

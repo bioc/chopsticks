@@ -16,16 +16,16 @@ read.snps.long <-function(files, sample.id=NULL, snp.id=NULL, female=NULL,
     mode(fields) <- "integer"
   .Call("insnp_new", files, sample.id, snp.id, female, fields,
         codes, threshold, lower, sep, comment, as.integer(skip),
-        simplify, verbose, in.order, as.integer(every), PACKAGE="snpMatrix")
+        simplify, verbose, in.order, as.integer(every), PACKAGE="chopsticks")
 }
 
 read.mach <- function(file, colnames=NULL, nrow=NULL) {
-  .Call("read_mach", file, colnames, nrow, PACKAGE="snpMatrix")
+  .Call("read_mach", file, colnames, nrow, PACKAGE="chopsticks")
 }
 
 read.impute <- function(file, rownames=NULL, nsnp=NULL, snpcol=2) {
-  .Call("read_impute", file, rownames, nsnp, snpcol, FALSE, PACKAGE="snpMatrix")
+  .Call("read_impute", file, rownames, nsnp, snpcol, FALSE, PACKAGE="chopsticks")
 }
 read.beagle <- function(file, rownames=NULL, nsnp=NULL, header=TRUE) {
-  .Call("read_impute", file, rownames, nsnp, 0, header, PACKAGE="snpMatrix")
+  .Call("read_impute", file, rownames, nsnp, 0, header, PACKAGE="chopsticks")
 }
