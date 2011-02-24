@@ -1,6 +1,6 @@
-\name{snpMatrix-package}
-\alias{snpMatrix-package}
-\alias{snpMatrix}
+\name{chopsticks-package}
+\alias{chopsticks-package}
+\alias{chopsticks}
 \docType{package}
 \title{
 The snp.matrix and X.snp.matrix classes
@@ -10,7 +10,7 @@ Implements classes and methods for large-scale SNP association studies
 }
 \details{
 \tabular{ll}{
-Package: \tab snpMatrix\cr
+Package: \tab chopsticks\cr
 Version: \tab 1.15.5\cr
 Date: \tab 2011-01-24\cr
 Depends: \tab R(>= 2.3.0), survival, methods\cr
@@ -36,9 +36,9 @@ epsout.ld.snp           Function to write an eps file directly to
 example-new             An example of intensity data for SNP genotyping
 families                Test data for family association tests
 filter.rules            Filter a set of imputation rules
-for.exercise            Data for exercise in use of the snpMatrix
+for.exercise            Data for exercise in use of the chopsticks
                         package
-genotype-class          snpMatrix-internal
+genotype-class          chopsticks-internal
 glm.test.control        Set up control object for GLM tests
 ibs.stats               function to calculate the identity-by-state
                         stats of a group of samples
@@ -108,14 +108,14 @@ snp.tests.glm-class     Classes "snp.tests.glm" and
 snp.tests.single-class
                         Classes "snp.tests.single" and
                         "snp.tests.single.score"
-snpMatrix-package       The snp.matrix and X.snp.matrix classes
+chopsticks-package       The snp.matrix and X.snp.matrix classes
 switch.alleles          Switch alleles in columns of a snp.matrix or in
                         test results
 tdt.snp                 1-df and 2-df tests for genetic associations
                         with SNPs (or imputed SNPs) in family data
 test.allele.switch      Test for switch of alleles between two
                         collections
-testdata                Test data for the snpMatrix package
+testdata                Test data for the chopsticks package
 write.snp.matrix        Write a snp.matrix object as a text file
 wtccc.sample.list       read the sample list from the header of the
                         WTCCC signal file format
@@ -127,7 +127,7 @@ Further information is available in the following vignettes:
 \code{clustering-comparison-vignette} \tab Rill (source, pdf)\cr
 \code{imputation-vignette} \tab Imputation and meta-analysis (source, pdf)\cr
 \code{pca-vignette} \tab Principal components analysis (source, pdf)\cr
-\code{snpMatrix-vignette} \tab snpMatrix introduction (source, pdf)\cr
+\code{chopsticks-vignette} \tab chopsticks introduction (source, pdf)\cr
 \code{tdt-vignette} \tab TDT tests (source, pdf)\cr
 }
 }

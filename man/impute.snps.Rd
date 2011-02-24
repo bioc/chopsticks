@@ -2,7 +2,7 @@
 \alias{impute.snps}
 \title{Impute snps}
 \description{
-Given SNPs stored in an object of class \code{"snpMatrix"} or
+Given SNPs stored in an object of class \code{"chopsticks"} or
 \code{"X.snp.matrix"} and a set of imputation equations in as object of
 class \code{"snp.reg.imputation"}, this function calculates imputed values.
 }
@@ -12,7 +12,7 @@ impute.snps(rules, snps, subset=NULL)
 \arguments{
   \item{rules}{The imputation equations; an object of class
     \code{"snp.reg.imputation"}}
-  \item{snps}{The object of class \code{"snpMatrix"} or
+  \item{snps}{The object of class \code{"chopsticks"} or
     \code{"X.snp.matrix"} containing the observed SNPs}
   \item{subset}{A vector describing the subset of subjects
     to be used. If \code{NULL} (default), then use all subjects}

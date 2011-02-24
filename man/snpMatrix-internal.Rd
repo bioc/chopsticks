@@ -1,5 +1,5 @@
-\title{snpMatrix-internal}
-\name{snpMatrix-internal}
+\title{chopsticks-internal}
+\name{chopsticks-internal}
 \alias{genotype-class}
 \alias{haplotype-class}
 \description{All the dirty details that don't belong elsewhere. At the
