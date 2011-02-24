@@ -42,7 +42,7 @@ This function works by recursive calls to the generic function
 }
 \examples{
 # An artificial example which simply doubles the size of a study
-library(snpMatrix)
+library(chopsticks)
 data(testdata)
 sst <- single.snp.tests(snp.data=Autosomes, cc, data=subject.data,
          score=TRUE)

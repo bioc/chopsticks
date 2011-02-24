@@ -40,7 +40,7 @@ switch.alleles(x, snps)
   \code{\link{snp.tests.glm-class}}
 }
 \examples{
-library(snpMatrix)
+library(chopsticks)
 data(testdata)
 which <-  c("173774", "173811")
 Asw <- switch.alleles(Autosomes, which)

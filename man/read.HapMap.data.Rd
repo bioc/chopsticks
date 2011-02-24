@@ -100,7 +100,7 @@ read.HapMap.data(url, verbose=FALSE, save=NULL, ...)
 ## ** to time and the build number in the URL changes.
 ## ** The follow is valid as of Aug 2009:
 
-> library(snpMatrix)
+> library(chopsticks)
 > testurl <- "http://ftp.hapmap.org/genotypes/latest/forward/non-redundant/genotypes_chr1_CEU_r27_nr.b36_fwd.txt.gz"
 > result1 <- read.HapMap.data(testurl)
 trying URL

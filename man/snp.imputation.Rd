@@ -91,7 +91,7 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try=50, stopping=c(0.95, 4, 0.05
   \code{\link{imputation.maf}}, \code{\link{imputation.r2}}}
 \examples{
 # Remove 5 SNPs from a datset and derive imputation rules for them
-library(snpMatrix)
+library(chopsticks)
 data(for.exercise)
 sel <- c(20, 1000, 2000, 3000, 5000)
 to.impute <- snps.10[,sel]
