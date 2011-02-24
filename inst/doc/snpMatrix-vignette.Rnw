@@ -10,10 +10,10 @@
 bookmarks,
 bookmarksopen,
 pdfauthor={David Clayton and Chris Wallace},
-pdftitle={snpMatrix Vignette}]
+pdftitle={chopsticks Vignette}]
 {hyperref}
 
-\title{snpMatrix vignette\\Example of genome-wide association testing}
+\title{chopsticks vignette\\Example of genome-wide association testing}
 \author{David Clayton and Chris Wallace}
 \date{\today}
 
@@ -23,13 +23,13 @@ pdftitle={snpMatrix Vignette}]
 \begin{document}
 \setkeys{Gin}{width=1.0\textwidth}
 
-%\VignetteIndexEntry{snpMatrix introduction}
-%\VignettePackage{snpMatrix}
+%\VignetteIndexEntry{chopsticks introduction}
+%\VignettePackage{chopsticks}
 
 \maketitle
 
-\section*{The {\tt snpMatrix} package}
-The package ``{\tt snpMatrix}'' was written to provide data classes
+\section*{The {\tt chopsticks} package}
+The package ``{\tt chopsticks}'' was written to provide data classes
 and methods to
 facilitate the analysis of whole genome association studies in R.
 In the data classes it implements,
@@ -62,12 +62,12 @@ the packages and the data to be used in the first part of this
 exercise, which concerns a population--based case--control study:
 
 <<init>>=
-require(snpMatrix)
+require(chopsticks)
 require(hexbin)
 data(for.exercise)
 @ 
 
-In addition to the {\tt snpMatrix} package, we have also loaded the
+In addition to the {\tt chopsticks} package, we have also loaded the
 {\tt hexbin} package which reduces file sizes and legibility of plots
 with very many data points.
 
@@ -122,7 +122,7 @@ In general, analysis of a whole--genome association study will require
 a subject support data frame, a SNP support data frame for each
 chromosome, and a SNP data file for each chromosome\footnote{
 Support files are usually read in with general tools such as {\tt
-  read.table}. The {\tt snpMatrix} package contains a number of tools
+  read.table}. The {\tt chopsticks} package contains a number of tools
 for reading SNP genotype data into an object of class ``{\tt
   snp.matrix}''.}.
 
@@ -428,7 +428,7 @@ in the final part of the exercise.
 A prerequisite to multi-locus analyses is to
 decide on how SNPs should be grouped in order to ``tag'' the genome
 rather more completely than by use of single markers. Hopefully, the {\tt
-  snpMatrix} package will eventually contain tools to compute such
+  chopsticks} package will eventually contain tools to compute such
 groups, for example, by using HapMap data. The function {\tt
   ld.snp}, which we encountered earlier, will be an essential tool in
 this process. However this work is not complete and, for now, we

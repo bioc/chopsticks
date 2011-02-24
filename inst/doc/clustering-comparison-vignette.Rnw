@@ -30,7 +30,7 @@ pdftitle={Comparing clustering algorithms}]
 This document is the accumulation of a few somewhat unrelated threads of development:
 
 \begin{itemize}
-\item During the WTCCC study (phase 1, for which {\tt snpMatrix} was written), some multi-panel colourised cluster-plot
+\item During the WTCCC study (phase 1, for which {\tt chopsticks} was written), some multi-panel colourised cluster-plot
 drawing code in R, mainly to verify the validity of cluster across cohorts. e.g. a 3x3 panel works very well for 7 common
 diseases plus 2 controls. This becomes {\tt snp.clust.plot} function described later.
 \item When I noticed from looking at the cluster plots of some Illumina data I was working on that
@@ -55,19 +55,19 @@ Using the 1550 samples of 99 SNPs of the Illuminus example set (the data is neit
 but ``real'' data requires scrubbing and obfuscating). Reading the genotypes in:
 
 <<init>>=
-library(snpMatrix)
-load(system.file("data/Genotypes.GenTrain1.Rda",package="snpMatrix"))
-load(system.file("data/Genotypes.GenTrain2.Rda",package="snpMatrix"))
+library(chopsticks)
+load(system.file("data/Genotypes.GenTrain1.Rda",package="chopsticks"))
+load(system.file("data/Genotypes.GenTrain2.Rda",package="chopsticks"))
 @
 
 Reading the raw cluster data in:
 
 <<>>=
-ab.signals <- read.wtccc.signals(system.file("data/example-new.txt", package="snpMatrix"),
+ab.signals <- read.wtccc.signals(system.file("data/example-new.txt", package="chopsticks"),
                                  paste("rs", 1:99, sep=""))
 @
 
-We'll just quickly run snpMatrix's SNP summary function to verify:
+We'll just quickly run chopsticks's SNP summary function to verify:
 
 <<>>=
 col.summary(GenTrain2)[1:3,2:7]

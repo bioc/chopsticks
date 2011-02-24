@@ -10,10 +10,10 @@
 bookmarks,
 bookmarksopen,
 pdfauthor={David Clayton},
-pdftitle={Imputed SNP analyses with snpMatrix}]
+pdftitle={Imputed SNP analyses with chopsticks}]
 {hyperref}
 
-\title{Imputed SNP analyses and meta-analysis with snpMatrix}
+\title{Imputed SNP analyses and meta-analysis with chopsticks}
 \author{David Clayton}
 \date{\today}
 
@@ -23,7 +23,7 @@ pdftitle={Imputed SNP analyses with snpMatrix}]
 \begin{document}
 \setkeys{Gin}{width=1.0\textwidth}
 %\VignetteIndexEntry{Imputation and meta-analysis}
-%\VignettePackage{snpMatrix}
+%\VignettePackage{chopsticks}
 
 \maketitle
 
@@ -49,7 +49,7 @@ include:
   such as the Affymetrix 500K and Illumina 550K platforms.
 \end{itemize}
 Here we will not use a real example such as the above to explore the
-use of {\tt snpMatrix} for imputation, 
+use of {\tt chopsticks} for imputation, 
 but generate a fictitious example using the
 data analysed in earlier exercises. This is particularly artificial in
 that we have seen that these data suffer from extreme heterogeneity of 
@@ -59,7 +59,7 @@ We start by attaching the required libraries and accessing the data
 used in the exercises:
 
 <<init>>=
-library(snpMatrix)
+library(chopsticks)
 library(hexbin)
 data(for.exercise)
 @ 
@@ -243,8 +243,8 @@ hexVP.abline(sp$plot.vp, 0, 1, col="black")
 As stated at the beginning of this document, one of the main reasons
 that we need imputation is to perform meta-analyses which bring
 together data from genome-wide studies which use different platforms. 
-The {\tt snpMatrix} package includes a number of tools to facilitate
-this. All the tests implemented in {\tt snpMatrix} are ``score''
+The {\tt chopsticks} package includes a number of tools to facilitate
+this. All the tests implemented in {\tt chopsticks} are ``score''
 tests. In the 1 df case we calculate a score defined by 
 the first derivative of the log
 likelihood function with respect to the association parameter of
@@ -257,7 +257,7 @@ hypothesis, we simply add together the two values of $U$ and the two
 values of $V$, and then calculate $U^2/V$ as before. These ideas also
 extend naturally to tests of several parameters (2 or more df tests).
 
-In {\tt snpMatrix}, the statistical testing functions can be
+In {\tt chopsticks}, the statistical testing functions can be
 called with the option {\tt score=TRUE}, causing an extended object to
 be saved. The extended object contains the $U$ and $V$ values, thus
 allowing later combination of the evidence from different
@@ -323,7 +323,7 @@ association when pooled. Although it is not impossible that such
 results are genuine, a more usual explanation is that the two alleles
 have been coded differently in the two studies: allele~1 in the first
 study is allele~2 in the second study and vice versa. To allow for
-this, {\tt snpMatrix} provides the {\tt switch.alleles} function, which
+this, {\tt chopsticks} provides the {\tt switch.alleles} function, which
 reverses the coding of specified SNPs. It can be applied to {\tt
   snp.matrix} objects but, because allele switches are often
 discovered quite late on in the analysis and recoding the original
