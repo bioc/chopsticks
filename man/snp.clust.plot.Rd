@@ -30,9 +30,9 @@ See vignette for usage.
 \code{\link{read.wtccc.signals}}, \code{\link{snp.matrix-class}}
 }
 \examples{
-load(system.file("data/Genotypes.GenTrain1.Rda",package="snpMatrix"))
+load(system.file("data/Genotypes.GenTrain1.Rda",package="chopsticks"))
 ab.signals <- read.wtccc.signals(system.file("data/example-new.txt",
-package="snpMatrix"),"rs1")
+package="chopsticks"),"rs1")
 snp.clust.plot(ab.signals[['rs1']], GenTrain1[,'rs1'], title='test')
 }
 \keyword{hplot}

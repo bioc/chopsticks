@@ -29,8 +29,8 @@ call differences, for each SNP
 }
 \author{Hin-Tak Leung \email{htl10@users.sourceforge.net}}
 \examples{
-load(system.file("data/Genotypes.GenTrain1.Rda",package="snpMatrix"))
-load(system.file("data/Genotypes.GenTrain2.Rda",package="snpMatrix"))
+load(system.file("data/Genotypes.GenTrain1.Rda",package="chopsticks"))
+load(system.file("data/Genotypes.GenTrain2.Rda",package="chopsticks"))
 a<- snp.compare(GenTrain1, GenTrain2)
 hist(a$count,breaks=50,col='black')
 }
