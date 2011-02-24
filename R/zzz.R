@@ -1,5 +1,5 @@
 .onLoad <- function(libname, package) {
-  library.dynam("snpMatrix", package)
+  library.dynam("chopsticks", package)
   methods:::bind_activation(TRUE)
 }
 

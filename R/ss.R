@@ -87,7 +87,7 @@ setMethod("[", signature(x="snp.matrix",i="ANY",j="ANY",drop="ANY"),
               } else { 
                 "snp"
               }
-            attr(cl, "package") <- "snpMatrix"
+            attr(cl, "package") <- "chopsticks"
             class(x) <- cl
             # setting an S4 class doesn't not automatically
             # set the object's internal tag; do it manually
