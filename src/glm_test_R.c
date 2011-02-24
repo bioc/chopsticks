@@ -346,7 +346,7 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
   else 
     SET_STRING_ELT(Class, 0, mkChar("snp.tests.glm"));
   PROTECT(Package = allocVector(STRSXP, 1));
-  SET_STRING_ELT(Package, 0, mkChar("snpMatrix"));
+  SET_STRING_ELT(Package, 0, mkChar("chopsticks"));
   setAttrib(Class, install("package"), Package);
   classgets(Result, Class);
 
@@ -858,7 +858,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   else
     SET_STRING_ELT(Class, 0, mkChar("snp.tests.glm"));
   PROTECT(Package = allocVector(STRSXP, 1));
-  SET_STRING_ELT(Package, 0, mkChar("snpMatrix"));
+  SET_STRING_ELT(Package, 0, mkChar("chopsticks"));
   setAttrib(Class, install("package"), Package);
   classgets(Result, Class);
   nprot += 2;
@@ -987,7 +987,7 @@ SEXP pool2_glm(SEXP X, SEXP Y, SEXP If_score) {
   else
     SET_STRING_ELT(Class, 0, mkChar("snp.tests.glm"));
   PROTECT(Package = allocVector(STRSXP, 1));
-  SET_STRING_ELT(Package, 0, mkChar("snpMatrix"));
+  SET_STRING_ELT(Package, 0, mkChar("chopsticks"));
   setAttrib(Class, install("package"), Package);
   classgets(Result, Class);
   nprot += 2;
@@ -1266,7 +1266,7 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
   PROTECT(Class = allocVector(STRSXP, 1));
   SET_STRING_ELT(Class, 0, mkChar("snp.estimates.glm"));
   PROTECT(Package = allocVector(STRSXP, 1));
-  SET_STRING_ELT(Package, 0, mkChar("snpMatrix"));
+  SET_STRING_ELT(Package, 0, mkChar("chopsticks"));
   setAttrib(Class, install("package"), Package);
   classgets(Estimates, Class);
 
@@ -1638,7 +1638,7 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
   PROTECT(Class = allocVector(STRSXP, 1));
   SET_STRING_ELT(Class, 0, mkChar("snp.estimates.glm"));
   PROTECT(Package = allocVector(STRSXP, 1));
-  SET_STRING_ELT(Package, 0, mkChar("snpMatrix"));
+  SET_STRING_ELT(Package, 0, mkChar("chopsticks"));
   setAttrib(Class, install("package"), Package);
   classgets(Estimates, Class);
 

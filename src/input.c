@@ -325,7 +325,7 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
     SET_STRING_ELT(Class, 0, mkChar("snp.matrix"));
   }
   PROTECT(Package = allocVector(STRSXP, 1));
-  SET_STRING_ELT(Package, 0, mkChar("snpMatrix"));
+  SET_STRING_ELT(Package, 0, mkChar("chopsticks"));
   setAttrib(Class, install("package"), Package);
   classgets(Result, Class);
   SET_S4_OBJECT(Result);

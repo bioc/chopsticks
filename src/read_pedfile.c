@@ -436,7 +436,7 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
   }
   SEXP Package;
   PROTECT(Package = allocVector(STRSXP, 1));
-  SET_STRING_ELT(Package, 0, mkChar("snpMatrix"));
+  SET_STRING_ELT(Package, 0, mkChar("chopsticks"));
   setAttrib(snp_data_class, install("package"), Package);
   classgets(snp_data, snp_data_class);
   SET_S4_OBJECT(snp_data);
