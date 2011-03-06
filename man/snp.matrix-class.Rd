@@ -88,7 +88,7 @@ Class \code{"vector"}, by class "matrix", with explicit coerce.
 
 	 }
 }
-\references{\url{http://www-gene.cimr.cam.ac.uk/clayton}}
+\references{\url{http://sourceforge.net/projects/outmodedbonsai/}}
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
 \note{This class requires at least version 2.3 of R}
 \seealso{\code{\link{snp-class}}, \code{\link{X.snp-class}},

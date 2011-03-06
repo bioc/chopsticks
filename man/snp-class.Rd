@@ -34,7 +34,7 @@
       vector of missing call indicators}
   }
 }
-\references{\url{http://www-gene.cimr.cam.ac.uk/clayton}}
+\references{\url{http://sourceforge.net/projects/outmodedbonsai/}}
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
 \seealso{\code{\link{snp.matrix-class}},
   \code{\link{X.snp.matrix-class}}, \code{\link{X.snp-class}}

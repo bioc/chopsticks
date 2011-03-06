@@ -60,7 +60,7 @@ Class \code{"vector"}, by class "snp.matrix", with explicit coerce.
       \code{\link{row.summary}} and \code{\link{col.summary}}}
   }
 }
-\references{\url{http://www-gene.cimr.cam.ac.uk/clayton}}
+\references{\url{http://sourceforge.net/projects/outmodedbonsai/}}
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
 \seealso{\code{\link{X.snp-class}}, \code{\link{snp.matrix-class}},
     \code{\link{snp-class}}

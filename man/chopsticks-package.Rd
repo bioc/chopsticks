@@ -18,7 +18,7 @@ Imports: \tab graphics, grDevices, methods, stats, survival, utils\cr
 Suggests: \tab hexbin\cr
 Enhances: \tab genetics\cr
 License: \tab GPL-3\cr
-URL: \tab http://www-gene.cimr.cam.ac.uk/clayton/software/\cr
+URL: \tab http://sourceforge.net/projects/outmodedbonsai//software/\cr
 Collate: \tab ld.with.R ss.R contingency.table.R glm-test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq-chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R snp.compare.R tdt-single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R\cr
 LazyLoad: \tab yes\cr
 biocViews: \tab Microarray, SNP, GeneticVariability\cr

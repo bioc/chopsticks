@@ -41,7 +41,7 @@ Class \code{"vector"}, by class \code{"snp"}.
       representation of the object}
   }
 }
-\references{\url{http://www-gene.cimr.cam.ac.uk/clayton}}
+\references{\url{http://sourceforge.net/projects/outmodedbonsai/}}
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
 \seealso{\code{\link{X.snp.matrix-class}},
   \code{\link{snp.matrix-class}}, \code{\link{snp-class}}

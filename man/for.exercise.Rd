@@ -46,7 +46,7 @@ multiplicative effects of 1.3, 1.4 and 1.5 for each copy of the risk allele.
   (see \url{http://www-gene.cimr.cam.ac.uk/todd})
 }
 \references{
-  \url{http://www-gene.cimr.cam.ac.uk/clayton}
+  \url{http://sourceforge.net/projects/outmodedbonsai/}
 }
 \examples{
 data(for.exercise)

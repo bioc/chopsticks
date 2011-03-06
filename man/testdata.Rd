@@ -45,7 +45,7 @@
   (see \url{http://www-gene.cimr.cam.ac.uk/todd})
 }
 \references{
-  \url{http://www-gene.cimr.cam.ac.uk/clayton}
+  \url{http://sourceforge.net/projects/outmodedbonsai/}
 }
 \examples{
 data(testdata)
