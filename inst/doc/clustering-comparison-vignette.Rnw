@@ -63,7 +63,7 @@ load(system.file("data/Genotypes.GenTrain2.Rda",package="chopsticks"))
 Reading the raw cluster data in:
 
 <<>>=
-ab.signals <- read.wtccc.signals(system.file("data/example-new.txt", package="chopsticks"),
+ab.signals <- read.wtccc.signals(system.file("extdata/example-new.txt", package="chopsticks"),
                                  paste("rs", 1:99, sep=""))
 @
 
