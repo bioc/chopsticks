@@ -41,7 +41,7 @@ SEXP X_snp_summary(const SEXP Snps, const SEXP Uncertain) {
 
   if (TYPEOF(Uncertain) != LGLSXP)
     error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
+  /* int uncert = *LOGICAL(Uncertain); */
 
   /* Output object */
 
@@ -197,7 +197,7 @@ SEXP snp_summary(const SEXP Snps, const SEXP Uncertain) {
 
   if (TYPEOF(Uncertain) != LGLSXP)
     error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
+  /* int uncert = *LOGICAL(Uncertain); */
 
   /* Output object */
 

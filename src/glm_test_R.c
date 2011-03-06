@@ -142,7 +142,7 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
 
   if (TYPEOF(Uncertain) != LGLSXP)
     error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
+  /* int uncert = *LOGICAL(Uncertain); */
   
   /* Control object */
 
@@ -555,7 +555,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 
   if (TYPEOF(Uncertain) != LGLSXP)
     error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
+  /* int uncert = *LOGICAL(Uncertain); */
 
   if (TYPEOF(Control)!=VECSXP || LENGTH(Control)!=3) 
     error("Argument error - Control");

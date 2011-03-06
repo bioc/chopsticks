@@ -76,7 +76,7 @@ SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
 
   if (TYPEOF(Uncertain) != LGLSXP)
     error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
+  /* int uncert = *LOGICAL(Uncertain); */
 
   /* Result matrix */
 
@@ -201,7 +201,7 @@ SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
 
   if (TYPEOF(Uncertain) != LGLSXP)
     error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
+  /* int uncert = *LOGICAL(Uncertain); */
 
   /* Result matrix */
 

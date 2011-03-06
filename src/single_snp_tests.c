@@ -139,7 +139,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 
   if (TYPEOF(Uncertain) != LGLSXP)
     error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
+  /* int uncert = *LOGICAL(Uncertain); */
 
  
   /* Output objects */

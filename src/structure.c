@@ -123,7 +123,7 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
 
   if (TYPEOF(Uncertain) != LGLSXP)
     error("Argument error: Uncertainty is wrong type");
-  int uncert = *LOGICAL(Uncertain);
+  /* int uncert = *LOGICAL(Uncertain); */
 
   /* Result matrix */
 
@@ -310,7 +310,7 @@ SEXP corsm(const SEXP Snps, const SEXP X, const SEXP Uncertain) {
 
   if (TYPEOF(Uncertain) != LGLSXP)
     error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
+  /* int uncert = *LOGICAL(Uncertain); */
 
   SEXP Result;
   PROTECT(Result = allocMatrix(REALSXP, M, P));
@@ -410,7 +410,7 @@ SEXP ibs_count(const SEXP Snps, const SEXP Uncertain) {
 
   if (TYPEOF(Uncertain) != LGLSXP)
     error("Argument error: Uncertain is wrong type");
-  int uncert = *LOGICAL(Uncertain);
+  /* int uncert = *LOGICAL(Uncertain); */
 
   /* Result matrix */
 
