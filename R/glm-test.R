@@ -279,7 +279,7 @@ function(formula, family="binomial", link, weights, subset,
   # Prior weights
 
   if (!is.null(model.weights(m))) {
-    cat("One\n")
+    message("One\n")
     weights <- model.weights(m)
     if (any(weights<0))
       stop("negative prior weights not allowed")
@@ -653,7 +653,7 @@ function(formula, family="binomial", link, weights, subset,
   # Prior weights
 
   if (!is.null(model.weights(m))) {
-    cat("One\n")
+    message("One\n")
     weights <- model.weights(m)
     if (any(weights<0))
       stop("negative prior weights not allowed")

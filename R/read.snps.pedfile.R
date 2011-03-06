@@ -26,14 +26,14 @@ read.snps.pedfile <- function(file, snp.names=NULL, assign=NULL, missing=NULL, X
       info.file <- sub('\\.ped$', '.info', file)
     }
     if (!(file.access(map.file,mode=4))) {
-      cat("Found accompanying map file, reading it first\n")
+      message("Found accompanying map file, reading it first\n")
       snp.info <- read.pedfile.map(map.file)
       snp.names <- rownames(snp.info)
       join.info <- TRUE    
     } else
     if (!(file.access(info.file,mode=4))) {
       # file.access() return 0 for success
-      cat("Found accompanying info file, reading it first\n")
+      message("Found accompanying info file, reading it first\n")
       snp.info <- read.pedfile.info(info.file)
       snp.names <- rownames(snp.info)
       join.info <- TRUE
@@ -41,7 +41,7 @@ read.snps.pedfile <- function(file, snp.names=NULL, assign=NULL, missing=NULL, X
   }
   if (!is.null(snp.names)) {
     snp.names <- as.character(snp.names)
-    cat(length(snp.names), "SNPs are to be read in\n")
+    message(length(snp.names), "SNPs are to be read in\n")
   }
   if (!is.null(missing)) {
     missing <- as.character(missing)

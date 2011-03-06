@@ -29,12 +29,12 @@ read.HapMap.data <- function(url, verbose=FALSE, save=NULL, ...) {
     snp.result$snp.support$Strand       <- as.factor(snp.result$snp.support$Strand      )
     if (!length(save)) {  
       if(unlink(saved.file)) { # zero is success for unlink()
-        cat("removing temp file failed - this is not fatal\n");
+        message("removing temp file failed - this is not fatal\n");
       }
     }
-    cat(" ...conversion complete...\n");
+    message(" ...conversion complete...\n");
   } else {
-    cat("conversion failed\ntemp file left at ",
+    message("conversion failed\ntemp file left at ",
         saved.file,
         " for retrying conversion locally with url file://\n");
   }

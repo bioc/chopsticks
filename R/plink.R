@@ -13,21 +13,21 @@ read.plink <- function(bed, bim, fam) {
     fam <- paste(stub, ".fam", sep="")
   df.bim <- read.table(bim)
   snps <- as.character(df.bim[,2])
-  cat("Number of SNPs: ", length(snps), "\n")
+  message("Number of SNPs: ", length(snps), "\n")
   if (any(duplicated(snps)))
     stop("Duplicated SNP name(s)")
-  cat(head(snps), " ...\n")
+  message(head(snps), " ...\n")
   df.fam <- read.table(fam)
   ped <- as.character(df.fam[,1])
   id <- as.character(df.fam[,2])
-  cat("Number of samples: ", length(id), "\n")
+  message("Number of samples: ", length(id), "\n")
   if (any(duplicated(id))) {
-    cat("Subject IDs not unique - concatenating with pedigree IDs\n")
+    message("Subject IDs not unique - concatenating with pedigree IDs\n")
     id <- paste(ped, id, sep=":")
     if (any(duplicated(id)))
       stop("Sample IDs are still not unique")
   }
-  cat(head(id), "...\n")
+  message(head(id), "...\n")
   .Call("readbed", bed, id, snps, PACKAGE="chopsticks") 
 }
 
@@ -254,7 +254,7 @@ write.plink <- function(file.base, snp.major=TRUE, snps,
 
   famdf <- data.frame(pedigree, id, father, mother, sex, phenotype)
   famfn <- paste(file.base, "fam", sep=".")
-  cat("Writing FAM file to", famfn, "\n")
+  message("Writing FAM file to", famfn, "\n")
   write.table(famdf, file=famfn, row.names=FALSE, col.names=FALSE,
               quote=FALSE, sep="\t")
 
@@ -262,15 +262,15 @@ write.plink <- function(file.base, snp.major=TRUE, snps,
   mapdf <- data.frame(chromosome, colnames(snps), genetic.distance,
                       position, allele.1, allele.2)
   mapfn <- paste(file.base, "bim", sep=".")
-  cat("Writing extended MAP file to", mapfn, "\n")
+  message("Writing extended MAP file to", mapfn, "\n")
   write.table(mapdf, file=mapfn, row.names=FALSE, col.names=FALSE,
               quote=FALSE, sep="\t")
 
   bedfn <- paste(file.base, "bed", sep=".")
-  cat("Writing BED file to ", bedfn, " (", sep="")
+  message("Writing BED file to ", bedfn, " (", sep="")
   if (snp.major)
-    cat("SNP-major mode)\n")
+    message("SNP-major mode)\n")
   else
-    cat("Subject-major mode)\n")
+    message("Subject-major mode)\n")
   .Call("writebed", snps, bedfn, snp.major, PACKAGE="chopsticks")
 }

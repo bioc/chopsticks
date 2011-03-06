@@ -23,11 +23,11 @@ setMethod("initialize",
             # The accessor methods transparently passes to .Data, the assignment methods are different...
             if(!is.null(dim(.Object)) && (dim(.Object)[1] > 0) && (dim(.Object)[2] > 0)) {
               if (mode(.Object) != "raw") {
-                cat("coercing object of mode ", mode(.Object), " to snp.matrix\n")
+                message("coercing object of mode ", mode(.Object), " to snp.matrix\n")
                 mode(.Object@.Data) <- "raw"
               }
               if (is.null(dimnames(.Object))) {
-                cat("object has no names - using numeric order for row/column names\n")
+                message("object has no names - using numeric order for row/column names\n")
                 dimnames(.Object@.Data) <- c(list(as.character(1:(dim(.Object)[1]))), list(as.character(1:(dim(.Object)[2]))))
               }
             }
@@ -309,13 +309,13 @@ setMethod("show", "snp.reg.imputation",
      to <- names(object)
      for (i in 1:length(object)) {
        if (is.null(object[[i]]$snps))
-         cat(to[i], "~ No imputation available\n")
+         message(to[i], "~ No imputation available\n")
        else {
          if (is.null(object[[i]]$hap.probs)) 
-           cat(to[i], " ~ ", paste(object[[i]]$snps, collapse="+"))
+           message(to[i], " ~ ", paste(object[[i]]$snps, collapse="+"))
          else 
-           cat(to[i], " ~ ", paste(object[[i]]$snps, collapse="*"))
-         cat(" (MAF = ", object[[i]]$maf, 
+           message(to[i], " ~ ", paste(object[[i]]$snps, collapse="*"))
+         message(" (MAF = ", object[[i]]$maf, 
              ", R-squared = ", object[[i]]$r.squared,
              ")\n", sep="")
        }
@@ -343,18 +343,18 @@ setMethod("show", "X.snp.matrix",
    function(object) {
      nr <- nrow(object)
      nc <- ncol(object) 
-     cat("An X.snp.matrix with ", nr, "rows and ", nc,
+     message("An X.snp.matrix with ", nr, "rows and ", nc,
          "columns, \nholding data for ")
      fem <- object@Female
-     cat(sum(!fem), " males and ", sum(fem), " females\n")
+     message(sum(!fem), " males and ", sum(fem), " females\n")
      if (nr>1)
-       cat("Row names: ", rownames(object)[1],"...", rownames(object)[nr],"\n")
+       message("Row names: ", rownames(object)[1],"...", rownames(object)[nr],"\n")
      else
-       cat("Row name: ", rownames(object)[1], "\n")
+       message("Row name: ", rownames(object)[1], "\n")
      if (nc>1)
-       cat("Col names: ", colnames(object)[1],"...", colnames(object)[nc],"\n")
+       message("Col names: ", colnames(object)[1],"...", colnames(object)[nc],"\n")
      else
-       cat("Col name: ", colnames(object)[1],"\n")
+       message("Col name: ", colnames(object)[1],"\n")
        
    })
 
@@ -362,16 +362,16 @@ setMethod("show", "snp.matrix",
    function(object) {
      nr <- nrow(object)
      nc <- ncol(object) 
-     cat("A snp.matrix with ", nr, "rows and ", nc,
+     message("A snp.matrix with ", nr, "rows and ", nc,
          "columns\n")
      if (nr>1)
-       cat("Row names: ", rownames(object)[1],"...", rownames(object)[nr],"\n")
+       message("Row names: ", rownames(object)[1],"...", rownames(object)[nr],"\n")
      else
-       cat("Row name: ", rownames(object)[1],"\n")
+       message("Row name: ", rownames(object)[1],"\n")
      if (nc>1)
-       cat("Col names: ", colnames(object)[1],"...", colnames(object)[nc],"\n")
+       message("Col names: ", colnames(object)[1],"...", colnames(object)[nc],"\n")
      else
-       cat("Col name: ", colnames(object)[1],"\n")
+       message("Col name: ", colnames(object)[1],"\n")
    })
 
 
@@ -379,15 +379,15 @@ setMethod("show", "X.snp",
           function(object) {
             fem <- object@Female
             if (length(fem)==1) {
-              cat("Snp(s) on the X chromosome ")
+              message("Snp(s) on the X chromosome ")
               if (fem)
-                cat(" (female)\n")
+                message(" (female)\n")
               else
-                cat(" (male)\n")
+                message(" (male)\n")
               print(as(object, "character"))
             }
             else {
-              cat("A snp on the X chromosome in",
+              message("A snp on the X chromosome in",
                   sum(!fem), " males and ", sum(fem), " females\n")
               print(as(object, "character"))
             }
@@ -397,7 +397,7 @@ setMethod("show", "X.snp",
 
 setMethod("show", "snp",
           function(object) {
-            cat("Autosomal snp(s):\n")
+            message("Autosomal snp(s):\n")
             print(as(object, "character"))
           })
 
@@ -960,7 +960,7 @@ setMethod("show", "snp.estimates.glm",
             nwidth <- 10
             di <- 5
             divide <- rep("-", len0+len1+len2+3*nwidth+5*space)
-            cat("\n", format("Model", justify="right", width=len0),
+            message("\n", format("Model", justify="right", width=len0),
                 format("Y-variable", justify="right", width=len1+space),
                 format("Parameter", justify="right", width=len2+space),
                 format("Estimate", justify="right", width=nwidth+space),
@@ -972,7 +972,7 @@ setMethod("show", "snp.estimates.glm",
               labj <- labs[j]
               x <- object[[j]]
               if (is.null(x)) {
-                cat(format(labj, justify="right", width=len1),
+                message(format(labj, justify="right", width=len1),
                     "- No estimates available\n") 
               }
               else {
@@ -985,11 +985,11 @@ setMethod("show", "snp.estimates.glm",
                   bi <- x$beta[i]
                   si <- sqrt(x$Var.beta[ii])
                   zi <- bi/si
-                  cat(format(labj, justify="right", width=len0), sep="")
-                  cat(format(nyj, justify="right", width=len1+space), sep="")
+                  message(format(labj, justify="right", width=len0), sep="")
+                  message(format(nyj, justify="right", width=len1+space), sep="")
                   labj <- ""
                   nyj <- ""
-                  cat(format(namep[i], justify="right", width=len2+space),
+                  message(format(namep[i], justify="right", width=len2+space),
                       format(bi, justify="right", width=nwidth+space,
                              digits=di),
                       format(si, justify="right", width=nwidth+space,
@@ -998,7 +998,7 @@ setMethod("show", "snp.estimates.glm",
                       "\n", sep="")
                 }
               }
-              cat(divide, "\n", sep="")
+              message(divide, "\n", sep="")
             }
           }
           )

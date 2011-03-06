@@ -105,7 +105,7 @@ tdt.snp <- function(ped, id, father, mother, affected,
                                  (!is.na(mpos)) & (have.snps[mpos])
   ntrio <- sum(trio, na.rm=TRUE)
   if (ntrio==0) {
-    cat("No potentially complete trios to analyse\n")
+    message("No potentially complete trios to analyse\n")
     return(NULL)
   }
   pd.snps <- in.snp[trio] # Proband rows in snp.matrix
@@ -114,7 +114,7 @@ tdt.snp <- function(ped, id, father, mother, affected,
   
   clust <-   as.integer(factor(ped[trio]))
   cord <- order(clust)
-  cat("Analysing", ntrio, "potentially complete trios in", max(clust),
+  message("Analysing", ntrio, "potentially complete trios in", max(clust),
       "different pedigrees\n")
 
   # Calculate scores and score variances
@@ -227,7 +227,7 @@ misinherits <- function(ped, id, father, mother, data=sys.parent(), snp.data){
                                  (!is.na(mpos)) & (have.snps[mpos])
   ntrio <- sum(trio)
   if (ntrio==0) {
-    cat("No potentially complete trios to analyse\n")
+    message("No potentially complete trios to analyse\n")
     return(NULL)
   }
   pd.snps <- in.snp[trio] # Proband rows in snp.matrix

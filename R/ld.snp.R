@@ -87,15 +87,15 @@ plot.snp.dprime <- function(x, filename, scheme="standard", do.notes=FALSE, metr
   } # everything else is assumed FALSE
   
   #if (length(x$snp.names) > 1200) {
-  #  cat("Acrobat reader has an implemention limit of 200 inches\n")
-  #  cat("You will need a different pdf reader, e.g. xpdf/kpdf/evince/gsview\n")
+  #  message("Acrobat reader has an implemention limit of 200 inches\n")
+  #  message("You will need a different pdf reader, e.g. xpdf/kpdf/evince/gsview\n")
   #}
   
   .Call("snp_dprime_draw", x, filename, int.scheme, int.notes, metric,
         PACKAGE="chopsticks") 
   # plotting operates entirely on side effects, emit a reminder before returning
   # if (do.notes)
-  #   cat("Don't forget to run ps2pdf -dEPSCrop", filename, ".\n")  
+  #   message("Don't forget to run ps2pdf -dEPSCrop", filename, ".\n")  
   invisible()
 }
 
@@ -153,7 +153,7 @@ print.snp.dprime <- function(x, ..., output="") {
   
   for (i.snp in c( 1:(length(snp.names)-1) )) {
     for (j.snp in c( (i.snp+1):length(snp.names) )) {
-      #cat(i.snp, j.snp, "\n")
+      #message(i.snp, j.snp, "\n")
       step <- j.snp - i.snp
       if (step > max.depth) {
         # the snp.dprime object has no data beyond max.depth
