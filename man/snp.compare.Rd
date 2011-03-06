@@ -1,5 +1,9 @@
 \name{snp.compare}
 \alias{snp.compare}
+\alias{GenTrain1}
+\alias{GenTrain2}
+\alias{Genotypes.GenTrain1}
+\alias{Genotypes.GenTrain2}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 function to do compare two snp.matrix class object
@@ -29,6 +33,7 @@ call differences, for each SNP
 }
 \author{Hin-Tak Leung \email{htl10@users.sourceforge.net}}
 \examples{
+# See "clustering comparison vignette" for detailed description of these two data files:
 load(system.file("data/Genotypes.GenTrain1.RData",package="chopsticks"))
 load(system.file("data/Genotypes.GenTrain2.RData",package="chopsticks"))
 a<- snp.compare(GenTrain1, GenTrain2)
