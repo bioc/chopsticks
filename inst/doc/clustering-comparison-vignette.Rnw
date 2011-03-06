@@ -56,8 +56,8 @@ but ``real'' data requires scrubbing and obfuscating). Reading the genotypes in:
 
 <<init>>=
 library(chopsticks)
-load(system.file("data/Genotypes.GenTrain1.Rda",package="chopsticks"))
-load(system.file("data/Genotypes.GenTrain2.Rda",package="chopsticks"))
+load(system.file("data/Genotypes.GenTrain1.RData",package="chopsticks"))
+load(system.file("data/Genotypes.GenTrain2.RData",package="chopsticks"))
 @
 
 Reading the raw cluster data in:
