@@ -27,5 +27,5 @@ export(epsout.ld.snp, filter.rules, Fst, glm.test.control, ibs.stats, ibsCount,
        snp.cor, snp.imputation, snp.lhs.tests, snp.lhs.estimates,
        snp.post.multiply, snp.pre.multiply,
        snp.rhs.tests, snp.rhs.estimates, tdt.snp,
-       test.allele.switch, write.plink, write.snp.matrix,
+       test.allele.switch, write.plink, write.snp.matrix, wtccc.sample.list,
        xxt)
