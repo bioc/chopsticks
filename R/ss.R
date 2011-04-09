@@ -309,13 +309,13 @@ setMethod("show", "snp.reg.imputation",
      to <- names(object)
      for (i in 1:length(object)) {
        if (is.null(object[[i]]$snps))
-         message(to[i], "~ No imputation available\n")
+         print(to[i], "~ No imputation available\n")
        else {
          if (is.null(object[[i]]$hap.probs)) 
-           message(to[i], " ~ ", paste(object[[i]]$snps, collapse="+"))
+           print(to[i], " ~ ", paste(object[[i]]$snps, collapse="+"))
          else 
-           message(to[i], " ~ ", paste(object[[i]]$snps, collapse="*"))
-         message(" (MAF = ", object[[i]]$maf, 
+           print(to[i], " ~ ", paste(object[[i]]$snps, collapse="*"))
+         print(" (MAF = ", object[[i]]$maf,
              ", R-squared = ", object[[i]]$r.squared,
              ")\n", sep="")
        }
@@ -343,18 +343,18 @@ setMethod("show", "X.snp.matrix",
    function(object) {
      nr <- nrow(object)
      nc <- ncol(object) 
-     message("An X.snp.matrix with ", nr, "rows and ", nc,
+     print("An X.snp.matrix with ", nr, "rows and ", nc,
          "columns, \nholding data for ")
      fem <- object@Female
-     message(sum(!fem), " males and ", sum(fem), " females\n")
+     print(sum(!fem), " males and ", sum(fem), " females\n")
      if (nr>1)
-       message("Row names: ", rownames(object)[1],"...", rownames(object)[nr],"\n")
+       print("Row names: ", rownames(object)[1],"...", rownames(object)[nr],"\n")
      else
-       message("Row name: ", rownames(object)[1], "\n")
+       print("Row name: ", rownames(object)[1], "\n")
      if (nc>1)
-       message("Col names: ", colnames(object)[1],"...", colnames(object)[nc],"\n")
+       print("Col names: ", colnames(object)[1],"...", colnames(object)[nc],"\n")
      else
-       message("Col name: ", colnames(object)[1],"\n")
+       print("Col name: ", colnames(object)[1],"\n")
        
    })
 
@@ -362,16 +362,16 @@ setMethod("show", "snp.matrix",
    function(object) {
      nr <- nrow(object)
      nc <- ncol(object) 
-     message("A snp.matrix with ", nr, "rows and ", nc,
+     print("A snp.matrix with ", nr, "rows and ", nc,
          "columns\n")
      if (nr>1)
-       message("Row names: ", rownames(object)[1],"...", rownames(object)[nr],"\n")
+       print("Row names: ", rownames(object)[1],"...", rownames(object)[nr],"\n")
      else
-       message("Row name: ", rownames(object)[1],"\n")
+       print("Row name: ", rownames(object)[1],"\n")
      if (nc>1)
-       message("Col names: ", colnames(object)[1],"...", colnames(object)[nc],"\n")
+       print("Col names: ", colnames(object)[1],"...", colnames(object)[nc],"\n")
      else
-       message("Col name: ", colnames(object)[1],"\n")
+       print("Col name: ", colnames(object)[1],"\n")
    })
 
 
@@ -379,15 +379,15 @@ setMethod("show", "X.snp",
           function(object) {
             fem <- object@Female
             if (length(fem)==1) {
-              message("Snp(s) on the X chromosome ")
+              print("Snp(s) on the X chromosome ")
               if (fem)
-                message(" (female)\n")
+                print(" (female)\n")
               else
-                message(" (male)\n")
+                print(" (male)\n")
               print(as(object, "character"))
             }
             else {
-              message("A snp on the X chromosome in",
+              print("A snp on the X chromosome in",
                   sum(!fem), " males and ", sum(fem), " females\n")
               print(as(object, "character"))
             }
@@ -397,7 +397,7 @@ setMethod("show", "X.snp",
 
 setMethod("show", "snp",
           function(object) {
-            message("Autosomal snp(s):\n")
+            print("Autosomal snp(s):\n")
             print(as(object, "character"))
           })
 
