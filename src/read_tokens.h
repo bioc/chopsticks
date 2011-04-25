@@ -18,7 +18,7 @@
  */
 
 
-  /* careful with this macro: this goes to just after the 
+  /* careful with this macro: this goes to just after the
      next null or space */
 #define  goto_next_token(x) \
   while ( *(x) && (*(x) != ' ') && (*(x) != '\t')) { x++; }; x++

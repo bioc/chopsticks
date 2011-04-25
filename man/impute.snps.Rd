@@ -19,7 +19,7 @@ impute.snps(rules, snps, subset=NULL)
 }
 \value{
   A matrix with imputed SNPs as columns. The imputed values are the
-  estimated expected values of each SNP when coded 0, 1 or 2. 
+  estimated expected values of each SNP when coded 0, 1 or 2.
 }
 \references{
   Chapman J.M., Cooper J.D., Todd J.A. and Clayton D.G. (2003)

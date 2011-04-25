@@ -8,7 +8,7 @@
 \title{Bind together two or more snp.matrix objects}
 \description{
 These functions bind together two or more objects of class
-\code{"snp.matrix"} or \code{"X.snp.matrix"}. 
+\code{"snp.matrix"} or \code{"X.snp.matrix"}.
 }
 \usage{
 # cbind(...)
@@ -27,13 +27,13 @@ and \code{rbind2} which take just two arguments. This
 is somewhat inefficient in both time and memory use when binding more
 than two objects, so the functions \code{snp.cbind} and
 \code{snp.rbind}, which take multiple arguments, are also supplied.
-  
+
 When matrices are bound together by column, row names must be identical,
 column names must not be duplicated and, for objects of class
 \code{X.snp.matrix} the contents of the \code{Female} slot much match.
 When matrices are bound by row,
 column names must be identical and duplications of row names generate
-warnings. 
+warnings.
 }
 \value{
   A new matrix, of the same type as the input matrices.

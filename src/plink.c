@@ -1,6 +1,6 @@
-/* 
+/*
    Read a plink .bed file as a snp.matrix
- 
+
 */
 
 
@@ -26,7 +26,7 @@ SEXP readbed(SEXP Bed, SEXP Id, SEXP Snps) {
   if (fread(start, 1, 3, in)!=3)
     error("Failed to read first 3 bytes");
   if (start[0]!='\x6C' || start[1]!='\x1B')
-    error("Input file does not appear to be a .bed file (%X, %X)", 
+    error("Input file does not appear to be a .bed file (%X, %X)",
 	  start[0], start[1]);
 
   /* Create output object */
@@ -44,8 +44,8 @@ SEXP readbed(SEXP Bed, SEXP Id, SEXP Snps) {
   setAttrib(Class, install("package"), Package);
   classgets(Result, Class);
   SET_S4_OBJECT(Result);
-  
-  unsigned char *result = RAW(Result); 
+
+  unsigned char *result = RAW(Result);
   int ncell = nrow*ncol;
   memset(result, 0x00, ncell);
 
@@ -56,7 +56,7 @@ SEXP readbed(SEXP Bed, SEXP Id, SEXP Snps) {
   while (1) {
     unsigned char byte;
     if (!part) {
-      if (feof(in) || !fread(&byte, 1, 1, in)) 
+      if (feof(in) || !fread(&byte, 1, 1, in))
 	error("Unexpected end of file reached");
       part = 4;
     }
@@ -73,7 +73,7 @@ SEXP readbed(SEXP Bed, SEXP Id, SEXP Snps) {
 	if (j==ncol)
 	  break;
       }
-    }	
+    }
     else {
       ij += nrow;
       j++;

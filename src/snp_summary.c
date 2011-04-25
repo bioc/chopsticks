@@ -35,7 +35,7 @@ SEXP X_snp_summary(const SEXP Snps, const SEXP Uncertain) {
   if (snpNames == R_NilValue) {
     error("Argument error - Snps object has no snp names");
   }
-   
+
 
   /* Handling of uncertain genotypes */
 
@@ -112,16 +112,16 @@ SEXP X_snp_summary(const SEXP Snps, const SEXP Uncertain) {
       int g = (int) snps[ij++];
       if (g) {
 	obs[i] = 1;
-	if (ifFemale[i]) 
+	if (ifFemale[i])
 	  switch (g) {
 	  case 1: aa++; break;
 	  case 2: ab++; break;
-	  case 3: bb++; 
-	  }	  
-	else 
+	  case 3: bb++;
+	  }
+	else
 	  switch (g) {
 	  case 1: ay++; break;
-	  case 3: by++; 
+	  case 3: by++;
 	  }
       }
     }
@@ -148,10 +148,10 @@ SEXP X_snp_summary(const SEXP Snps, const SEXP Uncertain) {
     z_hwe[j] = z;
   }
   int Nobs = 0;
-  for (i=0; i<N; i++) 
+  for (i=0; i<N; i++)
     Nobs += obs[i];
   if (Nobs < N) {
-    warning("%d rows were empty - ignored when calculating call rates", 
+    warning("%d rows were empty - ignored when calculating call rates",
 	    N - Nobs);
     double infl = (double) N / (double) Nobs;
     if (Nobs) {
@@ -259,7 +259,7 @@ SEXP snp_summary(const SEXP Snps, const SEXP Uncertain) {
 	switch (g) {
 	case 1: aa++; break;
 	case 2: ab++; break;
-	case 3: bb++; 	  
+	case 3: bb++;
 	}
       }
     }
@@ -281,10 +281,10 @@ SEXP snp_summary(const SEXP Snps, const SEXP Uncertain) {
   }
 
   int Nobs = 0;
-  for (i=0; i<N; i++) 
+  for (i=0; i<N; i++)
     Nobs += obs[i];
   if (Nobs < N) {
-    warning("%d rows were empty - ignored when calculating call rates", 
+    warning("%d rows were empty - ignored when calculating call rates",
 	    N - Nobs);
     double infl = (double) N / (double) Nobs;
     if (Nobs) {

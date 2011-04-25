@@ -18,11 +18,11 @@ GTYPE *create_gtype_table(const int nsnp) {
     /* Advance genotype by one */
     int adv = 0;
     while (adv<nsnp) {
-      if (++(alleles[adv])==4) 
+      if (++(alleles[adv])==4)
 	alleles[adv++] = 0;
-      else 
+      else
 	break;
-    } 
+    }
     if (adv==nsnp)
       break;
 
@@ -73,7 +73,7 @@ GTYPE *create_gtype_table(const int nsnp) {
 	    add++;
 	    haps[k++] = h1 | one;
 	    haps[k++] = h2;
-	  }	    
+	  }
 	}
 	else if (ai==1) {
 	  haps[j1++] = h1;
@@ -91,18 +91,18 @@ GTYPE *create_gtype_table(const int nsnp) {
 	else if (ai==3) {
 	  haps[j1++] = h1 | one;
 	  haps[j1++] = h2 | one;
-	}    
+	}
       }
       iph += add;
       one = (one<<1);
     }
   }
-  Free(alleles); 
+  Free(alleles);
   return result;
-}  
+}
 
 /* Destroy genotype->haplotype lookup table */
-      
+
 void destroy_gtype_table(GTYPE *gtt, const int nsnp){
   int ngt = (1 << (2*nsnp)) - 1;  /* 4^nsnp - 1 */
   for (int i=0; i<ngt; i++) {
@@ -112,29 +112,29 @@ void destroy_gtype_table(GTYPE *gtt, const int nsnp){
 }
 
 
-/* EM algorithm to calculate haplotype frequencies from tables of unphased 
+/* EM algorithm to calculate haplotype frequencies from tables of unphased
    genotype frequencies  plus an optional table of phased haplotype frequencies
 
    nsnp    Number of SNPs
    gtable  Table of dimension 4^nsnp containing unphased genotype frequencies
    htable  Table of same dimension containing male X-chromosome data
-   gtypes  (Optional) genotype->haplotype lookup table 
+   gtypes  (Optional) genotype->haplotype lookup table
    maxit   Maximum number of EM iterations
    tol     Tolerance for proportional change in fitted haplotype probabilities
    hprob   Output table of dimension 2^nsnp containing haplotype probabilities
-   
+
 */
 
 
-int emhap(const int nsnp, const int *gtable, const int *htable, 
+int emhap(const int nsnp, const int *gtable, const int *htable,
 	  GTYPE *gtypes, const int maxit, const double tol,
 	  double *hprob){
 
   GTYPE *lookup;
-  
+
   /* If lookup table not supplied, create one */
-  
-  if(gtypes) 
+
+  if(gtypes)
     lookup = gtypes;
   else
     lookup = create_gtype_table(nsnp);
@@ -157,7 +157,7 @@ int emhap(const int nsnp, const int *gtable, const int *htable,
   npu *= 2;
 
   double total = npu + npk;
-  if (!total) 
+  if (!total)
     return -1;
 
   /* Maximum number of possible haplotype assignments */
@@ -165,7 +165,7 @@ int emhap(const int nsnp, const int *gtable, const int *htable,
   int maxhaps = (1 << 2*(nsnp - 1));
 
   /* Work arrays */
-  
+
   double *sum = (double *)Calloc(nht, double);
   double *prg = (double *)Calloc(maxhaps, double);
   double *prh = NULL;
@@ -174,7 +174,7 @@ int emhap(const int nsnp, const int *gtable, const int *htable,
 
   /* Initialize haplotype frequency vector */
 
-  double maxp = 1.0/ (double)nht; 
+  double maxp = 1.0/ (double)nht;
   for (int i=0; i<nht; i++)
     hprob[i] = maxp;
 
@@ -216,7 +216,7 @@ int emhap(const int nsnp, const int *gtable, const int *htable,
 	if (hti)
 	  logL += hti*log(psumh);
 	/* Increment haplotype table with expected frequencies */
-	
+
 	double fgi = psumg? gtable[i]/psumg: 0.0;
 	double fhi = psumh? htable[i]/psumh: 0.0;
 	if (fgi || fhi) {
@@ -239,7 +239,7 @@ int emhap(const int nsnp, const int *gtable, const int *htable,
 
     /* New estimates of haplotype frequencies */
 
-    for (int i=0; i<nht; i++) 
+    for (int i=0; i<nht; i++)
       hprob[i] = sum[i]/total;
 
     /* Convergence test */
@@ -278,18 +278,18 @@ int emhap(const int nsnp, const int *gtable, const int *htable,
 
    npr    number of predictor SNPs
    g      predictor genotype (single code, npr SNPs)
-   hprob  haplotype probs (table of dimension npr+1 with SNP to be 
+   hprob  haplotype probs (table of dimension npr+1 with SNP to be
           predicted varying fastest)
    gtypes genotype->haplotype lookup table for genotype table of dimension npr
 
    pred   2-vector of predicted genotype scores (additive and dominance)
-          Additive score is expected number of times (out of 2) that the 
+          Additive score is expected number of times (out of 2) that the
 	  predicted SNP genotype contains the second allele.
 	  Dominance score is the probability that the predicted genotype
 	  is homozygous for the second allele.
 */
 
-void predict_gt(const int npr, const int g, const double *hprob, 
+void predict_gt(const int npr, const int g, const double *hprob,
 		const GTYPE *gtypes, double *pred) {
   if (!g) {
     pred[0] = pred[1] = pred[2] = NA_REAL;
@@ -328,11 +328,11 @@ void predict_gt(const int npr, const int g, const double *hprob,
   }
 }
 
-/* Predict allele on a haplotype 
+/* Predict allele on a haplotype
 
    npr    number of predictor SNPs
    h      predictor haplotype (npr SNPs)
-   hprob  haplotype probs (table of dimension npr+1 with SNP to be 
+   hprob  haplotype probs (table of dimension npr+1 with SNP to be
           predicted varying fastest)
 
    Returns probability that predicted SNP has the second allele
@@ -382,7 +382,7 @@ double gen_r2(const int npr, double *hprob, const GTYPE *gtypes) {
   /* Cycle through complete genotypes */
   double sp = 0.0, mu =0.0, vp=0.0;
   double pr[3];
-  while(1) {    
+  while(1) {
     predict_gt(npr, g, hprob, gtypes, pr);
     double yp = pr[1] + 2.0*pr[2];
     double p = pr[0];
@@ -402,9 +402,9 @@ double gen_r2(const int npr, double *hprob, const GTYPE *gtypes) {
 	adv++;
 	inc = inc << 2;
       }
-      else 
+      else
 	break;
-    } 
+    }
     if (adv==npr)
       break;
   }

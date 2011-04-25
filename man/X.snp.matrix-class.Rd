@@ -20,12 +20,12 @@ Such objects have an additional \code{slot} to objects of class
 \code{"snp.matrix"}
 consisting of  a logical array of the same length as the number of
 rows. This array indicates whether the sample corresponding to that row
-came from a female (\code{TRUE}) or a male (\code{FALSE}). 
+came from a female (\code{TRUE}) or a male (\code{FALSE}).
 }
 \section{Slots}{
 	 \describe{
     \item{\code{.Data}:}{Object of class \code{"matrix"} and storage mode
-      \code{"raw"}} 
+      \code{"raw"}}
     \item{\code{Female}:}{Object of class \code{"logical"} indicating
       sex of samples}
   }

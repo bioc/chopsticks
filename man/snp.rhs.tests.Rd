@@ -27,7 +27,7 @@ snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent
   default action is to use the "canonical" link for the family selected}
   \item{data}{The dataframe in which the base model is to be fitted}
   \item{snp.data}{An object of class \code{"snp.matrix"} or
-    \code{"X.snp.matrix"} containing the SNP data} 
+    \code{"X.snp.matrix"} containing the SNP data}
   \item{rules}{An object of class
     \code{"snp.reg.imputation"}. If
     supplied, the rules coded in this object are used, together with
@@ -60,7 +60,7 @@ snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent
   often be
   appropriate to include sex of subject in the base model (this is
   not done automatically).
-  
+
   If a \code{data} argument is supplied, the \code{snp.data} and
   \code{data} objects are aligned by rowname. Otherwise all variables in
   the model formulae are assumed to be stored in the same order as the

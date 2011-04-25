@@ -6,7 +6,7 @@ Calculate fixation indices
 \description{
 This function calculates the fixation index Fst for each SNP, together
 with its weight in the overall estimate (as used by the Internation
-HapMap Consortium). 
+HapMap Consortium).
 }
 \usage{
 Fst(snps, group)

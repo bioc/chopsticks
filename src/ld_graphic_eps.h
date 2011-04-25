@@ -22,7 +22,7 @@
   implementation in ld_graphic_eps.c
 */
 
-/* 
+/*
    ld_graphics_output_struct is the graphic state object
 */
 typedef struct {
@@ -44,7 +44,7 @@ ld_graphics_ptr graphic_init(const char *filename, int ii, int jj, int i_depth, 
 /* add_metric expands to accomodate the metric bar */
 void graphic_add_metric(ld_graphics_ptr gh, int min_metric, int metric_length);
 
-/* 
+/*
    These two routines are no-OPs in EPS output.
 
    They are a historical relic from PPM output
@@ -54,7 +54,7 @@ void graphic_add_metric(ld_graphics_ptr gh, int min_metric, int metric_length);
 void graphic_scan_line_begin(ld_graphics_ptr gh, int idx_j);
 void graphic_scan_line_end(ld_graphics_ptr gh, int idx_j);
 
-/* 
+/*
    Given a snp name and a position, do what's needed to be done
 */
 void graphic_do_name(ld_graphics_ptr gh, int x, const char *name);
@@ -62,7 +62,7 @@ void graphic_do_name(ld_graphics_ptr gh, int x, const char *name);
 /* Given a snp listed order, and its chromosome position, draw the metric */
 void graphic_do_metric(ld_graphics_ptr gh, int x, int trans_x);
 
-/* 
+/*
    Given a pair of positions, do what's needed to be done.
    calls get_geno_counts and draw pairs, etc.
    It is a composite routine which for drawing a paired-LD
@@ -71,7 +71,7 @@ void graphic_do_metric(ld_graphics_ptr gh, int x, int trans_x);
 void graphic_do_pair(ld_graphics_ptr gh, unsigned char *pos1, unsigned char *pos2, int i, int j, int rows, int do_notes);
 
 /*
-  Given a pair-wise stats, draw 
+  Given a pair-wise stats, draw
  */
 void graphic_draw_pair(ld_graphics_ptr gh, geno_cptr res, int i, int j, int do_notes);
 

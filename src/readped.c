@@ -29,13 +29,13 @@ int count_fields(FILE *f) {
       }
       break;
     case '\t':
-      if (nbl || tab) 
+      if (nbl || tab)
 	nf++;
       tab = 1;
       break;
     case '\n':
       cont = 0;
-      if (nbl || tab) 
+      if (nbl || tab)
 	nf++;
       break;
     default:
@@ -94,7 +94,7 @@ unsigned char gcode(unsigned char acodes[2], char a1, char a2, char miss, int if
 
   if (acodes[0]==miss) {  /* No codes yet set */
     acodes[0] = a1;
-    if (a2==a1) 
+    if (a2==a1)
       return GTYPE_A;
     else {
       acodes[1] = a2;
@@ -180,10 +180,10 @@ SEXP readped(SEXP filename, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) {
   PROTECT(Smat = allocMatrix(RAWSXP, nr, nc));
   protected++;
   unsigned char *smat = RAW(Smat);
-  
+
   /* R objects to hold snp.matrix attributes etc. */
-  
-  int *female = NULL; 
+
+  int *female = NULL;
   SEXP Rnames, Acodes, Female = R_NilValue, FSlot = R_NilValue;
   PROTECT(Rnames = allocVector(STRSXP, nr));
   PROTECT(Acodes = allocMatrix(RAWSXP, nc, 2));
@@ -204,7 +204,7 @@ SEXP readped(SEXP filename, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) {
   int *skip = Calloc(nc, int);
   for ( j = 0 ; j < nc ; j++)
     skip[j] = 0;
-  
+
   /* Read data */
 
   int warn_col = 0;     /* whether there is at least one warning column */
@@ -216,7 +216,7 @@ SEXP readped(SEXP filename, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) {
     if (fscanf(infile, " %70s", fid) != 1)
       error("Error while reading family id on row %d", i+1 );
     SET_STRING_ELT(Family, i, mkChar(fid));
-    if(fscanf(infile, " %d %d %d %d %d", 
+    if(fscanf(infile, " %d %d %d %d %d",
 	   member+i, father+i, mother+i, sex+i, affected+i) != 5 )
       error("Error reading pedigree information on row %d", i+1 );
     /* male sex */
@@ -241,7 +241,7 @@ SEXP readped(SEXP filename, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) {
       char a1, a2;
       if (fscanf(infile, " %c %c", &a1, &a2) != 2)
 	error("Error reading genotype %d on row %d", j+1, i+1);
-      unsigned char g = gcode( acodesj , a1, a2, mval, ifX, mi); 
+      unsigned char g = gcode( acodesj , a1, a2, mval, ifX, mi);
       if ( g & GTYPE_INVALID ) {
 	warn_missing += 1;
 	g = GTYPE_N;
@@ -257,7 +257,7 @@ SEXP readped(SEXP filename, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) {
       acodesj += 2;
     }
   }
-  
+
   if(warn_missing)
     warning("%i of partially missing genotype treated as missing", warn_missing);
   if (warn_col)
@@ -321,7 +321,7 @@ SEXP readped(SEXP filename, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) {
   PROTECT(SMClass = allocVector(STRSXP, 1));
   if (ifX) {
     SET_STRING_ELT(SMClass, 0, mkChar("X.snp.matrix"));
-    R_do_slot_assign(Smat, FSlot, Female); 
+    R_do_slot_assign(Smat, FSlot, Female);
   }
   else
     SET_STRING_ELT(SMClass, 0, mkChar("snp.matrix"));
@@ -330,7 +330,7 @@ SEXP readped(SEXP filename, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) {
   PROTECT(DimNames = allocVector(VECSXP, 2));
   SET_VECTOR_ELT(DimNames, 0, duplicate(Rnames));
   protected += 2;
-  if (length(snp_names)) 
+  if (length(snp_names))
     SET_VECTOR_ELT(DimNames, 1, duplicate(snp_names));
   else {
     PROTECT(Cnames = allocVector(STRSXP, nc));
@@ -342,7 +342,7 @@ SEXP readped(SEXP filename, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) {
     SET_VECTOR_ELT(DimNames, 1, Cnames);
   }
   setAttrib(Smat, R_DimNamesSymbol, DimNames);
-  
+
   /* Result list */
 
   SEXP Result, ResNames;

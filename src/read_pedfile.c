@@ -47,7 +47,7 @@ static void contentlist_destroy(linecontent_ptr start) {
   }
 }
 
-#define NA_IF_ZERO(x)  ((x)? (x) : NA_INTEGER)  
+#define NA_IF_ZERO(x)  ((x)? (x) : NA_INTEGER)
 
 SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) {
   const char *filename = NULL;
@@ -95,7 +95,7 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
   memset(translation, INVALID_MASK, 128); /* set all unknowns to INVALID first */
   int i;
   for(i = 0; i < BUILDIN_TABLE_LENGTH; i++) {
-    translation[(int) buildin[i][0] ] = buildin[i][1]; 
+    translation[(int) buildin[i][0] ] = buildin[i][1];
   }
 
   /* work out line length and number of fields */
@@ -163,7 +163,7 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
       read_failed = 0; /* read_failed = "no" */
       break;
     }
-    
+
     /* gzeof() is not reliable for non-compressed files,
        trying alternative method for testing end of file*/
     if ((get1 = gzgetc(filehandle)) != -1) {
@@ -182,18 +182,18 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
       }
     }
     /* normal eof detection ends - below are either processing or errors */
-    
+
     if (gzgets(filehandle, current_line, line_buffer_size) == Z_NULL) {
       Rprintf("read error (gzgets) after %d samples\n", n_samples);
       break;
     }
     n_samples++;
-    
+
     /* now we have got a line, start stripping it apart */
     cur_content_ptr->next = (linecontent_ptr)calloc(sizeof(struct linecontent), 1);
     cur_content_ptr = cur_content_ptr->next;
     /* doing the first 3 pairs blindly,
-       for performance reasons */       
+       for performance reasons */
     cur_content_ptr->snps = (char *)calloc(sizeof(char), n_snps + 3);
     char *snps = cur_content_ptr->snps; /* short hand */
     linecontent_ptr l = cur_content_ptr ; /* just a lazy short hand */
@@ -208,7 +208,7 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
       Rprintf("malformed input line: [%20s...]\n", current_line);
       break;
     }
-    
+
     /* now we'll going to play with the snp data...*/
     is_blank = 1;
     char *line_ptr = current_line;
@@ -237,7 +237,7 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
       line_ptr++;
     } /* while line_ptr */
   } /* while (1) */
-  
+
   if(read_failed) {
     /* no message, as any relevant message should be above
        where the error occurs */
@@ -246,7 +246,7 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
     Rprintf("Read %i samples from input, now converting...\n", n_samples);
   }
 
-  /* we'll set the multiallelic mask now that we have seen all 
+  /* we'll set the multiallelic mask now that we have seen all
      the genotypes, and also do a bit of summary output now */
   int n_invalid = 0;
   int n_multiallelic = 0;
@@ -262,7 +262,7 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
     }
     if ( (*snp_sum) & (INVALID_MASK|MULTIALLELIC_MASK)) {
       n_invalid_or_multiallelic++;
-    }    
+    }
   }
   if (n_invalid) {
     Rprintf("%i snps contains invalid entries.\n", n_invalid);
@@ -361,7 +361,7 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
   int male_as_hets =0;
   int partially_missing = 0;
   for(cur_content_ptr = listhead.next; cur_content_ptr ; cur_content_ptr = cur_content_ptr->next) {
-    char *snps = (cur_content_ptr->snps) + 3; 
+    char *snps = (cur_content_ptr->snps) + 3;
     for (i_snps = 0; i_snps < n_snps; i_snps++) {
       char snp_sum = snp_summary[i_snps + 3];
       int idx = i_snps * n_samples + i_samples;
@@ -373,17 +373,17 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
 	   (sample has some missingness and (chrom is non-X or sample is non-male) or
 	   (sample is all missing regardless)
         */
-	if ( (!( snp_sum & (INVALID_MASK|MULTIALLELIC_MASK) )) &&  
+	if ( (!( snp_sum & (INVALID_MASK|MULTIALLELIC_MASK) )) &&
 	     (snps[i_snps] & ~MISSING_MASK)) {
 	  /* snp is not invalid, and sample has non-missing parts */
 	  partially_missing++;
 	}
-	    
+
 	RAW(snp_data)[idx] = 0x00;
       } else {
 	/* sample is non-missing, or (X and male) */
 	snp_sum &= ~ MISSING_MASK; /* squash the missing mask */
-	snps[i_snps] &= ~MISSING_MASK; 
+	snps[i_snps] &= ~MISSING_MASK;
 	if (snps[i_snps] == resultmap[(int) snp_sum].allele1) {
 	  /* only A, code as AA */
 	  RAW(snp_data)[idx] = 0x01;
@@ -408,10 +408,10 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
     i_samples++;
   }
   if(male_as_hets) {
-    Rprintf("%i heterozygotic record for known male has been detected and corrected as missing\n", male_as_hets);  
+    Rprintf("%i heterozygotic record for known male has been detected and corrected as missing\n", male_as_hets);
   }
   if(partially_missing) {
-    Rprintf("%i partially missing record treated as missing\n", partially_missing);  
+    Rprintf("%i partially missing record treated as missing\n", partially_missing);
   }
 
   if(is_X) {

@@ -13,7 +13,7 @@ SEXP snp_rbind(SEXP args) {
   SEXP argsin = args;
   const char *class = NULL;
   SEXP Cnames = R_NilValue;
-  SEXP Class = R_NilValue; 
+  SEXP Class = R_NilValue;
   int nr = 0, nc=0;
   int i=0, j=0, k=0, nk=0, rows_done=0;
   for (i=0; i<nb; i++) {
@@ -51,7 +51,7 @@ SEXP snp_rbind(SEXP args) {
       if (nci != nc)
 	error("matrices have unequal number of columns");
       if (cni != R_NilValue) {
-	if (Cnames == R_NilValue) 
+	if (Cnames == R_NilValue)
 	  Cnames = cni;
 	else for (j=0; j<nc; j++) {
 	  const char *one = CHAR(STRING_ELT(Cnames, j));
@@ -98,7 +98,7 @@ SEXP snp_rbind(SEXP args) {
     unsigned char *rj = r;
     for (j=0; j<nc; j++, rj+=nr) {
       unsigned char *rjk = rj;
-      for (k=0; k<nri; k++) 
+      for (k=0; k<nri; k++)
 	*(rjk++) = *(this++);
     }
     /* Copy row names */
@@ -127,7 +127,7 @@ SEXP snp_rbind(SEXP args) {
   if (X) {
     /* copying row names to Female slot names;
        the input row names should agree with the input slot names,
-       so the worst case is that output slots have names which 
+       so the worst case is that output slots have names which
        input slots don't have */
     setAttrib(Female, R_NamesSymbol, duplicate(Rnames));
   }
@@ -141,7 +141,7 @@ SEXP snp_cbind(SEXP args) {
   SEXP argsin = args;
   const char *class = NULL;
   SEXP Female = R_NilValue;
-  int *female = NULL; 
+  int *female = NULL;
   SEXP Rnames = R_NilValue, Class = R_NilValue;
   int nr = 0, nc=0;
   int i=0, j=0, ij=0;
@@ -213,7 +213,7 @@ SEXP snp_cbind(SEXP args) {
   PROTECT(Cnames = allocVector(STRSXP, nc));
   SET_VECTOR_ELT(Dnames, 0, duplicate(Rnames));
   SET_VECTOR_ELT(Dnames, 1, Cnames);
-  if (X) 
+  if (X)
     R_do_slot_assign(Result, mkString("Female"), duplicate(Female));
   unsigned char *result;
   result = RAW(Result);
@@ -229,7 +229,7 @@ SEXP snp_cbind(SEXP args) {
     unsigned char *this = RAW(This);
     int nci = ncols(This);
     int len = length(This);
-    for (j=0; j<len; j++) 
+    for (j=0; j<len; j++)
       *(result++) = *(this++);
     /* Copy column names */
     SEXP dn = getAttrib(This, R_DimNamesSymbol);
@@ -250,10 +250,10 @@ SEXP snp_cbind(SEXP args) {
     }
   }
   index_destroy(col_index);
-  /* in cbind we never create a new Female slot, but only copy 
-     from the first one so unike rbind() we don't need to decide 
-     unprotect level */ 
-  UNPROTECT(3); 
+  /* in cbind we never create a new Female slot, but only copy
+     from the first one so unike rbind() we don't need to decide
+     unprotect level */
+  UNPROTECT(3);
   return(Result);
 }
 

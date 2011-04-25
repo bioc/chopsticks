@@ -8,7 +8,7 @@
   input files can be read, the input fields can be in any order on the
   line, and irrelevant fields can be skipped. The samples and SNPs
   to be read  must be pre-specified, and define rows and columns of an
-  output object of class \code{"snp.matrix"}. 
+  output object of class \code{"snp.matrix"}.
 }
 \usage{
 read.snps.long(files, sample.id = NULL, snp.id = NULL, female = NULL,
@@ -60,26 +60,26 @@ read.snps.long(files, sample.id = NULL, snp.id = NULL, female = NULL,
 }
 \details{
   If nucleotide coding is not used, the \code{codes} argument
-  should be a character array giving the valid codes. 
+  should be a character array giving the valid codes.
   For genotype coding of autosomal SNPs, this should be
   an array of length 3 giving the codes
   for the three genotypes, in the order homozygous(AA), heterozygous(AB),
   homozygous(BB). All other codes will be  treated
   as "no call". The default codes are \code{"0"},  \code{"1"},
   \code{"2"}.  For X SNPs, males are assumed to be coded as homozygous,
-  unless an additional two codes are supplied (representing the 
+  unless an additional two codes are supplied (representing the
   AY and BY genotypes). For allele coding, the
   \code{codes} array should be of length 2 and should specify the codes
   for the two alleles. Again, any other code is treated as
   "missing" and, for X SNPs, males should be coded either as
   homozygous or by omission of  the second allele.
-  
+
   For nucleotide coding, nucleotides are assigned to the nominal alleles
   in alphabetic order. Thus, for a SNP with either  "T" and "A"
   nucleotides in the variant position,
   the nominal genotypes AA, AB and BB will refer to A/A,
   A/T and T/T.
-  
+
   Although the function allows for reading of data for the X chromosome
   directly into an object of class \code{"X.snp.matrix"},
   it will often be preferable to read such data as a \code{"snp.matrix"}
@@ -100,24 +100,24 @@ read.snps.long(files, sample.id = NULL, snp.id = NULL, female = NULL,
   read. This option must be expected, therefore, to be somewhat slower.
   Each file may represent a separate sample or SNP, in which case the
   appropriate \code{.id} argument can be omitted; row or column names
-  are then taken from the file names.  
+  are then taken from the file names.
 }
 \value{
   An object of class \code{"snp.matrix"} or \code{"X.snp.matrix"}.
 }
 \note{
   The function will read gzipped files.
-  
+
   If \code{in.order} is \code{TRUE},
   every combination of sample and snp listed in the
   \code{sample.id} and \code{snp.id} arguments  \emph{must} be present in the
   input file(s). Otherwise the function will search for any missing
   observation until reaching the end of the data, ignoring everything
-  else on the way. 
+  else on the way.
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
 \seealso{\code{\link{read.HapMap.data}}\code{\link{read.snps.pedfile}},
-  \code{\link{read.snps.chiamo}}, \code{\link{read.plink}}, 
+  \code{\link{read.snps.chiamo}}, \code{\link{read.plink}},
   \code{\link{snp.matrix-class}}, \code{\link{X.snp.matrix-class}}}
 \keyword{manip}
 \keyword{IO}

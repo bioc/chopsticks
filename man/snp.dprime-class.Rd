@@ -11,7 +11,7 @@
   a range and a depth) and is based on a list of three
   named matrices.
 
-  The lower right triangle of the snp.dprime object returned by \code{\link{ld.snp}} 
+  The lower right triangle of the snp.dprime object returned by \code{\link{ld.snp}}
   always consists zeros. This is deliberate. The associated plotting routine
   would not normally access those elements either.
 }
@@ -29,7 +29,7 @@
   \item{lod}{Log of Odd's}
   \item{attr(*, class)}{"snp.dprime"}
   \item{attr(*, snp.names)}{character vectors of the snp names involved}
-  
+
   All the matrices are defined such that the ($n, m$)th entry is the
   pair-wise value between the ($n$)th snp and the $(n+m)$th snp. Hence
   the lower right triangles are always filled with zeros.
@@ -65,7 +65,7 @@ summary(obj.snp.dprime)
 # The following isn't executable-as-is example, so these illustrations
 # are commented out to stop R CMD check from complaining:
 
-> d<- ld.snp(all, 3, 10, 15) 
+> d<- ld.snp(all, 3, 10, 15)
 rows = 48, cols = 132
 ... Done
 > d

@@ -4,7 +4,7 @@
 Read genotypes imputed by the BEAGLE program
 }
 \description{
-The BEAGLE program generates, for each SNP and each subject, 
+The BEAGLE program generates, for each SNP and each subject,
 posterior probabilities for the three genotypes. This function reads
 such data as a \code{snp.matrix} object, storing the posterior
 probabilities to as much accuracy allowed by a one-byte coding
@@ -35,7 +35,7 @@ read.beagle(file, rownames=NULL, nsnp = NULL, header=TRUE)
   take precedence over the header line. If there is no header
   line and no row names are supplied, names
   are generated as \code{Sample1}, \code{Sample2} etc.
-  
+
   No provision is made for data for the X chromosome. Such data must be
   first read as a \code{snp.matrix} and subsequently coerced to an
 \code{X.snp.matrix} object

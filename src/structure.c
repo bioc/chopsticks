@@ -1,28 +1,28 @@
-/* 
-  If A is a snp.matrix this routine calculates the matrix B.B-transpose, 
-  where B is derived from A by normalising columns to have zero mean and 
-  unit standard deviation under HWE. That is, if p is the allele frequency 
+/*
+  If A is a snp.matrix this routine calculates the matrix B.B-transpose,
+  where B is derived from A by normalising columns to have zero mean and
+  unit standard deviation under HWE. That is, if p is the allele frequency
   for one column of A, the corresponding column of B (if elements are
-  coded 0, 1, or 2) is obtained by subtracting the mean, 2*p and dividing by 
-  the SD, sqrt(2*p*(1-p)). For male samples and the X chromosome, codes are 
+  coded 0, 1, or 2) is obtained by subtracting the mean, 2*p and dividing by
+  the SD, sqrt(2*p*(1-p)). For male samples and the X chromosome, codes are
   0 and 2 so that the mean is again 2*p, but the SD is now 2*sqrt(p*(1-p)).
-  Missing genotypes score zero (equivalent to replacing missing values by 
+  Missing genotypes score zero (equivalent to replacing missing values by
   the mean in the original matrix.
 
   Missing data treatment:
 
-  If Correct_for_missing is FALSE, missing genotypes are replaced by 
+  If Correct_for_missing is FALSE, missing genotypes are replaced by
   their (marginal) expectations - i.e. twice the allele frequency
 
   If TRUE, contributions to the output matrix are weighted using inverse
-  probability weights. The (small) probability that locus k is missing in 
-  subject i is assumed to be mu*alpha_i*beta_k where alpha and beta are 
-  are vectors with mean 1. Then the probability that subject i is observed 
-  at locus k is 1-mu*alpha_i*beta_k, and the probability that locus k 
-  is observed in both subject i and subject j is 
-  (1-mu*alpha_i*beta_k)*(1-mu*alpha_j*beta_k) 
+  probability weights. The (small) probability that locus k is missing in
+  subject i is assumed to be mu*alpha_i*beta_k where alpha and beta are
+  are vectors with mean 1. Then the probability that subject i is observed
+  at locus k is 1-mu*alpha_i*beta_k, and the probability that locus k
+  is observed in both subject i and subject j is
+  (1-mu*alpha_i*beta_k)*(1-mu*alpha_j*beta_k)
 
-  alpha_i and beta_k are estimated from the observed numbers of missing calls 
+  alpha_i and beta_k are estimated from the observed numbers of missing calls
   as follows:
 
   T_ik = 1 if call (i,k) is missing, 0 otherwise
@@ -35,7 +35,7 @@
 
   mu*alpha_i*beta_k = T_i.*T_.k/T_..
 
-  
+
 
 */
 
@@ -48,9 +48,9 @@
 #include <string.h>
 #include "Rmissing.h"
 
-SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing, 
+SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
 	 const SEXP Lower_only, const SEXP Uncertain) {
-  
+
   if (TYPEOF(Correct_for_missing)!=LGLSXP)
     error("Argument error - Correct_for_missing wrong type");
   const int correct = *LOGICAL(Correct_for_missing);
@@ -72,7 +72,7 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
   }
   else if (strcmp(CHAR(STRING_ELT(cl, 0)), "snp.matrix")) {
     error("Argument error - Snps wrong type");
-  }    
+  }
 
   const unsigned char *snps = RAW(Snps);
   int N, M;
@@ -94,7 +94,7 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
     mu = Calloc(nstrata, double);
     sd = Calloc(nstrata, double);
   }
-  double mean=0.0, sd2=0.0; 
+  double mean=0.0, sd2=0.0;
 
   /* Weights for missing data correction */
 
@@ -115,7 +115,7 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
 	  Tk[k]++;
 	}
       }
-    } 
+    }
   }
 
 
@@ -166,7 +166,7 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
 	  mu[i] = 2.0*afk + 1.0;
 	  sd[i] = sqrt(2.0*afk*(1.0-afk));
 	}
-	else 
+	else
 	  mu[i] = sd[i] = 0.0;
       }
     }
@@ -194,14 +194,14 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
       else
 	mean = sd2 = 0.0;
     }
-    
+
     /* If polymorphic, add contribution */
 
     if (polymorphic) {
       double tk=0.0, ipw=0.0;
       if (correct)
 	tk = T? (double) Tk[k] / (double) T: 0.0;
-    
+
       /* Update X.X-transpose matrix */
 
       for (int i=0, ij=0; i<N; i++, ik++) {
@@ -227,16 +227,16 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
 	      mean = mu[sj];
 	      sd2 = sd[sj];
 	    }
-	    int sjk = (int) snps[jk++]; 
+	    int sjk = (int) snps[jk++];
 	    if (sjk && sd2!=0.0) {
 	      double xjk;
 	      if (ifFemale && !ifFemale[j])
 		xjk =  ((double) sjk - mean)/(rt2*sd2);
 	      else
 		xjk =  ((double) sjk - mean)/sd2;
-	      if (correct) 
+	      if (correct)
 		result[ij] += xik*xjk*((i==j)?ipw: ipw/(1.0-tk*(double)Ti[j]));
-	      else 
+	      else
 		result[ij] += xik*xjk;
 	    }
 	  }
@@ -274,18 +274,18 @@ SEXP xxt(const SEXP Snps, const SEXP Strata, const SEXP Correct_for_missing,
     Free(mu);
     Free(sd);
   }
-      
+
   UNPROTECT(1);
   return(Result);
 }
-  
 
-/* 
+
+/*
    Correlations between columns of a snpmatrix and columns of a normal matrix
 */
 
- 
-SEXP corsm(const SEXP Snps, const SEXP X, const SEXP Uncertain) { 
+
+SEXP corsm(const SEXP Snps, const SEXP X, const SEXP Uncertain) {
 
   if (!inherits(Snps, "snp.matrix"))
     error("Argument error - Snps wrong type");
@@ -346,7 +346,7 @@ SEXP corsm(const SEXP Snps, const SEXP X, const SEXP Uncertain) {
       }
     }
   }
-  
+
   UNPROTECT(1);
   return(Result);
 }
@@ -354,18 +354,18 @@ SEXP corsm(const SEXP Snps, const SEXP X, const SEXP Uncertain) {
 /*
   IBS matrix.
 
-  Calculates NxN matrix of type integer, whose upper triangle counts number 
-  non-missing pairs of chromosomes and whose lower triangle counts number 
+  Calculates NxN matrix of type integer, whose upper triangle counts number
+  non-missing pairs of chromosomes and whose lower triangle counts number
   IBS. The diagonal counts non-missing calls for each subject
 
-  For autosomes, each pair of non-missing SNPs add 4 above the diagonal, and 
+  For autosomes, each pair of non-missing SNPs add 4 above the diagonal, and
   0, 2, or 4 below the diagonal, according to IBS state:
                       AA AB BB
 		   AA  4  2  0
                    AB  2  2  2
                    BB  0  2  4
-  For an X SNP, pairs of females count similarly but pairs of males count 1 
-  above the diagonal and a male/femal pair counts 2. Below the diagonal we 
+  For an X SNP, pairs of females count similarly but pairs of males count 1
+  above the diagonal and a male/femal pair counts 2. Below the diagonal we
   have:
        AY BY               AA AB BB
     AY  1  0      or    AY  2  1  0
@@ -375,7 +375,7 @@ SEXP corsm(const SEXP Snps, const SEXP X, const SEXP Uncertain) {
 
 */
 
-SEXP ibs_count(const SEXP Snps, const SEXP Uncertain) { 
+SEXP ibs_count(const SEXP Snps, const SEXP Uncertain) {
 
   int *ifFemale = NULL;
   SEXP cl = GET_CLASS(Snps);
@@ -390,7 +390,7 @@ SEXP ibs_count(const SEXP Snps, const SEXP Uncertain) {
   }
   else if (strcmp(CHAR(STRING_ELT(cl, 0)), "snp.matrix")) {
     error("Argument error - Snps wrong type");
-  }    
+  }
   SEXP names = getAttrib(Snps, R_DimNamesSymbol);
   if (names == R_NilValue) {
     error("Argument error - Snps object has no names");
@@ -417,9 +417,9 @@ SEXP ibs_count(const SEXP Snps, const SEXP Uncertain) {
   SEXP Result, dimnames;
   PROTECT(Result = allocMatrix(INTSXP, N, N));
   PROTECT(dimnames = allocVector(VECSXP, 2));
-  SET_VECTOR_ELT(dimnames, 0, duplicate(rowNames));    
-  SET_VECTOR_ELT(dimnames, 1, duplicate(rowNames));    
-  setAttrib(Result, R_DimNamesSymbol, dimnames);    
+  SET_VECTOR_ELT(dimnames, 0, duplicate(rowNames));
+  SET_VECTOR_ELT(dimnames, 1, duplicate(rowNames));
+  setAttrib(Result, R_DimNamesSymbol, dimnames);
   int *result = INTEGER(Result);
   memset(result, 0x00, N*N*sizeof(int));
 
@@ -439,12 +439,12 @@ SEXP ibs_count(const SEXP Snps, const SEXP Uncertain) {
       int sik = (int) snps[ik++];
       if (sik) {
 	result[ii]++;
-	for (int j=i+1, jk=ik, ji=ii+1, ij=ii+N; 
+	for (int j=i+1, jk=ik, ji=ii+1, ij=ii+N;
 	     j<N; j++, ji++, ij+=N) {
 	  int div = base_div ;
 	  if (ifFemale && !ifFemale[j])
 	    div *= 2;
-	  int sjk = (int) snps[jk++]; 
+	  int sjk = (int) snps[jk++];
 	  if (sjk) {
    	    int add = sjk==sik?
 	      (sik==2 ? 2: 4) : (4-2*abs(sik-sjk));
@@ -455,7 +455,7 @@ SEXP ibs_count(const SEXP Snps, const SEXP Uncertain) {
       }
     }
   }
-  
+
   UNPROTECT(2);
   return(Result);
 }
@@ -465,7 +465,7 @@ SEXP ibs_count(const SEXP Snps, const SEXP Uncertain) {
 */
 
 SEXP ibs_dist(const SEXP Ibsc) {
-  
+
   if (!IS_INTEGER(Ibsc))
     error("Input object is not an integer array");
 
@@ -474,7 +474,7 @@ SEXP ibs_dist(const SEXP Ibsc) {
   int *dim = INTEGER(getAttrib(Ibsc, R_DimSymbol));
   N = dim[0];
   M = dim[1];
-  if (!N || N!=M) 
+  if (!N || N!=M)
     error("Input object is not a square matrix");
   SEXP names = getAttrib(Ibsc, R_DimNamesSymbol);
   if (names == R_NilValue) {

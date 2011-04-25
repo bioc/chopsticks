@@ -25,7 +25,7 @@ See vignette for usage.
 }
 \value{None
 }
-\author{Hin-Tak Leung \email{htl10@users.sourceforge.net}}  
+\author{Hin-Tak Leung \email{htl10@users.sourceforge.net}}
 \seealso{
 \code{\link{read.wtccc.signals}}, \code{\link{snp.matrix-class}}
 }

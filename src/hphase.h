@@ -5,8 +5,8 @@ typedef struct {
   int *haps;   /* 2*nphase array of haplotype-pair assignments */
 } GTYPE;
 
-/* 
-   Genotypes are numbered with first allele varying fastest starting 
+/*
+   Genotypes are numbered with first allele varying fastest starting
    from 1,0,0... e.g.
    1,0,0,... = 0
    2,0,0,... = 1
@@ -16,20 +16,20 @@ typedef struct {
    g = -1 + alleles[0] + 4*alleles[1] + 16*alleles[2] + ...
    and -1 is ignored (representing completely missing data).
 
-   Haplotypes are also numbered with first SNP varying fastest. For 
+   Haplotypes are also numbered with first SNP varying fastest. For
    m SNPs, haplotypes are coded 0:(2^m-1)
 */
 
 /* Create lookup table */
-GTYPE *create_gtype_table(const int nsnp); 
+GTYPE *create_gtype_table(const int nsnp);
 /* Destroy lookup table */
-void destroy_gtype_table(GTYPE *gtt, const int nsnp); 
+void destroy_gtype_table(GTYPE *gtt, const int nsnp);
 /* EM algorithm */
-int emhap(const int nsnp, const int *gtable, const int *htable, 
+int emhap(const int nsnp, const int *gtable, const int *htable,
 	  GTYPE *gtypes, const int maxit, const double tol,
 	  double *hprob);
 /* Predicted genotype scores */
-void predict_gt(const int npr, const int g, const double *hprob, 
+void predict_gt(const int npr, const int g, const double *hprob,
 		const GTYPE *gtypes, double *pred);
 /* Predict allele on a haplotype */
 double predict_ht(const int h, const double *hprob);

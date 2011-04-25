@@ -13,7 +13,7 @@
 }
 \section{Objects from the Class}{
   Objects can be created by calls of the form \code{new("snp", ...,
-    Female=...)} or 
+    Female=...)} or
   by subset selection from an object of class \code{"X.snp.matrix"}.
   Holds one row or column of an object of class \code{"X.snp.matrix"}
 }
@@ -32,7 +32,7 @@ Class \code{"vector"}, by class \code{"snp"}.
 \section{Methods}{
   \describe{
     \item{coerce}{\code{signature(from = "X.snp", to = "character")}:
-      map to codes "A/A", "A/B", "B/B", "A/Y", "B/Y", or "" } 
+      map to codes "A/A", "A/B", "B/B", "A/Y", "B/Y", or "" }
     \item{coerce}{\code{signature(from = "X.snp", to = "numeric")}:
       map to codes 0, 1, 2, or NA}
     \item{coerce}{\code{signature(from = "X.snp", to = "genotype")}: Yet

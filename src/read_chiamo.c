@@ -82,7 +82,7 @@ SEXP read_chiamo(SEXP mcmc_file, SEXP sample_list, SEXP threshold) {
   if(TYPEOF(threshold) != REALSXP)
     error("input threshold wrong type\n");
 
-  for(int i_file = 0; i_file < LENGTH(mcmc_file); i_file++) { 
+  for(int i_file = 0; i_file < LENGTH(mcmc_file); i_file++) {
   const char *filename = CHAR(STRING_ELT(mcmc_file, i_file));
   gzFile gz_fp = gzopen(filename, "rb");
 
@@ -196,8 +196,8 @@ SEXP read_chiamo(SEXP mcmc_file, SEXP sample_list, SEXP threshold) {
     cur_content_ptr->snps = (char *)calloc(sizeof(char), n_samples);
     char *snps = cur_content_ptr->snps;
 
-    sscanf(line_ptr, "%s %s %d %c %c", 
-	   cur_content_ptr->vendor_id, 
+    sscanf(line_ptr, "%s %s %d %c %c",
+	   cur_content_ptr->vendor_id,
 	   cur_content_ptr->public_id,
 	   &(cur_content_ptr->pos),
 	   &(cur_content_ptr->alleleA),
@@ -207,13 +207,13 @@ SEXP read_chiamo(SEXP mcmc_file, SEXP sample_list, SEXP threshold) {
     for(i = 0; i < n_samples ; i++) {
       float f_num[3];
       sscanf(line_ptr, "%f %f %f", f_num, (f_num+1), (f_num+2));
-      *snps = genotype_from_prob(f_num, f_threshold); 
+      *snps = genotype_from_prob(f_num, f_threshold);
       snps++;
       skip_3_tokens(line_ptr);
     }
 
   } /* while (1) */
-  
+
   free(current_line);
 
   if (read_failed) {
@@ -243,7 +243,7 @@ SEXP read_chiamo(SEXP mcmc_file, SEXP sample_list, SEXP threshold) {
   PROTECT(snp_data  = allocMatrix(RAWSXP, n_samples, n_snps));
   int protected = 6;
   int i_snps = 0;
-  
+
   for(cur_content_ptr = listhead.next; cur_content_ptr ; cur_content_ptr = cur_content_ptr->next) {
     char *snps = cur_content_ptr->snps;
     memcpy((RAW(snp_data) + n_samples * i_snps), snps, n_samples);
@@ -265,7 +265,7 @@ SEXP read_chiamo(SEXP mcmc_file, SEXP sample_list, SEXP threshold) {
   SET_VECTOR_ELT(snp_data_dimnames, 1, duplicate(vendor_id));
   setAttrib(snp_data, R_DimNamesSymbol, snp_data_dimnames);
   PROTECT(snp_data_class = allocVector(STRSXP, 1));
-  SET_STRING_ELT(snp_data_class, 0, mkChar("snp.matrix"));  
+  SET_STRING_ELT(snp_data_class, 0, mkChar("snp.matrix"));
   classgets(snp_data, snp_data_class);
   SET_S4_OBJECT(snp_data);
   protected +=2;

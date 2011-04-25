@@ -25,9 +25,9 @@ snp.lhs.tests(snp.data, base.formula, add.formula, subset, snp.subset,
   \item{add.formula}{A \code{formula} object describing the additional
     terms to be tested, also with dependent variable omitted}
   \item{subset}{An array describing the subset of observations to be
-    considered} 
+    considered}
   \item{snp.subset}{An array describing the subset of SNPs to be
-    considered. Default action is to test all SNPs.} 
+    considered. Default action is to test all SNPs.}
   \item{data}{The data frame in which \code{base.formula},
     \code{add.formula} and \code{subset} are to be evaluated}
   \item{robust}{If \code{TRUE}, a test which does not assume
@@ -44,11 +44,11 @@ snp.lhs.tests(snp.data, base.formula, add.formula, subset, snp.subset,
   The tests used are asymptotic chi-squared tests based on the vector of
   first and second derivatives of the log-likelihood with respect to the
   parameters of the additional model. The "robust" form is a generalized
-  score test in the sense discussed by Boos(1992). 
+  score test in the sense discussed by Boos(1992).
   If a \code{data} argument is supplied, the \code{snp.data} and
   \code{data} objects are aligned by rowname. Otherwise all variables in
   the model formulae are assumed to be stored in the same order as the
-  columns of the \code{snp.data} object. 
+  columns of the \code{snp.data} object.
 }
 \value{
   An object of class \code{\link[=snp.tests.glm-class]{snp.tests.glm}}

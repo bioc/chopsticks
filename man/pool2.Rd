@@ -10,7 +10,7 @@ recursively by \code{\link{pool}}
 pool2(x, y, score)
 }
 \arguments{
-  \item{x, y}{Objects holding the (extended) test results. 
+  \item{x, y}{Objects holding the (extended) test results.
     These must be of class
     \code{\link[=snp.tests.single.score-class]{snp.tests.single.score}}
     or
@@ -21,7 +21,7 @@ pool2(x, y, score)
 \value{
   An object of same class as the input objects (optionally without the
   \code{.score}) extension. Tests are produced for the \emph{union} of
-  SNPs tested in all the input objects. 
+  SNPs tested in all the input objects.
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
 \seealso{\code{\link{pool}},

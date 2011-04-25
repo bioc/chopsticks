@@ -17,7 +17,7 @@
  *  Fifth Floor, Boston, MA 02110-1301  USA.
  */
 
-/* 
+/*
    See ld_graphic_eps.h for description for external interfaces
    to routines here. Only internal routines are documented here.
 */
@@ -35,7 +35,7 @@
 #include "ld_graphic_eps_priv.h"
 
 /* internal routines */
-/* 
+/*
    These are respondible for the color-schemes.
    For each new color-scheme, we add one more
    here of the exact same prototype, and hook up the "scheme" switch
@@ -77,8 +77,8 @@ ld_graphics_ptr graphic_init(const char *filename, int ii, int jj, int i_depth, 
   if (extra_headroom) {
     gh->headroom = 150;
   }
-  
-  if (gh->range) 
+
+  if (gh->range)
     {
       scale = 70.0 / gh->range; /* 70 ~ 842/12 */
     }
@@ -110,7 +110,7 @@ void graphic_add_metric(ld_graphics_ptr gh, int min_metric, int metric_length){
 }
 
 /* no-OPs */
-void graphic_scan_line_begin(ld_graphics_ptr gh, int idx_j) 
+void graphic_scan_line_begin(ld_graphics_ptr gh, int idx_j)
 {
   return;
 }
@@ -126,17 +126,17 @@ void graphic_close(ld_graphics_ptr gh)
   int junk;
   junk = fwrite(EPS_ENDING, strlen(EPS_ENDING), 1, gh->fp);
   fclose(gh->fp);
-  if (gh->debug !=NULL) 
+  if (gh->debug !=NULL)
     fclose(gh->debug);
   free(gh);
 }
 
-void graphic_do_name(ld_graphics_ptr gh, int x, const char *name) 
+void graphic_do_name(ld_graphics_ptr gh, int x, const char *name)
 {
   fprintf(gh->fp, EPS_TEXT(x-gh->offset, name));
 }
 
-void graphic_do_metric(ld_graphics_ptr gh, int x, int trans_x) 
+void graphic_do_metric(ld_graphics_ptr gh, int x, int trans_x)
 {
   if(gh->metric_length) {
     fprintf(gh->fp, EPS_METRIC(x-gh->offset, ((float)(trans_x - gh->min_metric) * (gh->range -1))/gh->metric_length));
@@ -211,14 +211,14 @@ int get_color_std(geno_cptr res)
 }
 
 /* Haploview's ESQ_SCHEME */
-/* 
+/*
    double rsq = thisPair.getRSquared();
    Color boxColor = null;
-   
+
    int r, g, b;
-   
+
    r = g = b = (int)(255.0 * (1.0 - rsq));
-   
+
    boxColor = new Color(r, g, b);
 */
 

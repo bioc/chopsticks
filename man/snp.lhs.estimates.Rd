@@ -26,9 +26,9 @@ snp.lhs.estimates(snp.data, base.formula, add.formula, subset, snp.subset,
     terms in the model for which parameter estimates are required (again,
     the dependent variable is omitted)}
   \item{subset}{An array describing the subset of observations to be
-    considered} 
+    considered}
   \item{snp.subset}{An array describing the subset of SNPs to be
-    considered. Default action is to test all SNPs.} 
+    considered. Default action is to test all SNPs.}
   \item{data}{The data frame in which \code{base.formula},
     \code{add.formula} and \code{subset} are to be evaluated}
   \item{robust}{If \code{TRUE}, Hardy-Weinberg equilibrium will is not
@@ -50,7 +50,7 @@ snp.lhs.estimates(snp.data, base.formula, add.formula, subset, snp.subset,
   If a \code{data} argument is supplied, the \code{snp.data} and
   \code{data} objects are aligned by rowname. Otherwise all variables in
   the model formulae are assumed to be stored in the same order as the
-  columns of the \code{snp.data} object. 
+  columns of the \code{snp.data} object.
 }
 \value{
   An object of class \code{\link[=snp.estimates.glm-class]{snp.estimates.glm}}

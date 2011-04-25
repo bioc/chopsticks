@@ -19,16 +19,16 @@ misinherits(ped, id, father, mother, data = sys.parent(), snp.data)
     genotypes to be tested}
 }
 \details{
-    The first four arguments are usually derived from  a "pedfile". If a 
+    The first four arguments are usually derived from  a "pedfile". If a
   data frame is supplied for the \code{data} argument, the first four
-  arguments will be evaluated in this frame. Otherwise they will be evaluated 
-  in the calling environment. If the arguments are missing, they will be 
-  assumed to be in their usual positions in the pedfile data frame 
+  arguments will be evaluated in this frame. Otherwise they will be evaluated
+  in the calling environment. If the arguments are missing, they will be
+  assumed to be in their usual positions in the pedfile data frame
   i.e. in columns one to four.  If the pedfile data are obtained from
   a dataframe, the row names of the \code{data} and \code{snp.data}
   files will be used to align the pedfile and SNP data. Otherwise, these
   vectors will be assumed to be in the same order as the rows of
-  \code{snp.data}. 
+  \code{snp.data}.
 }
 \value{
   A logical matrix. Rows are subjects with any non-Mendelian

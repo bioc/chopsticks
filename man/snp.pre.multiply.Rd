@@ -42,7 +42,7 @@ calculated from one dataset to a different dataset
 \examples{
 ##--
 ##-- Calculate first two principal components and their loading, and verify
-##--	
+##--
 # Make a snp.matrix with a small number of rows
 data(testdata)
 small <- Autosomes[1:20,]

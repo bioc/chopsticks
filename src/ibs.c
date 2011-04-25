@@ -28,12 +28,12 @@ SEXP do_ibs(SEXP x)
   SEXP names = R_NilValue, rnames = R_NilValue;
   int rows = 0, cols =0;
   int i_first =0, i_second = 0;
-  
+
   if(TYPEOF(x) != RAWSXP) {
     Rprintf(" input x wrong type\n");
     return R_NilValue;
   }
-  
+
   PROTECT(dims = getAttrib(x, R_DimSymbol));
   if (length(dims) == 2)
     {
@@ -47,7 +47,7 @@ SEXP do_ibs(SEXP x)
       UNPROTECT(1);
       return R_NilValue;
     }
-  
+
   names = getAttrib(x, R_DimNamesSymbol);
   rnames = GetRowNames(names);
 
@@ -60,7 +60,7 @@ SEXP do_ibs(SEXP x)
   int i_element = 0;
   for (i_first = 0; i_first < rows - 1; i_first++) {
     for (i_second = i_first + 1; i_second < rows ; i_second++) {
-      int j; 
+      int j;
       int count = 0, calls_valid = 0;
       char buffer[256];
       for(j = 0 ; j < cols ; j++) {

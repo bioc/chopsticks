@@ -1,8 +1,8 @@
-/* 
+/*
    Single trio-based SNP tests - 1df and 2df
-   
-   Calculates score test and variance 
- 
+
+   Calculates score test and variance
+
 */
 
 #include <R.h>
@@ -15,19 +15,19 @@
 #include "imputation.h"
 #include "Rmissing.h"
 
-SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother, 
-	       const SEXP Cluster, const SEXP Snps,  const SEXP Rules, 
+SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
+	       const SEXP Cluster, const SEXP Snps,  const SEXP Rules,
                const SEXP Snp_subset, const SEXP Check, const SEXP Robust,
 	       const SEXP Uncertain){
- 
+
   int mendelian[36] = {1, 0, 0, 1, 1, 0, 0, 1, 0,
 		       1, 1, 0, 1, 1, 1, 0, 1, 1,
 		       0, 1, 0, 0, 1, 1, 0, 0, 1,
                        1, 0, 0, 1, 0, 1, 0, 0, 1};
-   
+
   /* Trios */
 
-  if (TYPEOF(Proband)!=INTSXP || TYPEOF(Father)!=INTSXP || 
+  if (TYPEOF(Proband)!=INTSXP || TYPEOF(Father)!=INTSXP ||
       TYPEOF(Mother)!=INTSXP || TYPEOF(Cluster)!=INTSXP )
     error("Argument error - Proband|Father|Mother|Cluster");
   const int *proband = INTEGER(Proband);
@@ -36,7 +36,7 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
   const int *cluster = INTEGER(Cluster);
 
   int ntrio = LENGTH(Proband);
-  
+
   /* SNPs ---- should be a snp.matrix or an X.snp.matrix */
 
   const char *classS = NULL;
@@ -86,12 +86,12 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
     } else {
       classR = CHAR(STRING_ELT(getAttrib(Rules, R_ClassSymbol), 0));
     }
-    if (strcmp(classR, "snp.reg.imputation")!=0) 
+    if (strcmp(classR, "snp.reg.imputation")!=0)
       error("Argument error - Rules");
     nrules = LENGTH(Rules);
     pmax = *INTEGER(getAttrib(Rules, install("Max.predictors")));
     gt2ht = (GTYPE **)Calloc(pmax, GTYPE *);
-    for (int i=0; i<pmax; i++) 
+    for (int i=0; i<pmax; i++)
       gt2ht[i] = create_gtype_table(i+1);
   }
 
@@ -111,7 +111,7 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 
   const int *female = NULL;
   if (ifX) {
-    SEXP Female = R_do_slot(Snps, mkString("Female")); 
+    SEXP Female = R_do_slot(Snps, mkString("Female"));
     female = LOGICAL(Female);
   }
 
@@ -120,10 +120,10 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
   if (TYPEOF(Check)!=LGLSXP)
     error("Argument error `Check'");
   int check = *LOGICAL(Check);
- 
+
   /* Robust option */
 
-  if (TYPEOF(Robust)!=LGLSXP)    
+  if (TYPEOF(Robust)!=LGLSXP)
     error("Argument error `Robust'");
   int robust = *LOGICAL(Robust);
 
@@ -133,14 +133,14 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
     error("Argument error: Uncertainty is wrong type");
   int uncert = *LOGICAL(Uncertain);
   /* Force robust variance if uncertain option used */
-  robust = robust || uncert; 
+  robust = robust || uncert;
 
 
   /* Output objects */
- 
+
   SEXP Result, Used, U, V;
   PROTECT(Result = allocVector(VECSXP, 4));
-  
+
   if (female) {
     PROTECT(U =  allocMatrix(REALSXP, ntest, 3) ); /* Scores */
     PROTECT(V =  allocMatrix(REALSXP, ntest, 4) ); /* Score variances */
@@ -150,7 +150,7 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
     PROTECT(V =  allocMatrix(REALSXP, ntest, 3) ); /* Score variances */
   }
   SET_VECTOR_ELT(Result, 0, U);
-  double *umat = REAL(U); 
+  double *umat = REAL(U);
   SET_VECTOR_ELT(Result, 1, V);
   double *vmat = REAL(V);
 
@@ -169,7 +169,7 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
     nr2 = REAL(Nr2);
   }
   SET_VECTOR_ELT(Result, 3, Nr2);
-  
+
   /* Space to hold imputed values */
 
   double *ximp = NULL;
@@ -178,16 +178,16 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
   }
 
   /* Do calculations */
-  
+
   int nonmend=0, Xerrors=0;
-  
+
   const double thrsix = 3.0/16.0;
   const double quart = 1.0/4.0;
 
   if (!ifX) {
 
     for (int t=0; t<ntest; t++) {
-      int i = snp_subset? snp_subset[t] - 1: t; 
+      int i = snp_subset? snp_subset[t] - 1: t;
       const unsigned char *snpsi = NULL;
       double r2 = 0.0;
       if (nrules) {
@@ -200,7 +200,7 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 	  }
 	}
 	else {
-	  do_impute(snps, nsubj, NULL, nsubj, name_index, Rule, gt2ht, 
+	  do_impute(snps, nsubj, NULL, nsubj, name_index, Rule, gt2ht,
 		    ximp, NULL);
 	  r2 = *REAL(VECTOR_ELT(Rule, 0));
 	}
@@ -213,8 +213,8 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 
       /* Initialise score and score variance array */
 
-      double u1=0.0, u2=0.0, v11=0.0, v12=0.0, v22=0.0; 
-      double up1=0.0, up2=0.0; 
+      double u1=0.0, u2=0.0, v11=0.0, v12=0.0, v22=0.0;
+      double up1=0.0, up2=0.0;
 
       int nu = 0;
       for (int j=0, jn=1; j<ntrio; j=jn, jn++) {
@@ -244,7 +244,7 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 	      nu++;
 	      int hetf = (sf==1);
 	      int hetm = (sm==1);
-	      if (hetf || hetm) { 
+	      if (hetf || hetm) {
 		int homp = (sp==2);
 		int ss = sf + sm;
 		if (!robust) {
@@ -289,7 +289,7 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 	}
       }
       /* Store results in output object */
-    
+
       Nused[t] = nu;
       if (nrules)
 	nr2[t] = nu*r2;
@@ -304,7 +304,7 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
   else {
 
     for (int t=0; t<ntest; t++) {
-      int i = snp_subset? snp_subset[t] - 1: t; 
+      int i = snp_subset? snp_subset[t] - 1: t;
       const unsigned char *snpsi = NULL;
       double r2 = 0.0;
       if (nrules) {
@@ -316,7 +316,7 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 	    ximp[j] = 0.0;
 	}
 	else {
-	  do_impute(snps, nsubj, NULL, nsubj, name_index, Rule, gt2ht, 
+	  do_impute(snps, nsubj, NULL, nsubj, name_index, Rule, gt2ht,
 		    ximp, NULL);
 	  r2 = *REAL(VECTOR_ELT(Rule, 0));
 	}
@@ -327,9 +327,9 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 	snpsi = snps + nsubj*i;
       }
 
-      double u = 0, v=0, u1=0.0, u2=0.0, v11=0.0, v12=0.0, v22=0.0; 
-      double up=0.0, up1=0.0, up2=0.0; 
-      
+      double u = 0, v=0, u1=0.0, u2=0.0, v11=0.0, v12=0.0, v22=0.0;
+      double up=0.0, up1=0.0, up2=0.0;
+
       int nu = 0;
 
       for (int j=0, jn=1; j<ntrio; j=jn, jn++) {
@@ -337,7 +337,7 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 	int fj = father[j] - 1;
 	int mj = mother[j] - 1;
 	int fp = female[pj];
-	if (ISNA(fp)) 
+	if (ISNA(fp))
 	  continue;
 	if (nrules) {
 	  double xp = ximp[pj];
@@ -361,7 +361,7 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 	    sf--;
 	    sm--;
 	    int malehet = (sf==1) || (!fp && (sp==1));
-            int jm = fp? mendelian[sp + 3*sm + 9*sf]: 
+            int jm = fp? mendelian[sp + 3*sm + 9*sf]:
                          mendelian[sp + 3*sm + 27];
 	    if (!malehet && (!check || jm))  {
 	      nu++;
@@ -375,7 +375,7 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
 		  u += uw;
 		  if (fp) {
 		    u1 += uw;
-		    v11 += quart; 
+		    v11 += quart;
 		    if (homf) {
 		      u2 += (double) homp - 0.5;
 		      v22 += quart;
@@ -428,11 +428,11 @@ SEXP score_tdt(const SEXP Proband, const SEXP Father, const SEXP Mother,
       vmat[3*ntest+t] = v22;
     }
   }
- 
+
    /* Warnings */
 
-  if (Xerrors) 
-    warning("%d instances of a male coded as heterozygous at an X locus", 
+  if (Xerrors)
+    warning("%d instances of a male coded as heterozygous at an X locus",
 	    Xerrors);
   if (nonmend)
     warning("%d misinheritances were detected", nonmend);

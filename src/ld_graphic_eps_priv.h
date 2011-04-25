@@ -17,7 +17,7 @@
  *  Fifth Floor, Boston, MA 02110-1301  USA.
  */
 
-/* raw postscript code from fig2dev 
+/* raw postscript code from fig2dev
    and hand edited
  */
 
@@ -31,7 +31,7 @@
 
 #define EPS_BOUNDBOX(x, y, scale, eps_headroom) "0 0 %d %d\n", (int) ((x) * 12 * scale + 0.5), (int) (((y) * 6 + eps_headroom) * scale + 0.5)
 
-/* 
+/*
 perl -e 'for ($i = 0; $i < 256; $i++) {printf "%i %3.3f%s", $i, $i/255, "\n";}'
 perl -e 'for ($i = 0; $i < 256; $i++) {printf "/p1%03i \[%3.3f %3.3f %3.3f\] def\\n\\%s", $i, $i/255,  $i/255,  $i/255,"\n";
 perl -e 'for ($i = 0; $i < 256; $i++) {printf "/c1%03i \{%3.3f setgray\} bind def\\n\\%s", $i, $i/255, "\n";}'

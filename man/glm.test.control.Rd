@@ -26,7 +26,7 @@ convergence. After fitting the base model, the new terms are added, but
 terms judged to be "aliased" are omitted. The method for determining
 aliasing is as follows (denoting the "design" matrix for the additional
 terms by \code{Z}):
-  \enumerate{ 
+  \enumerate{
     \item{Step 1}{Regress each column of \code{Z} on the base model matrix,
     using the final GLM weights from the base model fit, and replace
     \code{Z} with the residuals from these regressions.}

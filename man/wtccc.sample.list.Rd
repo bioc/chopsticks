@@ -24,8 +24,8 @@ wtccc.sample.list(infile)
 
 The first 5 fields are discarded. There after, every other token
 is retained, with the "\_A" or "\_B" part removed to give the sample list.
-  
-See also \code{\link{read.wtccc.signals}} for more details. 
+
+See also \code{\link{read.wtccc.signals}} for more details.
 }
 \value{
   The value returned is a character vector contain the sample names

@@ -15,12 +15,12 @@
   of a SNP by a linear regression equation. Each element is itself a
   list with the following elements:
   \describe{
-    \item{maf}{The minor allele frequency of the imputed SNP} 
+    \item{maf}{The minor allele frequency of the imputed SNP}
     \item{r.squared}{The squared Pearson correlation coefficient between
     observed and predicted SNP duration derivation of the rule.}
     \item{snps}{The names of the SNPs to be included in the regression.}
     \item{coefficients}{A numeric array containing the regression
-      equation 
+      equation
       intercept followed by the regression coefficients for the SNPs
       listed in \code{snps}, OR}
     \item{hap.probs}{A numerical array containing estimated

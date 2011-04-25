@@ -26,4 +26,4 @@ SEXP force_hom(const SEXP Xsnps, const SEXP Female) {
   UNPROTECT(1);
   return(Result);
 }
-  
+

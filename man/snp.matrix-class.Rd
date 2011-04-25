@@ -1,7 +1,7 @@
 \name{snp.matrix-class}
 \docType{class}
 \alias{snp.matrix-class}
-\alias{initialize,snp.matrix-method} 
+\alias{initialize,snp.matrix-method}
 \alias{[,snp.matrix-method}
 \alias{[,snp.matrix,ANY,ANY,ANY-method}
 \alias{rbind2,snp.matrix,snp.matrix-method}
@@ -35,7 +35,7 @@ Objects can be created by calls of the form \code{new("snp.matrix", x)}
 \section{Slots}{
 	 \describe{
     \item{\code{.Data}:}{Object of class \code{"matrix"} and storage
-      mode \code{raw}  
+      mode \code{raw}
     Internally, missing data are coded 00 and SNP genotypes are coded
     01, 02 or 03. }
   }

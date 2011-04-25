@@ -38,10 +38,10 @@
 typedef struct linecontent {
   struct linecontent *next;
   char name[MAX_SNP_LEN];
-  char alleles[64]; /* These sizes of these fields are chosen to be big and align position to 8 byte */ 
+  char alleles[64]; /* These sizes of these fields are chosen to be big and align position to 8 byte */
   char chrom[8];
   char assignment[4];
-  char strand[4];  
+  char strand[4];
   unsigned int pos;     /* this one should be aligned to 8 byte boundary */
   char *snps;
 } *linecontent_ptr;
@@ -67,7 +67,7 @@ static int valid_gtype(char a) {
   case 'G':
     return 1;
     break;
-  default: 
+  default:
     return 0;
     break;
   }
@@ -115,7 +115,7 @@ static int guess_genotypes(char *line_ptr, char *alleles, int verbose) {
       bin[ a - 'A' ] = 0x01;
     } else if ((a != ' ') && (a != 'N') && (a != 'D') && (a != 'I') && (a != '\n')) {
       /* see anything strange, bail out */
-      return -1; 
+      return -1;
     }
   }
 
@@ -191,13 +191,13 @@ static int guess_genotypes(char *line_ptr, char *alleles, int verbose) {
 	result |= (MAKEUP_GTYPE << 8);
       }
       seen_genotype ++;
-    }    
+    }
   }
-  
+
   if (seen_genotype == 2) {
     if ((verbose) && (batch_genotype != seen_genotype)) {
-      Rprintf("Reducing dbSNPs %s\tagainst seen %s", alleles, seen);      
-      Rprintf("\t: %c/%c\n", (result >> 8), (result & 0xff)); 
+      Rprintf("Reducing dbSNPs %s\tagainst seen %s", alleles, seen);
+      Rprintf("\t: %c/%c\n", (result >> 8), (result & 0xff));
     }
     return result;
   } else {
@@ -220,7 +220,7 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
   char current_line[LINE_BUF_SIZE];
   char *line_ptr = NULL;
   gzFile gz_fp;
-  int snp_count = 0; 
+  int snp_count = 0;
   int i_snps = 0;
   int read_failed = 1; /* = "yes", default */
   int n_samples = 1;
@@ -236,15 +236,15 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
     Rprintf(" input filename wrong type\n");
   if(TYPEOF(sexp_verbose) != LGLSXP)
     Rprintf(" verbose argument not of logical type\n");
-  
+
   verbose = LOGICAL(sexp_verbose)[0];
 
   filename = CHAR(STRING_ELT(downloaded_file, 0));
   gz_fp = gzopen(filename, "rb");
-  
+
   if (!gz_fp) {
     Rprintf("opening downloaded file failed.\n");
-    UNPROTECT(2); 
+    UNPROTECT(2);
     return R_NilValue;
   }
 
@@ -252,14 +252,14 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
     /* do-while loops does the body at least once */
     if (gzgets(gz_fp, current_line, LINE_BUF_SIZE) == Z_NULL) {
       Rprintf("read header failed\n");
-      UNPROTECT(2); 
+      UNPROTECT(2);
       return R_NilValue;
     }
-    
+
     if (strlen(current_line) +1 >= LINE_BUF_SIZE) {
       Rprintf("Header unexpectedly long\n");
       Rprintf("Please recompile with large LINE_BUFFER_SIZE\n");
-      UNPROTECT(2); 
+      UNPROTECT(2);
       return R_NilValue;
     }
     /* skip over initial comments starting with '#' */
@@ -277,9 +277,9 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
 
   /* n_samples starts at 1, since no space is 1 sample */
   for (line_ptr = current_line + header_skip; (*line_ptr) ; line_ptr++) {
-    if (*line_ptr == ' ') { 
+    if (*line_ptr == ' ') {
       n_samples++;
-      *line_ptr = '\0'; 
+      *line_ptr = '\0';
     }
   }
   line_ptr--;
@@ -292,11 +292,11 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
   Rprintf("Reading %d samples\n", n_samples);
 
   PROTECT(sample_names = allocVector(STRSXP, n_samples));
-  
+
   line_ptr = current_line + header_skip;
-  for (i = 0; i < n_samples; i ++) {    
+  for (i = 0; i < n_samples; i ++) {
     SET_STRING_ELT(sample_names, i, mkChar(line_ptr));
-    
+
     while(*line_ptr) line_ptr++; /* advance to the next null */
     line_ptr++; /* next non-null */
   }
@@ -304,7 +304,7 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
   while (1) {
     char *snps = NULL;
     char *alleles = NULL;
-    int get1 = 0; 
+    int get1 = 0;
     /* read until breaking out because of eof or error */
     if (gzeof(gz_fp)) {
       gzclose(gz_fp);
@@ -313,7 +313,7 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
       read_failed = 0; /* read_failed = "no" */
       break;
     }
-    
+
     /* gzeof() is not reliable for non-compressed files,
        trying alternative method for testing end of file*/
     if ((get1 = gzgetc(gz_fp)) != -1) {
@@ -328,7 +328,7 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
         gzclose(gz_fp);
 	Rprintf("EOF reached after %d snps\n", snp_count);
       } else {
-	Rprintf("No more to read after %d snps\n", snp_count);	
+	Rprintf("No more to read after %d snps\n", snp_count);
       }
       read_failed = 0; /* read_failed = "no" */
       break;
@@ -338,7 +338,7 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
       Rprintf("read error (gzgets) after %d snps\n", snp_count);
       break;
     }
-    
+
     if (strlen(current_line) +1 >= LINE_BUF_SIZE) {
       Rprintf("Unexpected long lines after %d snps\n", snp_count);
       Rprintf("Please recompile with large LINE_BUFFER_SIZE\n");
@@ -350,15 +350,15 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
     cur_content_ptr->snps = (char *)calloc(sizeof(char), n_samples);
     alleles = cur_content_ptr->alleles;
     snps = cur_content_ptr->snps;
-    int i = sscanf(current_line, "%s %s %5s %u %1s", cur_content_ptr->name, 
+    int i = sscanf(current_line, "%s %s %5s %u %1s", cur_content_ptr->name,
 		   alleles,
 		   cur_content_ptr->chrom,
 		   &(cur_content_ptr->pos),
 		   cur_content_ptr->strand
 		   );
-    if ((i != 5) || (i == EOF) || 
-	(strlen(cur_content_ptr->chrom) > 5) || 
-	(strlen(cur_content_ptr->strand) > 1) || 
+    if ((i != 5) || (i == EOF) ||
+	(strlen(cur_content_ptr->chrom) > 5) ||
+	(strlen(cur_content_ptr->strand) > 1) ||
         ( (cur_content_ptr->strand[0] != '+') && (cur_content_ptr->strand[0] != '-') )
 	){
       Rprintf("malformed input line [%d]: %s", snp_count, current_line);
@@ -374,12 +374,12 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
       if (*line_ptr == ' ') skip_count++;
     }
 
-    if ((alleles[1] != '/') || (alleles[0] == alleles[2]) || !valid_gtype(alleles[0]) || !valid_gtype(alleles[2]) 
+    if ((alleles[1] != '/') || (alleles[0] == alleles[2]) || !valid_gtype(alleles[0]) || !valid_gtype(alleles[2])
 	|| (strlen(alleles) != 3)) {
       int guesses = guess_genotypes(line_ptr, alleles, verbose);
-      if (guesses < 0) {	
+      if (guesses < 0) {
 	Rprintf("snp entry #%d, %s allele field unexpected %s\n", snp_count, cur_content_ptr->name, alleles);
-	Rprintf(" calls: %s", line_ptr); /* no need to do \n, since it is included */ 
+	Rprintf(" calls: %s", line_ptr); /* no need to do \n, since it is included */
 	break;
       } else {
 	unsigned char a = guesses >> 8;
@@ -387,7 +387,7 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
 	gmask[a] = GMASK_1 ;
 	gmask[b] = GMASK_2 ;
 	sprintf(cur_content_ptr->assignment, "%c/%c", a, b);
-	
+
       }
     } else {
       gmask[(int) alleles[0]] = GMASK_1 ;
@@ -419,12 +419,12 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
 	break;
       }
       snps ++;
-      c = *line_ptr++; 
+      c = *line_ptr++;
       if ((snps - cur_content_ptr->snps) == n_samples) {
 	while (c == ' ') {
 	  c = *line_ptr++;
 	}
-	if ((c != '\n')) {	  
+	if ((c != '\n')) {
 	  Rprintf(" unexpected end of line %02X\n", c);
 	}
       } else {
@@ -432,7 +432,7 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
 	  Rprintf(" unexpected middle of line %02X\n", c);
 	}
       }
-    } 
+    }
 
     if (!(snp_count % 20000)) {
       Rprintf("current line [%d] : %.20s...\n", snp_count, current_line);
@@ -464,7 +464,7 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
   PROTECT(supp_chrom      = allocVector(STRSXP,  snp_count));
   PROTECT(supp_strand     = allocVector(STRSXP,  snp_count));
   PROTECT(supp_pos        = allocVector(INTSXP,  snp_count));
-  
+
   i_snps = 0;
   for(cur_content_ptr = listhead.next; cur_content_ptr ; cur_content_ptr = cur_content_ptr->next) {
     char *snps = cur_content_ptr->snps;
@@ -481,7 +481,7 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
   }
 
   contentlist_destroy(listhead.next);
-  
+
   /* make another copy of the snp names for the support data frame */
   PROTECT(supp_snp_names = duplicate(snp_names));
   /* constructing the support data frame */

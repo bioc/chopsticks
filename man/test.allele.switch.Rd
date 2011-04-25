@@ -30,11 +30,11 @@ they have not been switched. This requires integration over the
 posterior distribution of the allele frequency. The prior is taken as a
 beta distribution with both parameters equal to \code{prior.df}so that
 the prior is symmetric about 0.5. The default,
-\code{prior.df=1} represents a uniform prior on (0,1). 
+\code{prior.df=1} represents a uniform prior on (0,1).
 }
 \value{
 A vector containing the log (base 10) of the Bayes Factors for an allele
-switch. 
+switch.
 }
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
 \seealso{\code{\link{snp.matrix-class}}, \code{\link{X.snp.matrix-class}}}

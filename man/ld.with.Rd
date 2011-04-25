@@ -40,7 +40,7 @@ ld.with(data, snps, include.itself = as.logical(length(snps) - 1), signed.r = NU
   \code{\link{snp.dprime-class}} object, to rearrange it
   in a more convenient form to focus on the LD's against specific SNPs,
   but then evolved to take a \code{\link{snp.matrix-class}} object
-  alternatively and perform the same task directly and more efficiently.  
+  alternatively and perform the same task directly and more efficiently.
 }
 \section{Warning}{
   Because this is really two functions rolled into one, depending on the

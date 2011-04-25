@@ -7,9 +7,9 @@
 #include <stdio.h>
 #include <string.h>
 
-SEXP test_switch(const SEXP Snps, const SEXP Snps2, const SEXP Split, 
+SEXP test_switch(const SEXP Snps, const SEXP Snps2, const SEXP Split,
 		 const SEXP Prior) {
-  
+
   int *female = NULL;
   SEXP cl = GET_CLASS(Snps);
   if (TYPEOF(cl) != STRSXP) {
@@ -20,14 +20,14 @@ SEXP test_switch(const SEXP Snps, const SEXP Snps2, const SEXP Split,
     Female = R_do_slot(Snps, mkString("Female"));
     female = LOGICAL(Female);
   }
-  unsigned char *snps = RAW(Snps); 
+  unsigned char *snps = RAW(Snps);
   int N1 = nrows(Snps);
   int M = ncols(Snps);
   int *split = NULL;
   int N2 = 0;
   unsigned char *snps2 = NULL;
   int *female2 = NULL;
-  if (TYPEOF(Snps2)==NILSXP) 
+  if (TYPEOF(Snps2)==NILSXP)
     split = INTEGER(Split);
   else {
     N2 = nrows(Snps2);
@@ -37,9 +37,9 @@ SEXP test_switch(const SEXP Snps, const SEXP Snps2, const SEXP Split,
       female2 = LOGICAL(Female);
     }
   }
-    
+
   double eta = *REAL(Prior);
-  
+
   SEXP Result;
   PROTECT(Result = allocVector(REALSXP, M));
   double *result = REAL(Result);
@@ -53,7 +53,7 @@ SEXP test_switch(const SEXP Snps, const SEXP Snps2, const SEXP Split,
       for (int i=0, ij=N*j; i<N; i++, ij++) {
 	const int s = (int) snpsg[ij];
 	if (s) {
-	  if (split) 
+	  if (split)
 	    g = split[i];
 	  if (g!=NA_INTEGER) {
 	    if (female && !female[i]) {
@@ -83,7 +83,7 @@ SEXP test_switch(const SEXP Snps, const SEXP Snps2, const SEXP Split,
 	break;
       else {
 	snpsg = snps2;
-	if (female) 
+	if (female)
 	  fg = female2;
 	N = N2;
 	g = 2;
@@ -92,17 +92,17 @@ SEXP test_switch(const SEXP Snps, const SEXP Snps2, const SEXP Split,
     /* log base 10 Bayes factor for switch */
     result[j] = logten*(lbeta(eta + (double) (np0+n1-np1),
 			      eta + (double) (n0-np0+np1)) -
-			lbeta(eta + (double) (np0+np1), 
+			lbeta(eta + (double) (np0+np1),
 			      eta + (double) (n0+n1-np0-np1)));
   }
   UNPROTECT(1);
   return Result;
 }
-	
-	
+
+
 SEXP smat_switch(SEXP X, SEXP Switch) {
   SEXP Result = duplicate(X);
-  unsigned char *res = RAW(Result); 
+  unsigned char *res = RAW(Result);
   int N = nrows(Result);
   int nsw = length(Switch);
   int *sw = INTEGER(Switch);
@@ -110,10 +110,10 @@ SEXP smat_switch(SEXP X, SEXP Switch) {
     unsigned char *resij = res + N*(sw[i] - 1);
     for (int j=0; j<N; j++, resij++) {
       unsigned char g = *resij;
-      if (g) 
+      if (g)
 	*resij = 4 - g;
     }
   }
   return Result;
 }
-    
+

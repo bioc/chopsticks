@@ -57,7 +57,7 @@ SEXP snp_pairwise(SEXP v, SEXP i, SEXP j)
   int rows = 0, cols =0;
   int ii, jj;
   geno_cptr res = NULL;
-  
+
 
   if(TYPEOF(v) != RAWSXP)
     Rprintf(" input v wrong type\n");
@@ -90,7 +90,7 @@ SEXP snp_pairwise(SEXP v, SEXP i, SEXP j)
   Rprintf(" ii = %i, jj = %i\n", ii, jj);
 
   res = get_geno_count(RAW(v) + (ii - 1) * rows, RAW(v) + (jj - 1) * rows, rows);
-  
+
   Rprintf(" %i\t%i\t%i\t%f\t%f\t%f\n", res->count[0], res->count[1], res->count[2], res->expt[0], res->expt[1], res->expt[2]);
   Rprintf(" %i\t%i\t%i\t%f\t%f\t%f\n", res->count[3], res->count[4], res->count[5], res->expt[3], res->expt[4], res->expt[5]);
   Rprintf(" %i\t%i\t%i\t%f\t%f\t%f\n", res->count[6], res->count[7], res->count[8], res->expt[6], res->expt[7], res->expt[8]);
@@ -179,7 +179,7 @@ SEXP snp_pair_graphics(SEXP v, SEXP fileoutput, SEXP i, SEXP j, SEXP depth, SEXP
     {
       graphic_scan_line_begin(graphic_handle, idx_j);
       for (idx_i = ii - 1 ; idx_i <= jj - 2 - idx_j; idx_i++)
-	{	  
+	{
 	  if (0) Rprintf(" start = %i, end = %i\n", idx_i, idx_i + idx_j + 1);
 	  graphic_do_pair(graphic_handle, RAW(v) + idx_i * rows, RAW(v) + (idx_i + idx_j + 1) * rows , idx_i, idx_j, rows, i_notes);
 	}
@@ -187,7 +187,7 @@ SEXP snp_pair_graphics(SEXP v, SEXP fileoutput, SEXP i, SEXP j, SEXP depth, SEXP
     }
   UNPROTECT(7);
   graphic_close(graphic_handle);
-  Rprintf("... Done\n");  
+  Rprintf("... Done\n");
   return R_NilValue;
 }
 
@@ -232,7 +232,7 @@ SEXP snp_dprime_draw(SEXP list_in, SEXP fileoutput, SEXP color_scheme, SEXP do_n
       Rprintf("filename in wrong type\n");
       return R_NilValue;
     }
-  
+
   PROTECT(dims = getAttrib(dprime, R_DimSymbol));
   if (length(dims) == 2)
     {
@@ -279,19 +279,19 @@ SEXP snp_dprime_draw(SEXP list_in, SEXP fileoutput, SEXP color_scheme, SEXP do_n
       graphic_add_metric(graphic_handle, min_metric, max_metric - min_metric);
     }
   }
-  
+
   snp_names = getAttrib(list_in, install("snp.names"));
-  
+
   if (snp_names != R_NilValue)
     {
       if (length(snp_names) == rows + 1)
 	{
-	  
+
 	  for (idx_i = 0 ; idx_i < rows + 1 ; idx_i ++)
 	    {
 	      int dist_x = -1;
 	      graphic_do_name(graphic_handle, idx_i, CHAR(STRING_ELT(snp_names, idx_i)));
-	      if ((do_metric) && ((dist_x = index_lookup(dist_db, CHAR(STRING_ELT(snp_names, idx_i)))) >= 0)) {	
+	      if ((do_metric) && ((dist_x = index_lookup(dist_db, CHAR(STRING_ELT(snp_names, idx_i)))) >= 0)) {
 		graphic_do_metric(graphic_handle, idx_i, dist_x);
 	      }
 	    }
@@ -303,14 +303,14 @@ SEXP snp_dprime_draw(SEXP list_in, SEXP fileoutput, SEXP color_scheme, SEXP do_n
 
     }
   for (idx_j = 0 ; idx_j < cols; idx_j++)
-    {	  
+    {
       graphic_scan_line_begin(graphic_handle, idx_j);
       for(idx_i = 0; idx_i < rows - idx_j; idx_i++)
 	{
 	  geno_cptr res = (geno_cptr)calloc(1, sizeof(geno_count));
 	  double rmaybe    = REAL(rmisc)[idx_i + rows * idx_j];
 	  res->dprime = REAL(dprime)[idx_i + rows * idx_j];
-	  if (is_r) 
+	  if (is_r)
 	    {
 	      if (ISNA(rmaybe)) /* invalid value of r (DC modified 01/09) */
 		{
@@ -333,7 +333,7 @@ SEXP snp_dprime_draw(SEXP list_in, SEXP fileoutput, SEXP color_scheme, SEXP do_n
     }
   UNPROTECT(4);
   graphic_close(graphic_handle);
-  Rprintf("... Done\n");  
+  Rprintf("... Done\n");
   return R_NilValue;
 }
 
@@ -406,7 +406,7 @@ SEXP snp_pair_range(SEXP v, SEXP i, SEXP j, SEXP depth, SEXP signed_r)
   memset(REAL(rmisc) , 0, width * i_depth * sizeof(double));
   memset(REAL(lod)   , 0, width * i_depth * sizeof(double));
 
-  PROTECT(ans    = allocVector(VECSXP, 3)); 
+  PROTECT(ans    = allocVector(VECSXP, 3));
 
   in_names = getAttrib(v, R_DimNamesSymbol);
   cnames = GetColNames(in_names);
@@ -418,13 +418,13 @@ SEXP snp_pair_range(SEXP v, SEXP i, SEXP j, SEXP depth, SEXP signed_r)
       SET_STRING_ELT(snp_names, idx_j, STRING_ELT(cnames, idx_i));
       idx_j++;
     }
-  
+
   for(idx_j = 0; idx_j < i_depth; idx_j++)
     {
       for (idx_i = ii - 1 ; idx_i <= jj - 2 - idx_j; idx_i++)
-	{	  
-	  geno_cptr res = get_geno_count(RAW(v) + idx_i * rows, 
-					 RAW(v) + (idx_i + idx_j + 1) * rows , 
+	{
+	  geno_cptr res = get_geno_count(RAW(v) + idx_i * rows,
+					 RAW(v) + (idx_i + idx_j + 1) * rows ,
 					 rows);
 	  int offset = idx_i +1 - ii;
 	  REAL(dprime)[offset + idx_j * width] = res->dprime;
@@ -468,10 +468,10 @@ SEXP snp_pair_range(SEXP v, SEXP i, SEXP j, SEXP depth, SEXP signed_r)
 
   PROTECT(class_name = allocVector(STRSXP, 1));
   SET_STRING_ELT(class_name, 0, mkChar("snp.dprime"));
-  classgets(ans, class_name);  
+  classgets(ans, class_name);
   setAttrib(ans, install("snp.names"), snp_names);
 
   UNPROTECT(13);
-  Rprintf("... Done\n");  
+  Rprintf("... Done\n");
   return ans;
 }

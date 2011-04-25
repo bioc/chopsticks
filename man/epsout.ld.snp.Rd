@@ -8,7 +8,7 @@
   as haploview's default view. It was the first prototype of
   this bunch of software. Also, it does not keep any pair-wise data
   in memory at all, and maybe more suitable where the actual pair-wise
-  LD data is not needed.  
+  LD data is not needed.
 }
 \usage{
 epsout.ld.snp(snpdata, filename, start, end, depth, do.notes=FALSE)
@@ -40,10 +40,10 @@ epsout.ld.snp(snpdata, filename, start, end, depth, do.notes=FALSE)
 }
 \references{
     Clayton, D.G. and Leung, Hin-Tak (2007) An R package for analysis of
-  whole-genome association studies. 
+  whole-genome association studies.
   \emph{Human Heredity} \bold{64}:45-51.\cr
   GSL (GNU Scientific Library) \url{http://www.gnu.org/software/gsl/}\cr
-  The postscript language reference manual: 
+  The postscript language reference manual:
   \url{http://www.adobe.com/products/postscript/pdfs/PLRM.pdf}\cr
   The pdf specification:
   \url{http://partners.adobe.com/public/developer/en/pdf/PDFReference16.pdf}

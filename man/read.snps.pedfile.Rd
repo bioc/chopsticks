@@ -10,7 +10,7 @@
   \code{"snp.matrix"} or \code{"X.snp.matrix"} containing the genotype data
 }
 \usage{
-read.snps.pedfile(file, snp.names=NULL, assign=NULL, missing=NULL, X=FALSE, sep=".", low.mem = FALSE) 
+read.snps.pedfile(file, snp.names=NULL, assign=NULL, missing=NULL, X=FALSE, sep=".", low.mem = FALSE)
 }
 \arguments{
   \item{file}{The file name for the input pedfile}
@@ -30,7 +30,7 @@ read.snps.pedfile(file, snp.names=NULL, assign=NULL, missing=NULL, X=FALSE, sep=
     in the constructed row names; not used}
   \item{low.mem}{Switch over to input with a routine which requires less memory to run,
     but takes a little longer. This option also has the disadvantage that
-    assignment of A/B genotype is somewhat non-deterministic and depends 
+    assignment of A/B genotype is somewhat non-deterministic and depends
     the listed order of samples.}
 }
 \details{
@@ -41,7 +41,7 @@ read.snps.pedfile(file, snp.names=NULL, assign=NULL, missing=NULL, X=FALSE, sep=
   missing; everything else is considered invalid and would invalidate
   the whole snp; also more than 2 alleles also cause the snp to be
   marked invalid.
-  
+
   Row names of the output objects are constructed by
   concatenation of the pedigree and member identifiers, "Family",
   "Individual" joined by ".", e.g. "Family.Adams.Individual.0".

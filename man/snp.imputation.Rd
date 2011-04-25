@@ -38,10 +38,10 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try=50, stopping=c(0.95, 4, 0.05
   SNPs. If
   \code{phase} is \code{TRUE}, the regressions will be calculated at the
   chromosome (haplotype) level, variances being simply  \eqn{p(1-p)} and
-  covariances estimated 
+  covariances estimated
   using the same algorithm used in \code{\link{ld.snp}} (this option is
   not yet implemented). Otherwise, the
-  analysis is carried out at the genotype level based on  
+  analysis is carried out at the genotype level based on
   conventional variance and covariance estimates using the
   \code{"pairwise.complete.obs"} missing value treatment
   (see \code{\link{cov}}). New
@@ -51,7 +51,7 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try=50, stopping=c(0.95, 4, 0.05
   \code{stopping}, or (c) the change in \eqn{R^2} does not achieve the
   target set by the third parameter of \code{stopping}. If the third
   parameter of \code{stopping} is \code{NA}, this last test is replaced
-  by a test for improvement in the Akaike information criterion (AIC). 
+  by a test for improvement in the Akaike information criterion (AIC).
 
   If the prediction  as measure by  \eqn{R^2}, has not achieved a
   threshold (the first parameter of \code{use.hap})
@@ -75,7 +75,7 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try=50, stopping=c(0.95, 4, 0.05
   are labelled \eqn{a, b, c} and \eqn{d} then, if \eqn{ad>bc} then
   \eqn{t = min(a,d)} and, otherwise,  \eqn{t = min(b,c)}. The cell
   frequencies \eqn{t} must exceed \code{minA} for all pairwise
-  comparisons.  
+  comparisons.
 }
 \value{
   An object of class
@@ -85,7 +85,7 @@ snp.imputation(X, Y, pos.X, pos.Y, phase=FALSE, try=50, stopping=c(0.95, 4, 0.05
   Chapman J.M., Cooper J.D., Todd J.A. and Clayton D.G. (2003)
   \emph{Human Heredity}, \bold{56}:18-31.
 }
-\note{The \code{phase=TRUE} option is not yet implemented} 
+\note{The \code{phase=TRUE} option is not yet implemented}
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
 \seealso{\code{\link{snp.reg.imputation-class}}, \code{\link{ld.snp}},
   \code{\link{imputation.maf}}, \code{\link{imputation.r2}}}

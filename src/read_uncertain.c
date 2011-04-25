@@ -8,7 +8,7 @@
 #define BUFFERSIZE 126
 /* wc function */
 
-void gzwc(const gzFile infile, const int nline, 
+void gzwc(const gzFile infile, const int nline,
 	  int *chars, int *words, int *lines){
   int ch;
   int sp=1;
@@ -18,13 +18,13 @@ void gzwc(const gzFile infile, const int nline,
   *lines = 0;
   while((ch=gzgetc(infile))!=EOF && (!nline || (*lines)<nline)) {
     ++(*chars);
-    if(isspace(ch)) 
+    if(isspace(ch))
       sp=1;
     else if(sp) {
       ++(*words);
       sp=0;
     }
-    if (ch=='\n') 
+    if (ch=='\n')
       ++(*lines);
   }
   gzrewind(infile);
@@ -86,13 +86,13 @@ SEXP read_mach(const SEXP Filename, const SEXP Colnames, const SEXP Nsubject) {
   if (TYPEOF(Colnames)!=NILSXP) {
     if (TYPEOF(Colnames)!=STRSXP)
       error("column names are not of character type");
-    if (length(Colnames)!=ncol) 
+    if (length(Colnames)!=ncol)
       error("Number of entries on file does not correspond with column names");
   }
 
   Rprintf("Reading snp.matrix with %d rows and %d columns\n", lines, ncol);
 
-  /* Build output object */ 
+  /* Build output object */
 
   SEXP Result, Dimnames, Rnames=R_NilValue, Package, Class;
   PROTECT(Result = allocMatrix(RAWSXP, lines, ncol));
@@ -128,7 +128,7 @@ SEXP read_mach(const SEXP Filename, const SEXP Colnames, const SEXP Nsubject) {
   classgets(Result, Class);
   SET_S4_OBJECT(Result);
   UNPROTECT(2);
- 
+
   /* Read in data */
 
   char buffer[BUFFERSIZE];
@@ -163,7 +163,7 @@ SEXP read_mach(const SEXP Filename, const SEXP Colnames, const SEXP Nsubject) {
 
 /* IMPUTE or BEAGLE output */
 
-SEXP read_impute(const SEXP Filename, const SEXP Rownames, const SEXP Nsnp, 
+SEXP read_impute(const SEXP Filename, const SEXP Rownames, const SEXP Nsnp,
 		 const SEXP Snpcol, const SEXP Header) {
   int nsnp=0;
   SEXPTYPE tns = TYPEOF(Nsnp);
@@ -175,8 +175,8 @@ SEXP read_impute(const SEXP Filename, const SEXP Rownames, const SEXP Nsnp,
     else
       error("illegal type for nsnp argument");
   }
-  /* For impute which snp id used. zero or NULL means BEAGLE output */ 
-  int snpcol=0; 
+  /* For impute which snp id used. zero or NULL means BEAGLE output */
+  int snpcol=0;
   tns = TYPEOF(Snpcol);
   if (tns!=NILSXP) {
     if (tns==INTSXP)
@@ -189,8 +189,8 @@ SEXP read_impute(const SEXP Filename, const SEXP Rownames, const SEXP Nsnp,
   if (snpcol<0 || snpcol>2)
     error("illegal snpcol argument");
   int ncol_skip = snpcol? 5: 3;
-      
-  if (TYPEOF(Header) != LGLSXP) 
+
+  if (TYPEOF(Header) != LGLSXP)
     error("illegal header argument");
   int header = *LOGICAL(Header);
 
@@ -223,13 +223,13 @@ SEXP read_impute(const SEXP Filename, const SEXP Rownames, const SEXP Nsnp,
     norownames = 0;
     if (TYPEOF(Rownames)!=STRSXP)
       error("row names are not of character type");
-    if (length(Rownames)!=N) 
+    if (length(Rownames)!=N)
       error("Number of entries on file does not correspond with row names");
   }
 
   Rprintf("Reading snp.matrix with %d rows and %d columns\n", N, nsnp);
 
-  /* Build output object */ 
+  /* Build output object */
 
   SEXP Result, Dimnames, Colnames, Package, Class, Rnames=R_NilValue;
   PROTECT(Result = allocMatrix(RAWSXP, N, nsnp));
@@ -313,9 +313,9 @@ SEXP read_impute(const SEXP Filename, const SEXP Rownames, const SEXP Nsnp,
 	pAB/=psum;
 	pBB/=psum;
 	result[ij] = post2g(pAB, pBB);
-	
+
       }
-      else { 
+      else {
 	result[ij] = 0x00;
       }
     }

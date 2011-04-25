@@ -33,7 +33,7 @@ Principal components analysis has been widely used in population
 genetics in order to study population structure in genetically
 heterogeneous populations. More recently, it has been proposed as a
 method for dealing with the problem of confounding by population
-structure in genome-wide association studies. 
+structure in genome-wide association studies.
 \section*{The maths}
 Usually, principal components analysis is carried out by calculating
 the eigenvalues and eigenvectors of the correlation matrix. With $N$
@@ -45,7 +45,7 @@ loadings of each variable in the first principal component, the second
 eigenvector gives the loadings in the second component, and so
 on. Write the first $C$ component loadings as columns of the $P\times
 C$ matrix $B$. Then, to
-calculate the principal component scores for subjects, $S$, 
+calculate the principal component scores for subjects, $S$,
 we would simply apply
 the factor loadings to the original data, {\it i.e.\,}  $S = X.B$.
 
@@ -79,7 +79,7 @@ for case/control differences\footnote{An alternative approach is to
 }. We will also ``thin'' the data by taking
 only every tenth SNP. We do this mainly to reduce computation time but
 thinning is often employed to minimize the impact of linkage
-disequilibrium (LD), to reduce the risk that the larger 
+disequilibrium (LD), to reduce the risk that the larger
 components may simply reflect unusually long stretches of LD rather
 than population structure. Of course, this would require a more
 sophisticated approach to thinning than that used in this demonstration.
@@ -89,20 +89,20 @@ In a more sophisticated approach, one might use the output of
 for thinning.
 
 We shall use the data introduced in the main vignette. We shall first
-load the data and extract the controls. 
+load the data and extract the controls.
 <<get-data>>=
 require(chopsticks)
 data(for.exercise)
 controls <- rownames(subject.support)[subject.support$cc==0]
 use <- seq(1, ncol(snps.10), 10)
 ctl.10 <- snps.10[controls,use]
-@ 
+@
 The next step is to standardize the data to zero mean and unit
 standard deviation and to calculate the $X.X\tr$ matrix. These
 operations are carried out using the function {\tt xxt}.
 <<xxt-matrix>>=
 xxmat <- xxt(ctl.10, correct.for.missing=FALSE)
-@ 
+@
 The argument {\tt correct.for.missing=FALSE} selects a very simple
 missing data treatment, {\it i.e.\,} replacing missing values by their
 mean. This is quite adequate when the proportion of missing data is
@@ -110,7 +110,7 @@ low. The default method is more sophisticated but introduces
 complications later so we will keep it simple.
 
 When performing a genome-wide analysis, it will usually be the case
-that all the data cannot be stored   
+that all the data cannot be stored
 in a single {\tt snp.matrix} object. Usually they will
 be organized with one matrix for each chromosome. In these cases, it
 is straightforward to write a script which carries out the above
@@ -121,13 +121,13 @@ $X.X\tr$ matrices are read and added together.
 The next step of the calculations requires us to calculate the
 eigenvalues and eigenvectors of the $X.X\tr$ matrix. This can be
 carried out using a standard R function. We will save the first five
-components. 
+components.
 <<eigen>>=
 evv <- eigen(xxmat, symmetric=TRUE)
 pcs <- evv$vectors[,1:5]
 evals <- evv$values[1:5]
 evals
-@ 
+@
 The first principal component has a markedly larger eigenvalue and we
 might hope that this reflects population structure. In fact these data
 were drawn from two very different populations, as indicated by the
@@ -139,7 +139,7 @@ pop <- subject.support[controls,"stratum"]
 par(mfrow=c(1,2))
 boxplot(pcs[,1]~pop)
 boxplot(pcs[,2]~pop)
-@ 
+@
 Clearly the first component has captured the difference between the
 populations. Equally clearly, the second principal component has not.
 
@@ -148,24 +148,24 @@ components. This requires calculation of $B = X\tr.S.D^{-1/2}$. Here
 we calculate the transpose of this matrix, $B\tr = D^{-1/2}S\tr.X$,
 using the special function {\tt snp.pre.multiply} which pre-multiplies a {\tt
   snp.matrix} object by a matrix after first standardizing it to zero
-mean and unit standard deviation. 
+mean and unit standard deviation.
 <<pre-multiply>>=
 btr <- snp.pre.multiply(ctl.10, diag(1/sqrt(evals)) %*% t(pcs))
-@ 
+@
 We can now apply these loadings back to the entire dataset (cases as
 well as controls) to derive scores that we can use to correct for
 population structure. To do that we use the function {\tt snp.post.multiply}
 which post-multiplies a {\tt snp.matrix} by a general matrix, after first
-standardizing the columns of the {\tt snp.matrix} 
+standardizing the columns of the {\tt snp.matrix}
 to zero mean and unit standard deviation. Note that it
 is first necessary to select out those SNPs that we have actually used
 in the calculation of components.
 <<post-multiply>>=
 pcs <- snp.post.multiply(snps.10[,use], t(btr))
-@ 
+@
 
 Finally we shall evaluate how successful the first principal component
-is in correcting for population structure effects. 
+is in correcting for population structure effects.
 ({\tt snp.rhs.tests} return {\tt glm} objects.)
 <<testing,fig=TRUE>>=
 cc <- subject.support$cc
@@ -174,7 +174,7 @@ corrected <- snp.rhs.tests(cc~pcs[,1], snp.data=snps.10)
 par(mfrow=c(1,2),cex.sub=0.85)
 qq.chisq(chi.squared(uncorrected,1), df=1)
 qq.chisq(chi.squared(corrected), df=1)
-@ 
+@
 The use of the first principal component as a covariate has been
 quite successful in reducing the serious over-dispersion due to
 population structure. Indeed it is just as successful as

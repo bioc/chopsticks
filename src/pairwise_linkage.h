@@ -19,14 +19,14 @@
  *  Fifth Floor, Boston, MA 02110-1301  USA.
  */
 
-/* 
+/*
    see accompanying notes which describes the methodology
 */
 
 /*
-  the geno_count is a mixture of inputs, intermediate 
+  the geno_count is a mixture of inputs, intermediate
   outputs and final outputs; in a future tidy-up
-  one might want to separate the three 
+  one might want to separate the three
 */
 typedef struct {
   int count[9];
@@ -67,7 +67,7 @@ typedef struct {
 		      */
 } geno_count;
 
-typedef geno_count *geno_cptr;  
+typedef geno_count *geno_cptr;
 
 /*
   given two snp.matrix position and length, read along the vector

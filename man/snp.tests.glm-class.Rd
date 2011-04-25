@@ -15,7 +15,7 @@
 \alias{[,snp.tests.glm.score,ANY,missing,missing-method}
 \alias{pool2,snp.tests.glm.score,snp.tests.glm.score,logical-method}
 \alias{switch.alleles,snp.tests.glm.score,character-method}
-  
+
 \title{Classes "snp.tests.glm" and "snp.tests.glm.score"}
 \description{Classes of objects created by \code{\link{snp.lhs.tests}}
   and  \code{\link{snp.rhs.tests}}. The class

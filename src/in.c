@@ -1,6 +1,6 @@
 /* Read genotype data in long format
 
-filename    Name of input text file (4 fields per row) 
+filename    Name of input text file (4 fields per row)
 tmpdir      Temporary directory for sorting (no trailing /)
 threshold   Quality threshold for inclusion of data
 nchip       Number of chips
@@ -18,21 +18,21 @@ gtypes      Array of char's, length nchip*nsnp, to hold genotype data
 #define MAX_ID 128
 #define MAX_GT 16
 
-void insnp(char *filename, char *tmpdir,  
+void insnp(char *filename, char *tmpdir,
 	   int *nchip, char **chip_id, int *nsnps, char **snp_id,
-	   char *codes[3], double *threshold, char *gtypes, 
+	   char *codes[3], double *threshold, char *gtypes,
 	   int counts[2], int *iferror) {
   /* Sort with chips varying fastest */
   char sort_command[160];
   int i = 0, j = 0;
-  sprintf(sort_command, 
+  sprintf(sort_command,
 	  "sort  -k 2,2 -k 1,1 -T \"%s\" -o \"%s\" \"%s\"",
           tmpdir, filename, filename);
   printf("%s\n", sort_command);
   int error = system(sort_command);
   if (error) goto sort_error;
   FILE *infile = fopen(filename, "r");
-  if (!infile) 
+  if (!infile)
     goto open_error;
 
   int not_called = 0;
@@ -49,20 +49,20 @@ void insnp(char *filename, char *tmpdir,
     char *snp_target = snp_id[j];
     int jcmp;
     while ((jcmp = strcmp(snp_in, snp_target))<0) {
-      int scanned = fscanf(infile, " %s %s %s %lf", 
+      int scanned = fscanf(infile, " %s %s %s %lf",
 		       chip_in, snp_in, gt_in, &thr_in);
       if (scanned==EOF) goto normal;
       else if (scanned!=4)
-	goto read_error;  
-    }   
+	goto read_error;
+    }
     for (i=0; i<(*nchip); i++, ij++) {
       char * chip_target = chip_id[i];
-      int icmp; 
+      int icmp;
       if (!jcmp) {
-	while ((icmp = strcmp(chip_in, chip_target))<0) { 
-	  int scanned = fscanf(infile, " %s %s %s %lf", 
+	while ((icmp = strcmp(chip_in, chip_target))<0) {
+	  int scanned = fscanf(infile, " %s %s %s %lf",
 			       chip_in, snp_in, gt_in, &thr_in);
-	  if (scanned == EOF) 
+	  if (scanned == EOF)
 	    goto normal;
 	  else if (scanned!=4)
 	    goto read_error;
@@ -104,14 +104,14 @@ void insnp(char *filename, char *tmpdir,
   *iferror = 0;
   return;
   }
-  
 
-    /* Error conditions */ 
-  
+
+    /* Error conditions */
+
  sort_error: *iferror = 1; return;
  open_error: *iferror = 2; return;
  read_error: *iferror = 3; return;
- 
+
 }
 
 int main() {
@@ -125,11 +125,11 @@ int main() {
   int iferror;
   double thresh=0.8;
   int i = 0;
-  insnp("test.txt", "~/temp", &nchips, chips, &nsnps, snps, codes, &thresh, 
-	res, counts, &iferror); 
+  insnp("test.txt", "~/temp", &nchips, chips, &nsnps, snps, codes, &thresh,
+	res, counts, &iferror);
   printf("iferror = %d, counts = %d, %d\n", iferror, counts[0], counts[1]);
   for (i=0; i<6; i++)
     printf("%-2o\n", res[i]);
-  
+
   exit(0);
 }

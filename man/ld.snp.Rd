@@ -43,7 +43,7 @@ ld.snp(snpdata, depth = 100, start = 1, end = dim(snpdata)[2], signed.r=FALSE)
   pair-wise value between the ($n$)th snp and the $(n+m)$th snp. Hence
   the lower right triangles are always filled with zeros. (See example
   section for the actual layout)
-  
+
   Invalid values are represented by an out-of-range value - currently we
   use -1 for D', $r^2$ (both of which are between 0 and 1), and -2 for
   $r$ (valid values are between -1 and +1). lod is set to zero in
@@ -52,7 +52,7 @@ ld.snp(snpdata, depth = 100, start = 1, end = dim(snpdata)[2], signed.r=FALSE)
 }
 \references{
     Clayton, D.G. and Leung, Hin-Tak (2007) An R package for analysis of
-  whole-genome association studies. 
+  whole-genome association studies.
   \emph{Human Heredity} \bold{64}:45-51.\cr
   GSL (GNU Scientific Library) \url{http://www.gnu.org/software/gsl/}
 }

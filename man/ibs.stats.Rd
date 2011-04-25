@@ -19,14 +19,14 @@ ibs.stats(x)
 }
 \value{
   A data.frame containing $N (N-1)/2$ rows, where the row names are the
-  sample name pairs separated by a comma, and the columns are: 
-  
+  sample name pairs separated by a comma, and the columns are:
+
   \item{Count}{count of identical calls, exclusing no-calls}
   \item{Fraction}{fraction of identical calls comparied to actual
     calls being made in both samples}
 }
 \author{Hin-Tak Leung \email{htl10@users.sourceforge.net}}
-\note{ 
+\note{
   This is mostly written to find mislabelled and/or duplicate samples.
 
   Illumina indexes their SNPs in alphabetical order so the
@@ -37,7 +37,7 @@ ibs.stats(x)
   so one might want to subset before rbind(), etc; a future version
   of this routine may contain a built-in subsetting facility to work
   around that limitation.
-}  
+}
 \section{Warning}{
   In some applications, it may be preferable to
   subset a (random) selection of SNPs first - the

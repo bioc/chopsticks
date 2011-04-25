@@ -34,11 +34,11 @@ metric=NULL, ...)
 \value{
   return nothing. Write a file as a result. And if \code{do.notes} is
   specified, Will also suggest user to execute \code{ps2pdf -dEPSCrop
-    <filename>} to get a suitable pdf. 
+    <filename>} to get a suitable pdf.
 }
 \references{
     Clayton, D.G. and Leung, Hin-Tak (2007) An R package for analysis of
-  whole-genome association studies. 
+  whole-genome association studies.
   \emph{Human Heredity} \bold{64}:45-51.\cr
   GSL (GNU Scientific Library) \url{http://www.gnu.org/software/gsl/}\cr
   The postscript language reference manual:
@@ -69,7 +69,7 @@ metric=NULL, ...)
   "-dAutoRotatePages=/None" (to disable the automatic rotation based on
   text-run direction, i.e. not to rotate for SNP names running
   the right-way up).
-  
+
   There is a Google Summer of code \url{http://code.google.com/soc/}
   2006 project to improve kpdf's annotation support.
   \url{http://wiki.kde.org/tiki-index.php?page=KDE\%20Google\%20SoC\%202006\%20ideas#id60851}

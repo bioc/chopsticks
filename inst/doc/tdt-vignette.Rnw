@@ -53,7 +53,7 @@ require(chopsticks)
 data(families)
 head(genotypes)
 head(pedfile)
-@ 
+@
 The first family comprises four individuals: two parents and two
 sibling offspring. The parents are ``founders'' in the pedigree, {\it
   i.e.}  there is no data for their parents, so that their {\tt father}
@@ -62,17 +62,17 @@ the convention in the {\it LINKAGE} package, which would code these as
 zero. Otherwise coding is as in {\it LINKAGE}: {\tt sex} is coded 1 for
   male and 2 for female, and disease status ({\tt affected}) is coded
   1 for unaffected and 2 for affected.
-  
+
 \section*{Checking for mis-inheritances}
 
 The function {\tt misinherits} counts non-Mendelian inheritances in
 the data. It returns a logical matrix with one row for each subject
 who has any mis-inheritances and one column for each SNP which was ever
-mis-inherited. 
+mis-inherited.
 <<mis-inheritances>>=
 mis <- misinherits(data=pedfile, snp.data=genotypes)
 dim(mis)
-@ 
+@
 Thus, 114 of the subjects and 37 of the SNPs had at least one
 mis-inheritance. The following commands count mis-inheritances per
 subject and plot its frequency distribution, and similarly,
@@ -84,7 +84,7 @@ per.snp <- apply(mis, 2, sum, na.rm=TRUE)
 par(mfrow = c(1, 2))
 hist(per.subj,main='Histogram per Subject', xlab='Subject')
 hist(per.snp,main='Histogram per SNP', xlab='SNP')
-@ 
+@
 
 Note that mis-inheritances must be ascribed to offspring, although the
 error may lie with the parent data. The following commands first
@@ -95,7 +95,7 @@ fam <- pedfile[rownames(mis), "familyid"]
 per.fam <- tapply(per.subj, fam, sum)
 par(mfrow = c(1, 1))
 hist(per.fam, main='Histogram per Family', xlab='Family')
-@ 
+@
 None of the above analyses suggest serious problems with the data,
 although there are clearly a few genotyping errors.
 
@@ -114,7 +114,7 @@ tests <- tdt.snp(data = pedfile, snp.data = genotypes)
 cbind(p.values.1df = p.value(tests, 1),
       p.values.2df = p.value(tests, 2))
 qq.chisq(chi.squared(tests, 1), df = 1)
-@ 
+@
 Since these SNPs were all in a region of known association, the
 overdispersion of test statistics is not surprising. Note that,
 because each family had two affected offspring, there were twice as

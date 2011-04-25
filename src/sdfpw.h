@@ -38,7 +38,7 @@ SEXP snp_pair_graphics(SEXP v, SEXP fileoutput, SEXP i, SEXP j, SEXP depth, SEXP
   given a snp.dprime object, draw the graphics
 
   scheme: colour scheme - currently only two are supported,
-  0 for the haploview dfault, 1 for r^2 grayscale  
+  0 for the haploview dfault, 1 for r^2 grayscale
 */
 SEXP snp_dprime_draw(SEXP list_in, SEXP fileoutput, SEXP scheme, SEXP do_notes, SEXP metric);
 

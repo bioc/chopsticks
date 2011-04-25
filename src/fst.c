@@ -7,7 +7,7 @@
 /* Fst calculation -- as used in HapMap */
 
 SEXP Fst(SEXP Snps, SEXP Group) {
-  
+
   /* Process Snps argument */
 
   const char *classS = NULL;
@@ -39,10 +39,10 @@ SEXP Fst(SEXP Snps, SEXP Group) {
     N = LENGTH(Snps);
     nsnp = 1;
   }
-     
+
   const int *female = NULL;
   if (ifX) {
-    SEXP Female = R_do_slot(Snps, mkString("Female")); 
+    SEXP Female = R_do_slot(Snps, mkString("Female"));
     female = LOGICAL(Female);
   }
 
@@ -69,7 +69,7 @@ SEXP Fst(SEXP Snps, SEXP Group) {
   int *na2 = (int *) Calloc(ngrp, int);
   int *na = (int *) Calloc(ngrp, int);
   double *gwts = (double *) Calloc(ngrp, double);
-  
+
   /* Calculate group weights */
 
   memset(na, 0x00, ngrp*sizeof(int));
@@ -83,7 +83,7 @@ SEXP Fst(SEXP Snps, SEXP Group) {
       }
       else {
 	na[gi] += 2;
-      }	
+      }
     }
   }
   double sgw = 0.0;
@@ -92,12 +92,12 @@ SEXP Fst(SEXP Snps, SEXP Group) {
     sgw += w;
     gwts[g] = w;
   }
-  for (int g=0; g<ngrp; g++) 
+  for (int g=0; g<ngrp; g++)
     gwts[g] /= sgw;
 
 
   /* Calculate Fst for each SNP, plus its weight in the overall estimate  */
-    
+
   for (int j=0, ij=0; j<nsnp; j++) {
     memset(na, 0x00, ngrp*sizeof(int));
     memset(na2, 0x00, ngrp*sizeof(int));
@@ -155,9 +155,9 @@ SEXP Fst(SEXP Snps, SEXP Group) {
   setAttrib(Result, R_NamesSymbol, Names);
   SET_VECTOR_ELT(Result, 0, Fst);
   SET_VECTOR_ELT(Result, 1, Weight);
-  
+
   UNPROTECT(4);
   return Result;
 }
 
-      
+

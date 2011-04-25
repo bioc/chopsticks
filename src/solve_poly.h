@@ -17,10 +17,10 @@
  *  Fifth Floor, Boston, MA 02110-1301  USA.
  */
 
-/* 
+/*
    The two routines were taken from GSL 1.7, with minor changes
-   for isolated operation without the rest of GNU Scientific Library. 
-   This header file is a replacement header to hook up the GSL code 
+   for isolated operation without the rest of GNU Scientific Library.
+   This header file is a replacement header to hook up the GSL code
    with the rest.
 */
 

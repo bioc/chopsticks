@@ -4,20 +4,20 @@
 
 /* Some very simple linear algebra functions */
 
-/* If resid==0, return a vector containing the appropriate stratum (weighted) 
+/* If resid==0, return a vector containing the appropriate stratum (weighted)
    means. Otherwise, center the input  vector around these. i.e  calculate
-   either the "fitted value" or the residual from a model in which only 
-   strata are fitted. In this and following functions, ynew can coincide with 
-   y. Matrices are stored in Fortran order  
+   either the "fitted value" or the residual from a model in which only
+   strata are fitted. In this and following functions, ynew can coincide with
+   y. Matrices are stored in Fortran order
    Returns number of empty strata */
 
-int wcenter(const double *y, int n, const double *weight, const int *stratum, 
+int wcenter(const double *y, int n, const double *weight, const int *stratum,
 	    int nstrata, int resid, double *ynew) {
   int i = 0, s=0;
   if (!stratum) {
     if (!nstrata) {
       /* Nothing to do ... if necessary copy input to output */
-      if (ynew!=y) 
+      if (ynew!=y)
 	for(i=0; i<n; i++) ynew[i]  = resid? y[i]: 0.0; /* 0.0 ??? */
       return(0);
     }
@@ -29,7 +29,7 @@ int wcenter(const double *y, int n, const double *weight, const int *stratum,
     double *swy, *swt;
     swy = (double *) calloc(nstrata, sizeof(double));
     swt =  (double *) calloc(nstrata, sizeof(double));
-    for (s=0; s<nstrata; s++) 
+    for (s=0; s<nstrata; s++)
       swy[s] = swt[s] = 0.0;
     if (weight) {
       for (i=0; i<n; i++) {
@@ -48,14 +48,14 @@ int wcenter(const double *y, int n, const double *weight, const int *stratum,
     }
     for (s=0; s<nstrata; s++) {
       double sws = swt[s];
-      if (sws > 0.0) 
+      if (sws > 0.0)
 	swy[s] /= sws;
       else
 	empty++;
     }
     for (i=0; i<n; i++) {
-      int s = stratum[i] -1; 
-      if (swt[s]) 
+      int s = stratum[i] -1;
+      if (swt[s])
 	ynew[i] = resid? y[i] - swy[s]: swy[s];
     }
     free(swy);
@@ -77,8 +77,8 @@ int wcenter(const double *y, int n, const double *weight, const int *stratum,
       swt = (double) n;
     }
     swy /= swt;
-    if (swt>0) 
-      for (i=0; i<n; i++) 
+    if (swt>0)
+      for (i=0; i<n; i++)
 	ynew[i] = resid? y[i] - swy: swy;
     else
       empty = 1;
@@ -86,10 +86,10 @@ int wcenter(const double *y, int n, const double *weight, const int *stratum,
   return(empty);
 }
 
-/* Replace y by residual from (weighted) regression through the origin 
+/* Replace y by residual from (weighted) regression through the origin
    Returns regression coefficient */
 
-double wresid(const double *y, int n, const double *weight, const double *x, 
+double wresid(const double *y, int n, const double *weight, const double *x,
 	   double *ynew) {
   double  swxx, swxy;
   swxy = swxx = 0.0;
@@ -116,7 +116,7 @@ double wresid(const double *y, int n, const double *weight, const double *x,
       ynew[i] = y[i] - swxy*x[i];
     return(swxy);
   }
-  else 
+  else
     return(NA_REAL);
 }
 
@@ -138,14 +138,14 @@ double wssq(const double *y, int n, const double *weights) {
   }
   return(res);
 }
- 
+
 /* Weighted inner product */
 
 double wspr(const double *y, const double *x, int n, const double *weights) {
   double res = 0.0;
-  if (weights) 
+  if (weights)
     for (int i=0; i<n; i++) res += weights[i]*y[i]*x[i];
-  else 
+  else
     for (int i=0; i<n; i++) res += y[i]*x[i];
   return(res);
 }
@@ -154,7 +154,7 @@ double wspr(const double *y, const double *x, int n, const double *weights) {
 
 double wsum(const double *y, int n, const double *weights) {
   double res=0.0;
-  if (weights) 
+  if (weights)
     for (int i=0; i<n; i++) res += weights[i]*y[i];
   else
     for (int i=0; i<n; i++) res += y[i];

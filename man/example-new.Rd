@@ -21,7 +21,7 @@ See the package vignette "Comparing clustering algorithms".
 }
 \source{These data were originally distributed with the "Illuminus"
   genotype scoring software from the Wellcome Trust
-  Sanger Institute: 
+  Sanger Institute:
   \url{http://www.sanger.ac.uk/resources/software/illuminus/}
 }
 \keyword{datasets}

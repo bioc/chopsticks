@@ -10,9 +10,9 @@ void put_name(FILE *file, char *name, int quote) {
     fputs(name, file);
 }
 
-void write_as_matrix(char **file, char *x, int *N, int *M, 
-		     char **rnames, char **cnames, int *asalleles, int *append, 
-		     int *quote, char **sep, char **eol, char **na, 
+void write_as_matrix(char **file, char *x, int *N, int *M,
+		     char **rnames, char **cnames, int *asalleles, int *append,
+		     int *quote, char **sep, char **eol, char **na,
 		     int *row_names, int *col_names, int *iferror) {
   int zerom = (int) '0' -1 ; /* Character code for zero ... minus 1 */
   int nrow = *N;
@@ -36,7 +36,7 @@ void write_as_matrix(char **file, char *x, int *N, int *M,
     }
     fputs(*eol, outfile);
   }
-  for (i=0; i<nrow; i++) { 
+  for (i=0; i<nrow; i++) {
     if (*row_names) {
       put_name(outfile, rnames[i], *quote);
       fputs(*sep, outfile);
@@ -72,5 +72,5 @@ void write_as_matrix(char **file, char *x, int *N, int *M,
   return;
 }
 
-    
+
 

@@ -56,7 +56,7 @@ single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data,
   test is still a score test. The score statistics are calculated from
   the expected value, given observed SNPs, of the score statistic if the
   SNP to be tested were itself observed.
-  
+
   The \code{subset} argument can either be a logical vector of length
   equal to the length of the vector of  phenotypes, an integer vector
   specifying positions in the \code{data} frame, or a character vector
@@ -66,7 +66,7 @@ single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data,
 }
 \value{
   An object of class
-  \code{"snp.tests.single"}. 
+  \code{"snp.tests.single"}.
   If \code{score} is set to \code{TRUE},
   the output object will be of the extended class
   \code{"snp.tests.single.score"}
@@ -91,7 +91,7 @@ single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data,
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
 \seealso{\code{\link{snp.lhs.tests}}, \code{\link{snp.rhs.tests}},
   \code{\link{impute.snps}}, \code{\link{snp.reg.imputation-class}},
-  \code{\link{pool}}, 
+  \code{\link{pool}},
 	\code{\link{snp.tests.single-class}},
     \code{\link{snp.tests.single.score-class}}
 }
@@ -105,7 +105,7 @@ print(summary(results))
 csvfile <- tempfile()
 write.csv(file=csvfile, as(results, 'data.frame'))
 unlink(csvfile)
-# QQ plot 
+# QQ plot
 qq.chisq(chi.squared(results, 1), 1)
 qq.chisq(chi.squared(results, 2), 2)
 }

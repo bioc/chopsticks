@@ -1,10 +1,10 @@
-/* 
-   Single SNP tests - 1df and 2df, controlling for a stratification 
-   
-   Calculates score test and permutation variance (variance under 
-   random permutations of phenotype vector within strata) and then the 
+/*
+   Single SNP tests - 1df and 2df, controlling for a stratification
+
+   Calculates score test and permutation variance (variance under
+   random permutations of phenotype vector within strata) and then the
    conventional U^2/V chi-squared test
- 
+
 */
 
 #include <R.h>
@@ -17,8 +17,8 @@
 #include "imputation.h"
 #include "Rmissing.h"
 
-SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps, 
-		  const SEXP Rules, const SEXP Subset, const SEXP Snp_subset, 
+SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
+		  const SEXP Rules, const SEXP Subset, const SEXP Snp_subset,
 		  const SEXP Uncertain){
   double vec[4] = {1.0, 0.0, 0.0, 0.0};
   /* int i, j, k, km, m, t, su; */
@@ -29,7 +29,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
     error("Argument error - Phenotype");
   const double *phenotype = REAL(Phenotype);
   int n = LENGTH(Phenotype);
-  
+
   /* Stratum */
 
   const int *stratum = NULL;
@@ -110,7 +110,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
     } else {
       classR = CHAR(STRING_ELT(getAttrib(Rules, R_ClassSymbol), 0));
     }
-    if (strcmp(classR, "snp.reg.imputation")!=0) 
+    if (strcmp(classR, "snp.reg.imputation")!=0)
       error("Argument error - Rules");
     nrules = LENGTH(Rules);
   }
@@ -131,7 +131,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 
   const int *female = NULL;
   if (ifX) {
-    SEXP Female = R_do_slot(Snps, mkString("Female")); 
+    SEXP Female = R_do_slot(Snps, mkString("Female"));
     female = LOGICAL(Female);
   }
 
@@ -141,12 +141,12 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
     error("Argument error: Uncertain is wrong type");
   /* int uncert = *LOGICAL(Uncertain); */
 
- 
+
   /* Output objects */
- 
+
   SEXP Result, Used, U, V;
   PROTECT(Result = allocVector(VECSXP, 4));
-  
+
   if (female) {
     PROTECT(U =  allocMatrix(REALSXP, ntest, 3) ); /* Scores */
     PROTECT(V =  allocMatrix(REALSXP, ntest, 4) ); /* Score variances */
@@ -156,7 +156,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
     PROTECT(V =  allocMatrix(REALSXP, ntest, 3) ); /* Score variances */
   }
   SET_VECTOR_ELT(Result, 0, U);
-  double *umat = REAL(U); 
+  double *umat = REAL(U);
   SET_VECTOR_ELT(Result, 1, V);
   double *vmat = REAL(V);
 
@@ -175,7 +175,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
     nr2 = REAL(Nr2);
   }
   SET_VECTOR_ELT(Result, 3, Nr2);
-  
+
   /* Space to hold imputed values */
 
   double *xadd = NULL;
@@ -194,17 +194,17 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 
 
   /* Do calculations */
-  
+
   if (!ifX) {
 
     /* Work arrays */
-    
+
     double **UV = (double **) Calloc(nstrata, double *);
-    for (int i=0; i<nstrata; i++) 
+    for (int i=0; i<nstrata; i++)
       UV[i] = (double *) Calloc(10, double);
 
     for (int t=0; t<ntest; t++) {
-      int i = snp_subset? snp_subset[t] - 1: t; 
+      int i = snp_subset? snp_subset[t] - 1: t;
       const unsigned char *snpsi = NULL;
       double r2 = 0.0;
       if (nrules) {
@@ -216,7 +216,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	    xadd[j] = xdom[j] = 0.0;
 	}
 	else {
-	  do_impute(snps, n, subset, nsubj, name_index, Rule, gt2ht, 
+	  do_impute(snps, n, subset, nsubj, name_index, Rule, gt2ht,
 		    xadd, xdom);
 	  r2 = *REAL(VECTOR_ELT(Rule, 1));
 	}
@@ -236,7 +236,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
       int nu = 0;
       for (int su=0; su<nsubj; su++) {
 	int j = subset? subset[su] - 1: su;
-	if (j>=n) 
+	if (j>=n)
 	  error("subset out of range");
 	int strat = (nstrata==1)? 0: (stratum[j]-1);
 	vec[1] = phenotype[j];
@@ -267,7 +267,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	  }
 	}
       }
-      double u1=0.0, u2=0.0, v11=0.0, v12=0.0, v22=0.0; 
+      double u1=0.0, u2=0.0, v11=0.0, v12=0.0, v22=0.0;
       for (int j=0; j<nstrata; j++) {
 	double *uvj = UV[j];
 	double N = uvj[0];
@@ -292,23 +292,23 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 
     /* Return work arrays */
 
-    for (int i=0; i<nstrata; i++) 
+    for (int i=0; i<nstrata; i++)
       Free(UV[i]);
     Free(UV);
   }
   else {
 
     /* Work arrays */
-    
+
     double **UVM = (double **) Calloc(nstrata, double *);
     double **UVF = (double **) Calloc(nstrata, double *);
     for (int i=0; i<nstrata; i++) {
       UVM[i] = (double *) Calloc(10, double);
       UVF[i] = (double *) Calloc(10, double);
     }
-    
+
     for (int t=0; t<ntest; t++) {
-      int i = snp_subset? snp_subset[t] - 1: t; 
+      int i = snp_subset? snp_subset[t] - 1: t;
       const unsigned char *snpsi = NULL;
       double r2 = 0.0;
       if (nrules) {
@@ -320,7 +320,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
 	    xadd[j] = xdom[j] = 0.0;
 	}
 	else {
-	  do_impute(snps, n, subset, nsubj, name_index, Rule, gt2ht, 
+	  do_impute(snps, n, subset, nsubj, name_index, Rule, gt2ht,
 		    xadd, xdom);
 	  r2 = *REAL(VECTOR_ELT(Rule, 1));
 	}
@@ -340,7 +340,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
       int nu = 0;
       for (int su=0; su<nsubj; su++) {
 	int j = subset? subset[su] - 1: su;
-	if (j>=n) 
+	if (j>=n)
 	  error("subset out of range");
 	int strat = (nstrata==1)? 0: (stratum[j]-1);
 	vec[1] = phenotype[j];
@@ -437,7 +437,7 @@ SEXP score_single(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
   if (nrules) {
     Free(xadd);
     Free(xdom);
-    for (int i=0; i<pmax; i++) 
+    for (int i=0; i<pmax; i++)
       destroy_gtype_table(gt2ht[i], i+1);
     Free(gt2ht);
   }
@@ -476,24 +476,24 @@ SEXP chisq_single(const SEXP Scores) {
       chisq[i] =  v>0.0? u*u/v: NA_REAL;
       /* 2 df test */
       double r2 = v12*v12/(v11*v22);
-      if (v11 <= 0.0 || v22 <= 0.0 || (1.0-r2) < tol) 
+      if (v11 <= 0.0 || v22 <= 0.0 || (1.0-r2) < tol)
 	chisq[ntest+i] = NA_REAL; /* Not positive definite --- enough! */
-      else 
-	chisq[ntest+i] = chisq[i] + 
+      else
+	chisq[ntest+i] = chisq[i] +
 	  (r2*u1*u1/v11 + u2*u2/v22 - 2.0*r2*u1*u2/v12)/(1.0-r2);
     }
   }
   else { /* Autosome */
     for (int i=0; i<ntest; i++) {
       double u1 = umat[i], u2 = umat[ntest+i];
-      double v11 = vmat[i], v12 = vmat[ntest+i], v22 = vmat[2*ntest+i];    
+      double v11 = vmat[i], v12 = vmat[ntest+i], v22 = vmat[2*ntest+i];
       /* 1 df test */
       chisq[i] =  v11>0.0? u1*u1/v11: NA_REAL;
       /* 2 df test */
       double r2 = v12*v12/(v11*v22);
-      if (v11 <= 0.0 || v22 <= 0.0 || (1.0-r2) < tol) 
+      if (v11 <= 0.0 || v22 <= 0.0 || (1.0-r2) < tol)
 	chisq[ntest+i] = NA_REAL; /* Not positive definite --- enough! */
-      else 
+      else
 	chisq[ntest+i] = (u1*u1/v11 + u2*u2/v22 - 2.0*r2*u1*u2/v12)/(1.0-r2);
     }
   }
@@ -509,5 +509,5 @@ SEXP chisq_single(const SEXP Scores) {
   return Result;
 }
 
- 
-    
+
+

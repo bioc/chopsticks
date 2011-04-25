@@ -8,7 +8,7 @@
 /* As.numeric function */
 
 SEXP asnum(SEXP Snps) {
-  
+
   int N, M;
   SEXP Result;
   const unsigned char *snps = RAW(Snps);
@@ -47,4 +47,4 @@ SEXP asnum(SEXP Snps) {
   UNPROTECT(1);
   return Result;
 }
-    
+

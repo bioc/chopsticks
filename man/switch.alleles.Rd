@@ -4,13 +4,13 @@
 \description{
   This is a generic function which can be applied to objects of class
   \code{"snp.matrix"} or  \code{"X.snp.matrix"} (which hold SNP genotype
-  data), or to objects of class 
+  data), or to objects of class
   \code{"snp.tests.single.score"} or \code{"snp.tests.glm"} (which hold
   association test results). In the former case, specified SNPs can be
   recoded as if the alleles were switched (so that \emph{AA} genotypes
-  become \emph{BB} and 
+  become \emph{BB} and
   vice-versa while \emph{AB} remain unchanged). In the latter case,
-  test results are modified \emph{as if} alleles had been switched. 
+  test results are modified \emph{as if} alleles had been switched.
 }
 \usage{
 switch.alleles(x, snps)

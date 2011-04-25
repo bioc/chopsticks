@@ -19,7 +19,7 @@
  *  Fifth Floor, Boston, MA 02110-1301  USA.
  */
 
-/* 
+/*
    see accompanying notes which describes the methodology
 */
 
@@ -55,20 +55,20 @@ static double *get_expt(geno_cptr res, double p)
 {
   double u, v, w, x;
   double *expt =(double *)calloc(9, sizeof(double));
-  
+
   u = res->j + p * res->e;
   v = res->k + (1.0 - p) * res->e;
   w = res->l + (1.0 - p) * res->e;
   x = res->m + p * res->e;
-  
+
   expt[0] = u * u;
   expt[1] = 2. * u * v;
   expt[2] = v * v;
-  
+
   expt[3] = 2. * u * w;
   expt[4] = 2. * u * x + 2. * v * w;
   expt[5] = 2. * v * x;
-  
+
   expt[6] = w * w;
   expt[7] = 2. * w * x;
   expt[8] = x * x;
@@ -132,7 +132,7 @@ geno_cptr get_geno_count(unsigned char *pos1, unsigned char *pos2, int length)
   int *count = NULL;
   geno_cptr res = (geno_cptr)calloc(1, sizeof(geno_count));
   res->post_p = - 1.0e308; /* large negative number */
-  res->expt = NULL;  
+  res->expt = NULL;
   count = res->count;
   memset(count, 0, sizeof(count));
 
@@ -155,7 +155,7 @@ geno_cptr get_geno_count(unsigned char *pos1, unsigned char *pos2, int length)
   res->g = count[6];
   res->h = count[7];
   res->i = count[8];
- 
+
   res->total = count[0] + count[1] + count[2]
     + count[3] + count[4] + count[5]
     + count[6] + count[7] + count[8];
@@ -173,7 +173,7 @@ int pairwise_linkage_main(int argc, char **argv)
   int *count = NULL;
   geno_cptr res = (geno_cptr)calloc(1, sizeof(geno_count));
   res->post_p = - 1.0e308; /* large negative number */
-  res->expt = NULL;  
+  res->expt = NULL;
   count = res->count;
   memset(count, 0, sizeof(count));
   printf("Reading data\n");
@@ -199,7 +199,7 @@ int pairwise_linkage_main(int argc, char **argv)
   res->g = count[6];
   res->h = count[7];
   res->i = count[8];
- 
+
   res->total = count[0] + count[1] + count[2]
     + count[3] + count[4] + count[5]
     + count[6] + count[7] + count[8];
@@ -242,7 +242,7 @@ geno_cptr do_geno_cal(geno_cptr res)
       res->a1 = e2 - tmp1 + jm + kl;
       res->a2 = tmp1 - 3 * e2;
       res->a3 = 2 * e2;
-      
+
       if ((jm == 0) || (kl == 0))
 	{
 	  /* one of the roots are 0 or 1 */
@@ -277,12 +277,12 @@ geno_cptr do_geno_cal(geno_cptr res)
 	    }
 
 	}
-      else 
-	{ 
-	  root_count = gsl_poly_solve_cubic (((double) res->a2)/res->a3, 
+      else
+	{
+	  root_count = gsl_poly_solve_cubic (((double) res->a2)/res->a3,
 					     ((double) res->a1)/res->a3,
 					     ((double) res->a0)/res->a3,
-					     &(x[0]), 
+					     &(x[0]),
 					     &(x[1]), &(x[2]));
 	  my_warning("case 4\n");
 
@@ -315,7 +315,7 @@ geno_cptr do_geno_cal(geno_cptr res)
   res->v = res->k + (1.0 - res->p) * res->e;
   res->w = res->l + (1.0 - res->p) * res->e;
   res->x = res->m + res->p * res->e;
-    
+
   expt = res->expt;
   if (res->total)
     {
@@ -327,14 +327,14 @@ geno_cptr do_geno_cal(geno_cptr res)
   my_warning(" %i\t%i\t%i\t%f\t%f\t%f\n", count[0], count[1], count[2], expt[0], expt[1], expt[2]);
   my_warning(" %i\t%i\t%i\t%f\t%f\t%f\n", count[3], count[4], count[5], expt[3], expt[4], expt[5]);
   my_warning(" %i\t%i\t%i\t%f\t%f\t%f\n", count[6], count[7], count[8], expt[6], expt[7], expt[8]);
-  
+
   if(res->total)
     {
       res->bigD = res->u * res->x - res->w * res->v;
 
       /* D-prime */
 
-      if (res->bigD > 0) 
+      if (res->bigD > 0)
 	{
 	  int bottom = MIN(vx *uv , wx * uw);
 	  res->sign_of_r = +1;
@@ -343,7 +343,7 @@ geno_cptr do_geno_cal(geno_cptr res)
 	  else
 	    res->dprime = MISSING_VALUE;
 	}
-      else    
+      else
 	{
 	  int bottom = MIN (uw * uv, wx * vx);
 	  res->sign_of_r = -1;
@@ -352,9 +352,9 @@ geno_cptr do_geno_cal(geno_cptr res)
 	  else
 	    res->dprime = MISSING_VALUE;
 	}
-      
+
       /* R-squared */
-      
+
       {
 	/* integer over flow if multiplying all 4 first */
 	if ((uw) && (uv) && (wx) && (vx))
@@ -365,13 +365,13 @@ geno_cptr do_geno_cal(geno_cptr res)
 
       /* Covariance */
 
-      
+
       res->covar = 0.25*(res->bigD / res->total)/res->total;
 
       /* Odds ratio */
 
       res->odds_ratio = res->p/(1.0 - res->p);
-      	  
+
 
     }
   else
@@ -384,26 +384,26 @@ geno_cptr do_geno_cal(geno_cptr res)
     }
 
   res->lod = 0.0;
-  if(res->j) 
+  if(res->j)
     {
       my_warning("%d %d %f %d %d\n", res->total , res->j, res->u , uw , uv);
       res->lod += res->j * log ( res->total * 2.0 * res->u / uw / uv);
     }
-  if(res->k) 
-    res->lod += res->k * log ( res->total * 2.0 * res->v / vx / uv);  
-  if(res->l) 
+  if(res->k)
+    res->lod += res->k * log ( res->total * 2.0 * res->v / vx / uv);
+  if(res->l)
     res->lod += res->l * log ( res->total * 2.0 * res->w / wx / uw);
-  if(res->m) 
+  if(res->m)
     res->lod += res->m * log ( res->total * 2.0 * res->x / wx / vx);
-  if(res->e) 
+  if(res->e)
     res->lod += res->e * log ( res->total * res->total * 2.0 /uv /uw * (res->u * res->x + res->v * res->w) / wx / vx ); /* *4 /2.0 */
 
   my_warning("%d %d %d %d %d, %d %d %d %d\n",
-	     res->j, res->k, res->l, res->m, res->e, 
+	     res->j, res->k, res->l, res->m, res->e,
 	     uv, uw , wx , vx);
 
 #ifndef M_LOG10E
-  /* /usr/include/math.h on linux if certain glibc extension macros are defined */ 
+  /* /usr/include/math.h on linux if certain glibc extension macros are defined */
 # define M_LOG10E   0.43429448190325182765  /* log_10 e */
 #endif
   res->lod *= M_LOG10E;

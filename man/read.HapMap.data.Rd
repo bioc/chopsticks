@@ -3,7 +3,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{ function to import HapMap genotype data as snp.matrix}
 \description{
-  Given a URL for HapMap genotype data, \code{read.HapMap.data}, 
+  Given a URL for HapMap genotype data, \code{read.HapMap.data},
   download and convert the genotype data into a \code{snp.matrix} class
   object, and saving snp support infomation into an associated data.frame.
 }
@@ -89,8 +89,8 @@ read.HapMap.data(url, verbose=FALSE, save=NULL, ...)
   bytes for snps plus overhead) and similar for the support data
   (i.e. ~ 2x), takes about 30 seconds, and at peak memory usage requires
   ~ 4x . The actual download is ~20MB, which is compressed from
-  ~200MB.  
-  
+  ~200MB.
+
 }
 \seealso{\code{\link{snp.matrix-class}}}
 \examples{
@@ -109,7 +109,7 @@ Content type 'application/x-gzip' length 20059083 bytes (19.1 Mb)
 opened URL
 ==================================================
 downloaded 19.1 Mb
- 
+
 Reading 174 samples
 ...
 EOF reached after 314024 snps
@@ -131,7 +131,7 @@ rs3094315    163 0.9367816 0.153374233 0.7116564 0.26993865 0.01840491   0.50328
 ## ** Please be aware that the HapMap project generates new builds from
 ## ** to time and the build number in the URL changes.
 ## ** The follow is valid as of Aug 2009:
- 
+
 ## This URL is broken up into two to fit the width of
 ## the paper. There is no need in actual usage:
 

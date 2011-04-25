@@ -19,11 +19,11 @@ pair.result.ld.snp(snpdata, loc.snpA, loc.snpB)
   \item{loc.snpB}{index of the second snp; should be between 1 and N}
 }
 \value{
-  Returns nothing. Results are displayed in stdout/console.  
+  Returns nothing. Results are displayed in stdout/console.
 }
 \references{
     Clayton, D.G. and Leung, Hin-Tak (2007) An R package for analysis of
-  whole-genome association studies. 
+  whole-genome association studies.
   \emph{Human Heredity} \bold{64}:45-51.\cr
   GSL (GNU Scientific Library) \url{http://www.gnu.org/software/gsl/}
 }

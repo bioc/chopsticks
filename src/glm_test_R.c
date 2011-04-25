@@ -12,8 +12,8 @@
 
 #define MAX_NAME_LENGTH 81
 
-SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum, 
-		   const SEXP Z, const SEXP Snp_subset, 
+SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
+		   const SEXP Z, const SEXP Snp_subset,
 		   const SEXP Robust, const SEXP Cluster, const SEXP Uncertain,
 		   const SEXP Control, const SEXP If_score) {
 
@@ -32,7 +32,7 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
     ifX = 0;
   else if (!strncmp(classY, "X.snp", 5))
     ifX = 1;
-  else 
+  else
     error("Argument error - class(Y)");
 
   /* Y and its dimensions */
@@ -65,18 +65,18 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
   }
   else if (sstype!=NILSXP)
     error("Argument error - Snp.subset");
-  
+
 
   /* If X-chromosome, indicators of female sex */
 
   const int *female;
   if (ifX) {
-    SEXP Female = R_do_slot(Y, mkString("Female")); 
+    SEXP Female = R_do_slot(Y, mkString("Female"));
     female = LOGICAL(Female);
   }
   else
     female = NULL;
-  
+
   /* X and its dimensions */
 
   double *x = NULL;
@@ -86,7 +86,7 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
     const int *dim = INTEGER(getAttrib(X, R_DimSymbol));
     M = dim[1];
     if (dim[0]!=N)
-      error("Dimension error - X"); 
+      error("Dimension error - X");
   }
   else if (TYPEOF(X)!=NILSXP)
     error("Argument error - X");
@@ -97,10 +97,10 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
   int S = 1;
   const int *stratum = NULL;
   if (TYPEOF(Stratum)==INTSXP) {
-    if (LENGTH(Stratum)!=N) 
-      error("Dimension error - Stratum"); 
+    if (LENGTH(Stratum)!=N)
+      error("Dimension error - Stratum");
     stratum = INTEGER(Stratum);
-    for (int i=0; i<N; i++) 
+    for (int i=0; i<N; i++)
       if (stratum[i]>S) S = stratum[i];
   }
   else if (TYPEOF(Stratum)!=NILSXP)
@@ -114,7 +114,7 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
   dim = INTEGER(getAttrib(Z, R_DimSymbol));
   int P = dim[1];
   if (dim[0]!=N)
-    error("Dimension error - Z"); 
+    error("Dimension error - Z");
 
 
   /* Robust */
@@ -129,7 +129,7 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
   int *cluster = NULL;
   if (TYPEOF(Cluster)==INTSXP) {
     if (LENGTH(Cluster)!=N)
-      error("Dimension error - Cluster"); 
+      error("Dimension error - Cluster");
     cluster = INTEGER(Cluster);
     for (int i=0; i<N; i++)
       if (cluster[i]>C) C = cluster[i];
@@ -143,10 +143,10 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
   if (TYPEOF(Uncertain) != LGLSXP)
     error("Argument error: Uncertain is wrong type");
   /* int uncert = *LOGICAL(Uncertain); */
-  
+
   /* Control object */
 
-  if (TYPEOF(Control)!=VECSXP || LENGTH(Control)!=3) 
+  if (TYPEOF(Control)!=VECSXP || LENGTH(Control)!=3)
     error("Argument error - Control");
   SEXP Maxit = VECTOR_ELT(Control, 0);
   if (TYPEOF(Maxit)!=INTSXP || length(Maxit)!=1)
@@ -160,7 +160,7 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
   if (TYPEOF(R2Max)!=REALSXP || LENGTH(R2Max)!=1)
     error("Argument error - R2Max");
   double r2Max = REAL(R2Max)[0];
-  
+
   /* Are scores and score variances required? */
 
   int if_score = *LOGICAL(If_score);
@@ -175,19 +175,19 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
   double *xb;
   if (x)
     xb = (double *) R_alloc(N*M, sizeof(double));
-  else 
+  else
     xb = NULL;
 
   /* Output arrays */
 
-  SEXP Result, Rnames, Chisq, Df, Nused, 
+  SEXP Result, Rnames, Chisq, Df, Nused,
     Score = R_NilValue, UVnames = R_NilValue;
   PROTECT(Result = allocS4Object());
 
   SEXP snpNames = VECTOR_ELT(getAttrib(Y, R_DimNamesSymbol), 1);
   SEXPTYPE sntype = TYPEOF(snpNames);
   PROTECT(Rnames = allocVector(sntype, ntest));
-  
+
   PROTECT(Chisq = allocVector(REALSXP, ntest));
   double *chisq = REAL(Chisq);
   PROTECT(Df = allocVector(INTSXP, ntest));
@@ -224,10 +224,10 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
       v = (double *) Calloc((P*(P+1))/2, double);
     }
 
-    int j = snp_subset? snp_subset[t] - 1: t; 
+    int j = snp_subset? snp_subset[t] - 1: t;
     const unsigned char *yj = y + N*j;
     int mono = 1, yv = 0;
- 
+
 
     /* Load SNP as Binomial y-variate, with prior weights */
 
@@ -237,7 +237,7 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
 	if (yij) {
 	  if (!yv)
 	    yv = yij;
-	  else if (mono) 
+	  else if (mono)
 	    mono = (yv == yij);
 	  prior[i] = (!female || female[i])? 2.0: 1.0;
 	  yd[i] = ((double) (yij - 1))/2.0;
@@ -253,35 +253,35 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
 	if (yij) {
 	  if (!yv)
 	    yv = yij;
-	  else if (mono) 
+	  else if (mono)
 	    mono = (yv == yij);
 	  prior[i] = 2.0;
 	  yd[i] = ((double) (yij - 1))/2.0;
 	}
 	else {
 	  prior[i] = yd[i] = 0.0;
-	}	
+	}
       }
     }
     if (mono) { /* Monomorphic SNP */
       memset(u, 0x00, P*sizeof(double));
-      memset(v, 0x00, sizeof(double)*(P*(P+1))/2); 
+      memset(v, 0x00, sizeof(double)*(P*(P+1))/2);
     }
     else {
-      
+
       /* Fit base model */
-    
+
       int rank, dfr;
       double scale;
-      double rc = glm_fit(BINOMIAL, LOGIT, N, M, 0, S, yd, prior, x, stratum, 
-			  maxit, epsilon, 0, 
+      double rc = glm_fit(BINOMIAL, LOGIT, N, M, 0, S, yd, prior, x, stratum,
+			  maxit, epsilon, 0,
 			  &rank, xb, fitted, resid, weights, &scale, &dfr,
 			  NULL, NULL, NULL, NULL);
-      if (rc) 
+      if (rc)
 	warning("Failure to converge while fitting base model for SNP %d",j+1);
-    
+
       /* Score test */
-      
+
       if (dfr) {
 	glm_score_test(N, rank, S, stratum, P, z, C, cluster,
 		       resid, weights, xb, scale,
@@ -293,10 +293,10 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
       }
     }
     int nunit = 0;
-    for (int i=0; i<N; i++) 
+    for (int i=0; i<N; i++)
       if (weights[i]) nunit++;
     nused[t] = nunit;
-        
+
     if (P>1) {
       if (qform(P, u, v, NULL, chisq+t, df+t)) {
 	warning("Matrix not positive semi-definite in test ", t+1);
@@ -323,12 +323,12 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
       SET_VECTOR_ELT(Score, t, Scoret);
       UNPROTECT(3);
     }
-    
+
     /* Name of test */
 
-    if (sntype==INTSXP) 
+    if (sntype==INTSXP)
       INTEGER(Rnames)[t] = INTEGER(snpNames)[j];
-    else 
+    else
       SET_STRING_ELT(Rnames, t, mkChar(CHAR(STRING_ELT(snpNames,j))));
 
     /* Return work space */
@@ -338,12 +338,12 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
       Free(v);
     }
   }
-  
+
   SEXP Class, Package;
   PROTECT(Class = allocVector(STRSXP, 1));
   if (if_score)
     SET_STRING_ELT(Class, 0, mkChar("snp.tests.glm.score"));
-  else 
+  else
     SET_STRING_ELT(Class, 0, mkChar("snp.tests.glm"));
   PROTECT(Package = allocVector(STRSXP, 1));
   SET_STRING_ELT(Package, 0, mkChar("chopsticks"));
@@ -359,10 +359,10 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
 }
 
 
-SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link, 
-		   SEXP X, SEXP Stratum, SEXP Z, SEXP Rules, 
-		   SEXP Prior, SEXP Tests, SEXP Robust, SEXP Cluster, 
-		   SEXP Uncertain, 
+SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
+		   SEXP X, SEXP Stratum, SEXP Z, SEXP Rules,
+		   SEXP Prior, SEXP Tests, SEXP Robust, SEXP Cluster,
+		   SEXP Uncertain,
 		   SEXP Control, SEXP MissAllow, SEXP If_score) {
 
   char testname[MAX_NAME_LENGTH];
@@ -383,7 +383,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   int fam = INTEGER(family)[0];
   if (fam<1 || fam>4)
     error("Illegal family argument");
-  
+
   /* Link */
 
   if (TYPEOF(link)!=INTSXP || LENGTH(link)!=1)
@@ -402,10 +402,10 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
     dim = INTEGER(getAttrib(X, R_DimSymbol));
     M = dim[1];
     if (dim[0]!=N)
-      error("Dimension error - X"); 
+      error("Dimension error - X");
   }
   else if (TYPEOF(X)==NILSXP) {
-    M = 0; 
+    M = 0;
     x = NULL;
   }
   else
@@ -417,10 +417,10 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   int S = 1;
   int *stratum = NULL;
   if (TYPEOF(Stratum)==INTSXP) {
-    if (LENGTH(Stratum)!=N) 
-      error("Dimension error - Stratum"); 
+    if (LENGTH(Stratum)!=N)
+      error("Dimension error - Stratum");
     stratum = INTEGER(Stratum);
-    for (int i=0; i<N; i++) 
+    for (int i=0; i<N; i++)
       if (stratum[i]>S) S = stratum[i];
   }
   else if (TYPEOF(Stratum)!=NILSXP)
@@ -443,7 +443,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
     ifX = 0;
   else if (!strncmp(classZ, "X.snp", 5))
     ifX = 1;
-  else 
+  else
     error("Argument error - class(Z)");
 
   /* Z and its dimensions */
@@ -470,7 +470,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 
   int *female;
   if (ifX) {
-    SEXP Female = R_do_slot(Z, mkString("Female")); 
+    SEXP Female = R_do_slot(Z, mkString("Female"));
     female = LOGICAL(Female);
   }
   else
@@ -480,7 +480,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 
   index_db name_index = NULL;
   SEXP Snp_names =  VECTOR_ELT(getAttrib(Z, R_DimNamesSymbol), 1);
-  SEXP Rule_names = R_NilValue;	
+  SEXP Rule_names = R_NilValue;
   int pmax = 0;
   GTYPE **gt2ht = NULL;
   if (TYPEOF(Rules)!=NILSXP) {
@@ -492,7 +492,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
       gt2ht[i] = create_gtype_table(i+1);
   }
 
-  
+
   /* Prior weights */
 
   double *prior_all = NULL;
@@ -543,21 +543,21 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   int *cluster = NULL;
   if (TYPEOF(Cluster)==INTSXP) {
     if (LENGTH(Cluster)!=N)
-      error("Dimension error - Cluster"); 
+      error("Dimension error - Cluster");
     cluster = INTEGER(Cluster);
     for (int i=0; i<N; i++)
       if (cluster[i]>C) C = cluster[i];
   }
   else if (TYPEOF(Cluster)!=NILSXP)
     error("Argument error - Cluster");
-  
+
   /* Handling of uncertain genotypes */
 
   if (TYPEOF(Uncertain) != LGLSXP)
     error("Argument error: Uncertain is wrong type");
   /* int uncert = *LOGICAL(Uncertain); */
 
-  if (TYPEOF(Control)!=VECSXP || LENGTH(Control)!=3) 
+  if (TYPEOF(Control)!=VECSXP || LENGTH(Control)!=3)
     error("Argument error - Control");
   SEXP Maxit = VECTOR_ELT(Control, 0);
   if (TYPEOF(Maxit)!=INTSXP || length(Maxit)!=1)
@@ -571,7 +571,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   if (TYPEOF(R2Max)!=REALSXP || LENGTH(R2Max)!=1)
     error("Argument error - R2Max");
   double r2Max = REAL(R2Max)[0];
-  
+
   /* Allowable missingness */
 
   if (TYPEOF(MissAllow)!=REALSXP || LENGTH(MissAllow)!=1)
@@ -598,25 +598,25 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
     xb = (double *) R_alloc(N*M, sizeof(double));
     xb_all = (double *) R_alloc(N*M, sizeof(double));
   }
-  else 
+  else
     xb = xb_all =  NULL;
-  
+
   /* Fit base model to full data */
 
   int rank, rank_all, df_r, df_r_all;
   double scale, scale_all;
-  int err = glm_fit(fam, lnk, N, M, 0, S, y, prior_all, x, stratum, 
-		    maxit, epsilon, 0, 
-		    &rank_all, xb_all, 
-		    fitted_all, resid_all, weights_all, 
+  int err = glm_fit(fam, lnk, N, M, 0, S, y, prior_all, x, stratum,
+		    maxit, epsilon, 0,
+		    &rank_all, xb_all,
+		    fitted_all, resid_all, weights_all,
 		    &scale_all, &df_r_all, NULL, NULL, NULL, NULL);
-  if (err) 
+  if (err)
     error("failure to converge at initial fitting of base model");
 
 
   /* Output list */
 
-  SEXP Result, TestNames = R_NilValue, Chisq, Df, Nused, Score = R_NilValue, 
+  SEXP Result, TestNames = R_NilValue, Chisq, Df, Nused, Score = R_NilValue,
     UVnames = R_NilValue;
   PROTECT(Result = allocS4Object());
   PROTECT(Chisq = allocVector(REALSXP, ntest));
@@ -625,8 +625,8 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   int *df = INTEGER(Df);
   PROTECT(Nused = allocVector(INTSXP, ntest));
   int *nused = INTEGER(Nused);
-  
-  int nprot = 4;  
+
+  int nprot = 4;
   if (if_score) {
     PROTECT(Score = allocVector(VECSXP, ntest));
     PROTECT(UVnames = allocVector(STRSXP, 2));
@@ -636,7 +636,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   }
 
   SEXP NameTests = R_NilValue;
-  if (Tests!=R_NilValue) 
+  if (Tests!=R_NilValue)
     NameTests = getAttrib(Tests, R_NamesSymbol);
   int gen_names = (NameTests==R_NilValue);
   if (gen_names) {
@@ -655,7 +655,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   R_do_slot_assign(Result, mkString("df"), Df);
   R_do_slot_assign(Result, mkString("N"), Nused);
 
-     
+
   /* Do tests */
 
   int snp;
@@ -739,7 +739,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 	if (if_score)
 	  SET_STRING_ELT(Snames, j, Rule_namej);
 	if (gen_names && space>0)
-	  strncpy(testname+len, CHAR(Rule_namej), space);	
+	  strncpy(testname+len, CHAR(Rule_namej), space);
 	SEXP Rule =  VECTOR_ELT(Rules, snpsj);
 	if (!isNull(Rule)){ /* Not monomorphic */
 	  do_impute(z, N, NULL, N, name_index, Rule, gt2ht, zw+ij, NULL);
@@ -751,7 +751,7 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 		prior[i] = 0.0;
 	      }
 	    }
-	  }   
+	  }
 	}
 	else {
 	  for (int i=0; i<N; i++, ij++)
@@ -762,10 +762,10 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
     if (gen_names)
       SET_STRING_ELT(TestNames, test, mkChar(testname));
 
-    if (missing == N) { 
+    if (missing == N) {
 
       /* No data */
-      
+
       warning("No valid data for test %d", test+1);
       memset(u, 0x00, nsnpt*sizeof(double));
       memset(v, 0x00, sizeof(double)*(nsnpt*(nsnpt+1))/2);
@@ -775,18 +775,18 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 
       /* Refit the model using current fitted values as start */
 
-      for (int i=0; i<N; i++) 
+      for (int i=0; i<N; i++)
 	fitted[i] = fitted_all[i];
-      int err = glm_fit(fam, lnk, N, M, 0, S, y, prior, x, stratum, 
+      int err = glm_fit(fam, lnk, N, M, 0, S, y, prior, x, stratum,
 			maxit, epsilon, 1,
-			&rank, xb, fitted, resid, weights, 
+			&rank, xb, fitted, resid, weights,
 			&scale, &df_r, NULL, NULL, NULL, NULL);
-      if (err) 
+      if (err)
 	warning("No convergence while fitting base model for test %d", test+1);
       glm_score_test(N, rank, S, stratum, nsnpt, zw, C, cluster,
 		     resid, weights, xb, scale,
 		     r2Max, u, v);
- 
+
     }
     else {
 
@@ -794,13 +794,13 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
 
       df_r = df_r_all - missing;
       rank = rank_all;
-      for (int i=0; i<N; i++) 
+      for (int i=0; i<N; i++)
 	weights[i] = prior[i]? weights_all[i]: 0.0;
       glm_score_test(N, rank, S, stratum, nsnpt, zw, C, cluster,
 		     resid_all, weights, xb_all, scale_all,
 		     r2Max, u, v);
     }
- 
+
     int nu = 0;
     for (int i=0; i<N; i++)
       if(weights[i]) nu++;
@@ -866,13 +866,13 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   UNPROTECT(nprot);
 
   return(Result);
-  
+
 }
 
 /* Pooling two objects */
 
 SEXP pool2_glm(SEXP X, SEXP Y, SEXP If_score) {
-  
+
   SEXP Xs = R_do_slot(X, mkString("score"));
   SEXP Ys = R_do_slot(Y, mkString("score"));
   SEXP Xn = R_do_slot(X, mkString("N"));
@@ -893,7 +893,7 @@ SEXP pool2_glm(SEXP X, SEXP Y, SEXP If_score) {
   int *df = INTEGER(Df);
   PROTECT(Nused = allocVector(INTSXP, N));
   int *nused = INTEGER(Nused);
-  int nprot = 4;  
+  int nprot = 4;
 
   if (if_score) {
     PROTECT(Score = allocVector(VECSXP, N));
@@ -933,9 +933,9 @@ SEXP pool2_glm(SEXP X, SEXP Y, SEXP If_score) {
     }
     memset(ru, 0x00, nu*sizeof(double));
     memset(rv, 0x00, nv*sizeof(double));
-    for (int j=0; j<nu; j++) 
+    for (int j=0; j<nu; j++)
       ru[j] = xiu[j] + yiu[j];
-    for (int j=0; j<nv; j++) 
+    for (int j=0; j<nv; j++)
       rv[j] = xiv[j] + yiv[j];
     if (nu>1) {
       if (qform(nu, ru, rv, NULL, chisq+i, df+i)) {
@@ -977,7 +977,7 @@ SEXP pool2_glm(SEXP X, SEXP Y, SEXP If_score) {
   R_do_slot_assign(Result, mkString("chisq"), Chisq);
   R_do_slot_assign(Result, mkString("df"), Df);
   R_do_slot_assign(Result, mkString("N"), Nused);
-  
+
   SEXP Class, Package;
   PROTECT(Class = allocVector(STRSXP, 1));
   if (if_score) {
@@ -998,12 +998,12 @@ SEXP pool2_glm(SEXP X, SEXP Y, SEXP If_score) {
   return(Result);
 }
 
-    
+
 /* Estimation */
 
-SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum, 
-		      const SEXP Snp_subset, const SEXP P_est, 
-		      const SEXP Robust, const SEXP Cluster, 
+SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
+		      const SEXP Snp_subset, const SEXP P_est,
+		      const SEXP Robust, const SEXP Cluster,
 		      const SEXP Control){
 
   /* Y should be a snp.matrix or an X.snp.matrix */
@@ -1021,7 +1021,7 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
     ifX = 0;
   else if (!strncmp(classY, "X.snp", 5))
     ifX = 1;
-  else 
+  else
     error("Argument error - class(Y)");
 
   /* Y and its dimensions */
@@ -1054,18 +1054,18 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
   }
   else if (sstype!=NILSXP)
     error("Argument error - Snp.subset");
-  
+
 
   /* If X-chromosome, indicators of female sex */
 
   const int *female;
   if (ifX) {
-    SEXP Female = R_do_slot(Y, mkString("Female")); 
+    SEXP Female = R_do_slot(Y, mkString("Female"));
     female = LOGICAL(Female);
   }
   else
     female = NULL;
-  
+
   /* X and its dimensions */
 
   if (TYPEOF(X)!=REALSXP)
@@ -1074,7 +1074,7 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
   dim = INTEGER(getAttrib(X, R_DimSymbol));
   int M = dim[1];
   if (dim[0]!=N)
-    error("Dimension error - X"); 
+    error("Dimension error - X");
   SEXP Xnames = VECTOR_ELT(getAttrib(X, R_DimNamesSymbol), 1);
 
   /* Stratum */
@@ -1082,10 +1082,10 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
   int S = 1;
   const int *stratum = NULL;
   if (TYPEOF(Stratum)==INTSXP) {
-    if (LENGTH(Stratum)!=N) 
-      error("Dimension error - Stratum"); 
+    if (LENGTH(Stratum)!=N)
+      error("Dimension error - Stratum");
     stratum = INTEGER(Stratum);
-    for (int i=0; i<N; i++) 
+    for (int i=0; i<N; i++)
       if (stratum[i]>S) S = stratum[i];
   }
   else if (TYPEOF(Stratum)!=NILSXP)
@@ -1098,7 +1098,7 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
   int P = *INTEGER(P_est);
   if (P<=0 || P>M)
     error("Invalid number of parameters to be estimated");
-  
+
   /* Robust */
 
   if (TYPEOF(Robust)!=LGLSXP)
@@ -1111,17 +1111,17 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
   int *cluster = NULL;
   if (TYPEOF(Cluster)==INTSXP) {
     if (LENGTH(Cluster)!=N)
-      error("Dimension error - Cluster"); 
+      error("Dimension error - Cluster");
     cluster = INTEGER(Cluster);
     for (int i=0; i<N; i++)
       if (cluster[i]>C) C = cluster[i];
   }
   else if (TYPEOF(Cluster)!=NILSXP)
     error("Argument error - Cluster");
-  
+
   /* Control object */
 
-  if (TYPEOF(Control)!=VECSXP || LENGTH(Control)!=3) 
+  if (TYPEOF(Control)!=VECSXP || LENGTH(Control)!=3)
     error("Argument error - Control");
   SEXP Maxit = VECTOR_ELT(Control, 0);
   if (TYPEOF(Maxit)!=INTSXP || length(Maxit)!=1)
@@ -1137,7 +1137,7 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
     error("Argument error - R2Max");
   double r2Max = REAL(R2Max)[0];
   */
-  
+
   /* Work arrays */
 
   double *yd = (double *) R_alloc(N, sizeof(double));
@@ -1146,7 +1146,7 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
   double *resid = (double *) R_alloc(N, sizeof(double));
   double *weights = (double *) R_alloc(N, sizeof(double));
   double *xb = (double *) R_alloc(N*M, sizeof(double));
-  
+
   int *which = (int *) R_alloc(P, sizeof(int));
   double *beta = (double *) R_alloc(P, sizeof(double));
   double *tri = (double *) R_alloc((P*(P+1))/2, sizeof(double));
@@ -1155,11 +1155,11 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
 
   SEXP Estimates, Rnames, BVnames;
   PROTECT(Estimates = allocVector(VECSXP, nest));
-  
+
   SEXP snpNames = VECTOR_ELT(getAttrib(Y, R_DimNamesSymbol), 1);
   SEXPTYPE sntype = TYPEOF(snpNames);
   PROTECT(Rnames = allocVector(sntype, nest));
-  
+
   PROTECT(BVnames = allocVector(STRSXP, 4));
   SET_STRING_ELT(BVnames, 0, mkChar("beta"));
   SET_STRING_ELT(BVnames, 1, mkChar("Var.beta"));
@@ -1178,20 +1178,20 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
     PROTECT(Yname = allocVector(STRSXP, 1));
     SET_STRING_ELT(Yname, 0, mkChar(CHAR(STRING_ELT(snpNames,j))));
 
-    if (sntype==INTSXP) 
+    if (sntype==INTSXP)
       INTEGER(Rnames)[t] = INTEGER(snpNames)[j];
-    else 
+    else
       SET_STRING_ELT(Rnames, t, STRING_ELT(Yname, 0));
 
     const unsigned char *yj = y + N*j;
     int mono = 1, yv = 0;
- 
+
     for (int i=0; i<N; i++) {
       int yij = (int) yj[i];
       if (yij) {
 	if (!yv)
 	  yv = yij;
-	else if (mono) 
+	else if (mono)
 	  mono = (yv == yij);
 	prior[i] = (!female || female[i])? 2.0: 1.0;
 	yd[i] = ((double) (yij - 1))/2.0;
@@ -1201,17 +1201,17 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
       }
     }
 
-    if (!mono) { 
-      
+    if (!mono) {
+
     /* Fit model */
 
       int rank, dfr, pest;
       double scale;
-      double rc = glm_fit(BINOMIAL, LOGIT, N, M, P, S, yd, prior, x, stratum, 
-			  maxit, epsilon, 0, 
+      double rc = glm_fit(BINOMIAL, LOGIT, N, M, P, S, yd, prior, x, stratum,
+			  maxit, epsilon, 0,
 			  &rank, xb, fitted, resid, weights, &scale, &dfr,
 			  &pest, which, beta, tri);
-      if (rc) 
+      if (rc)
 	warning("Failure to converge while fitting model for SNP %d",j+1);
       if (!pest) {
 	warning("No estimable parameters for test %d", t+1);
@@ -1230,24 +1230,24 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
 	  meat_matrix(N, pest, C, cluster, xb+N*(rank-pest), resid, weights, v);
 	  glm_est(pest, beta, tri, scale, v, b, v);
 	}
-	else   
+	else
 	  glm_est(pest, beta, tri, scale, NULL, b, v);
 	int nunit = 0;
-	for (int i=0; i<N; i++) 
+	for (int i=0; i<N; i++)
 	  if (weights[i]) nunit++;
 	*REAL(Nu) = nunit;
-      
+
 	/* Names for B */
-	
-	for (int i=0; i<pest; i++) 
+
+	for (int i=0; i<pest; i++)
 	  SET_STRING_ELT(Bnames, i, STRING_ELT(Xnames, which[i]));
 	setAttrib(B, R_NamesSymbol, Bnames);
-	
+
 	SEXP Estt;
 	PROTECT(Estt = allocVector(VECSXP, 4));
 	setAttrib(Estt, R_NamesSymbol, BVnames);
 	SET_VECTOR_ELT(Estt, 0, B);
-	SET_VECTOR_ELT(Estt, 1, V);	
+	SET_VECTOR_ELT(Estt, 1, V);
 	SET_VECTOR_ELT(Estt, 2, Nu);
 	SET_VECTOR_ELT(Estt, 3, Yname);
 	SET_VECTOR_ELT(Estimates, t, Estt);
@@ -1260,8 +1260,8 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
     }
     UNPROTECT(1);
   }
-	  
-  setAttrib(Estimates, R_NamesSymbol, Rnames);  
+
+  setAttrib(Estimates, R_NamesSymbol, Rnames);
   SEXP Class, Package;
   PROTECT(Class = allocVector(STRSXP, 1));
   SET_STRING_ELT(Class, 0, mkChar("snp.estimates.glm"));
@@ -1276,9 +1276,9 @@ SEXP snp_lhs_estimate(const SEXP Y, const SEXP X, const SEXP Stratum,
   return(Estimates);
 }
 
-SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link, 
-		      SEXP X, SEXP Stratum, SEXP Z, 
-		      SEXP Prior, SEXP Sets, SEXP Robust, SEXP Cluster, 
+SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
+		      SEXP X, SEXP Stratum, SEXP Z,
+		      SEXP Prior, SEXP Sets, SEXP Robust, SEXP Cluster,
 		      SEXP Control) {
 
   char setname[MAX_NAME_LENGTH];
@@ -1301,7 +1301,7 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
   int fam = INTEGER(family)[0];
   if (fam<1 || fam>4)
     error("Illegal family argument");
-  
+
   /* Link */
 
   if (TYPEOF(link)!=INTSXP || LENGTH(link)!=1)
@@ -1320,10 +1320,10 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
     dim = INTEGER(getAttrib(X, R_DimSymbol));
     M = dim[1];
     if (dim[0]!=N)
-      error("Dimension error - X"); 
+      error("Dimension error - X");
   }
   else if (TYPEOF(X)==NILSXP) {
-    M = 0; 
+    M = 0;
     x = NULL;
   }
   else
@@ -1334,10 +1334,10 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
   int S = 1;
   int *stratum = NULL;
   if (TYPEOF(Stratum)==INTSXP) {
-    if (LENGTH(Stratum)!=N) 
-      error("Dimension error - Stratum"); 
+    if (LENGTH(Stratum)!=N)
+      error("Dimension error - Stratum");
     stratum = INTEGER(Stratum);
-    for (int i=0; i<N; i++) 
+    for (int i=0; i<N; i++)
       if (stratum[i]>S) S = stratum[i];
   }
   else if (TYPEOF(Stratum)!=NILSXP)
@@ -1359,7 +1359,7 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
     ifX = 0;
   else if (!strncmp(classZ, "X.snp", 5))
     ifX = 1;
-  else 
+  else
     error("Argument error - class(Z)");
 
   /* Z and its dimensions */
@@ -1386,12 +1386,12 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
 
   int *female;
   if (ifX) {
-    SEXP Female = R_do_slot(Z, mkString("Female")); 
+    SEXP Female = R_do_slot(Z, mkString("Female"));
     female = LOGICAL(Female);
   }
   else
     female = NULL;
-  
+
   /* Prior weights */
 
   double *prior = NULL;
@@ -1441,17 +1441,17 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
   int *cluster = NULL;
   if (TYPEOF(Cluster)==INTSXP) {
     if (LENGTH(Cluster)!=N)
-      error("Dimension error - Cluster"); 
+      error("Dimension error - Cluster");
     cluster = INTEGER(Cluster);
     for (int i=0; i<N; i++)
       if (cluster[i]>C) C = cluster[i];
   }
   else if (TYPEOF(Cluster)!=NILSXP)
     error("Argument error - Cluster");
-  
+
   /* Control object */
 
-  if (TYPEOF(Control)!=VECSXP || LENGTH(Control)!=3) 
+  if (TYPEOF(Control)!=VECSXP || LENGTH(Control)!=3)
     error("Argument error - Control");
   SEXP Maxit = VECTOR_ELT(Control, 0);
   if (TYPEOF(Maxit)!=INTSXP || length(Maxit)!=1)
@@ -1483,7 +1483,7 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
   double *tri = (double *) R_alloc((M_max*(M_max+1))/2, sizeof(double));
   double *Uc;
 
-  if (C>1) 
+  if (C>1)
     Uc = (double *) R_alloc(C*M_max, sizeof(double));
 
   /* Copy base model */
@@ -1491,12 +1491,12 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
   int NM = N*M;
   for (int ij=0; ij<NM; ij++)
     xz[ij] = x[ij];
-    
+
   /* Output list */
 
   SEXP Estimates, BVnames;
   PROTECT(Estimates = allocVector(VECSXP, nset));
-  
+
   PROTECT(BVnames = allocVector(STRSXP, 4));
   SET_STRING_ELT(BVnames, 0, mkChar("beta"));
   SET_STRING_ELT(BVnames, 1, mkChar("Var.beta"));
@@ -1504,7 +1504,7 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
   SET_STRING_ELT(BVnames, 3, mkChar("Y.var"));
 
   SEXP NameSets = R_NilValue;
-  if (Sets!=R_NilValue) 
+  if (Sets!=R_NilValue)
     NameSets = getAttrib(Sets, R_NamesSymbol);
   int gen_names = (NameSets==R_NilValue);
   SEXP SetNames = R_NilValue;
@@ -1512,9 +1512,9 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
     PROTECT(SetNames = allocVector(STRSXP, nset));
     setAttrib(Estimates, R_NamesSymbol, SetNames);
   }
-  else 
+  else
     setAttrib(Estimates, R_NamesSymbol, NameSets);
-  
+
   /* Do calculations */
 
   int snp;
@@ -1534,7 +1534,7 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
       snps = INTEGER(Snps);
     }
     for (int i=0; i<N; i++) new_prior[i] = prior? prior[i]: 1.0;
- 
+
     /* Add to XZ matrix, tracking incomplete cases  */
 
     int missing = 0;
@@ -1557,7 +1557,7 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
 
       if (gen_names && space>0)
 	strncpy(setname+len, CHAR(STRING_ELT(Snp_names, snpsj)), space);
-      
+
       const unsigned char *zj = z + N*snpsj;
       for (int i=0; i<N; i++, ij++) {
 	unsigned char zij = zj[i];
@@ -1583,19 +1583,19 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
     else {
       int rank, pest, df_r;
       double scale;
-      int err = glm_fit(fam, lnk, N, M+nsnp_set, nsnp_set, S, 
-			y, new_prior, xz, stratum, 
+      int err = glm_fit(fam, lnk, N, M+nsnp_set, nsnp_set, S,
+			y, new_prior, xz, stratum,
 			maxit, epsilon, 0,
-			&rank, xb, fitted, resid, weights, 
+			&rank, xb, fitted, resid, weights,
 			&scale, &df_r, &pest, which, beta, tri);
-      if (err) 
+      if (err)
 	warning("No convergence while fitting model for set %d", set+1);
       if (!pest) {
 	warning("No estimable parameters for set %d", set+1);
 	SET_VECTOR_ELT(Estimates, set, R_NilValue);
       }
       else {
-	SEXP B = R_NilValue, V = R_NilValue, Nu= R_NilValue, 
+	SEXP B = R_NilValue, V = R_NilValue, Nu= R_NilValue,
 	  Snames = R_NilValue;
 	PROTECT(B = allocVector(REALSXP, pest));
 	PROTECT(V = allocVector(REALSXP, (pest*(pest+1))/2));
@@ -1607,26 +1607,26 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
 	  meat_matrix(N, pest, C, cluster, xb+N*(rank-pest), resid, weights, v);
 	  glm_est(pest, beta, tri, scale, v, b, v);
 	}
-	else   
+	else
 	  glm_est(pest, beta, tri, scale, NULL, b, v);
 	int nunit = 0;
-	for (int i=0; i<N; i++) 
+	for (int i=0; i<N; i++)
 	  if (weights[i]) nunit++;
 	*INTEGER(Nu) = nunit;
-      
+
 
 	/* Names for B */
 	for (int i=0; i<pest; i++) {
-	  SET_STRING_ELT(Snames, i, 
+	  SET_STRING_ELT(Snames, i,
 			 STRING_ELT(Snp_names, snps[which[i]-M]-1));
 	}
 	setAttrib(B, R_NamesSymbol, Snames);
-	
+
 	SEXP Estt;
 	PROTECT(Estt = allocVector(VECSXP, 4));
 	setAttrib(Estt, R_NamesSymbol, BVnames);
 	SET_VECTOR_ELT(Estt, 0, B);
-	SET_VECTOR_ELT(Estt, 1, V);	
+	SET_VECTOR_ELT(Estt, 1, V);
 	SET_VECTOR_ELT(Estt, 2, Nu);
 	SET_VECTOR_ELT(Estt, 3, Yname);
 	SET_VECTOR_ELT(Estimates, set, Estt);
@@ -1646,5 +1646,5 @@ SEXP snp_rhs_estimate(SEXP Y, SEXP family, SEXP link,
 
   SET_S4_OBJECT(Estimates);
   return(Estimates);
-  
+
 }

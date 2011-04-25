@@ -44,19 +44,19 @@ static void SetColNames(SEXP dimnames, SEXP x)
 SEXP read_signals(SEXP signalfile, SEXP snp_list) {
   SEXP ans = R_NilValue, ans_name =  R_NilValue, sample_names = R_NilValue;
   const char *filename = NULL;
-  int buffersize = 200000; /* T1D - 2000 samples, requires 72428 */ 
+  int buffersize = 200000; /* T1D - 2000 samples, requires 72428 */
   int i =0;
-  
+
   char *line_buffer = (char *)malloc(buffersize);
   char *line_ptr = line_buffer;
-  
+
   index_db snp_db = NULL;
-  
+
   if(TYPEOF(signalfile) != STRSXP)
     Rprintf(" input filename wrong type\n");
   if(TYPEOF(snp_list) != STRSXP)
     Rprintf(" input snp.list wrong type\n");
-  
+
   filename = CHAR(STRING_ELT(signalfile, 0));
   gzFile ginfile = gzopen(filename, "rb");
   if (!ginfile) {
@@ -64,14 +64,14 @@ SEXP read_signals(SEXP signalfile, SEXP snp_list) {
     return R_NilValue;
   }
   Rprintf("Reading %s ...\nCan take a while...\n", filename);
-  
+
   int array_length = LENGTH(snp_list);
 
   PROTECT(ans    = allocVector(VECSXP, array_length));
   PROTECT(ans_name = duplicate(snp_list));
   setAttrib(ans, R_NamesSymbol, ans_name);
 
-  snp_db = index_create(array_length);  
+  snp_db = index_create(array_length);
 
   for(i = 0 ; i < array_length ; i++) {
     index_insert(snp_db, CHAR(STRING_ELT(snp_list, i)), i);
@@ -80,11 +80,11 @@ SEXP read_signals(SEXP signalfile, SEXP snp_list) {
   }
   memset(line_buffer, 0x00, buffersize);
   gzgets(ginfile, line_buffer, buffersize);
-  
+
   int space_count = 0;
   line_ptr = line_buffer;
   while (*line_ptr) {
-    if ((*line_ptr == ' ') || (*line_ptr == '\t')) {      
+    if ((*line_ptr == ' ') || (*line_ptr == '\t')) {
       space_count++;
     }
     line_ptr++;
@@ -110,7 +110,7 @@ SEXP read_signals(SEXP signalfile, SEXP snp_list) {
     SET_STRING_ELT(sample_names, i, mkChar(ptr_start));
     goto_next_token(line_ptr);
   }
-  
+
   int line_read_count = 1;
   while(1) {
     int get1 = 0;
@@ -119,14 +119,14 @@ SEXP read_signals(SEXP signalfile, SEXP snp_list) {
     if (!array_count_down) {
       break;
     }
-    
+
     if (gzeof(ginfile)) {
       break;
     }
     if (!(line_read_count % 200)) {
       Rprintf("Reading line %i\r",line_read_count);
     }
-    
+
     /* zlib 1.1 don't have VERNUM nor gzungetc() */
 #ifdef ZLIB_VERNUM
     /* gzeof() is sometimes unreliable until the next read */
@@ -166,7 +166,7 @@ SEXP read_signals(SEXP signalfile, SEXP snp_list) {
     SEXP AB = R_NilValue, part =  R_NilValue, part_name = R_NilValue;
     SEXP dims = R_NilValue;
     /* allocMatrix(READSXP...) seems to be sane enough
-       to automatically filled with NA_REAL so that when sscanf() below 
+       to automatically filled with NA_REAL so that when sscanf() below
        fails, that's what one luckily gets, in the Illumina platform...
     */
     PROTECT(AB = allocMatrix(REALSXP, pair_count, 2));
@@ -184,7 +184,7 @@ SEXP read_signals(SEXP signalfile, SEXP snp_list) {
       goto_next_token(line_ptr); *(line_ptr-1) = '\0';
       sscanf(ptr_start, "%lf", B + i);
     }
-    
+
     PROTECT(part = allocVector(VECSXP, 2));
     PROTECT(part_name = allocVector(STRSXP, 2));
     PROTECT(dims = allocVector(INTSXP, 2));
@@ -196,7 +196,7 @@ SEXP read_signals(SEXP signalfile, SEXP snp_list) {
     SetColNames(part, part_name);
     setAttrib(AB, R_DimSymbol, dims);
     /* set DimSymbol has the side-effect of erasing DimNames */
-    setAttrib(AB, R_DimNamesSymbol, part); 
+    setAttrib(AB, R_DimNamesSymbol, part);
     SET_VECTOR_ELT(ans, i_part, AB);
     UNPROTECT(4); /* protected once part of ans */
   }
@@ -212,8 +212,8 @@ SEXP read_signals(SEXP signalfile, SEXP snp_list) {
   gzclose(ginfile);
   free(line_buffer);
 
-  /* TODO: do we need to do something about the original 
-     copy of sample_names or do nothing and let it gets 
+  /* TODO: do we need to do something about the original
+     copy of sample_names or do nothing and let it gets
      garbage-collected eventually?
    */
 

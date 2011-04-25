@@ -4,7 +4,7 @@
                               2  4  7
                                  5  8
                                     9                               */
- 
+
 #include <math.h>
 #include <stdlib.h>
 
@@ -123,8 +123,8 @@ int trinv(int n, double *u, double *c)
    }
    return nullty;
 }
-   
-/* Quadratic form U-t.V-inv.U. W is work space same size as V but may 
+
+/* Quadratic form U-t.V-inv.U. W is work space same size as V but may
    coincide with V (which is then destroyed) */
 
 int qform(int N, double *U, double *V, double *W, double *quad, int *rank)
@@ -137,7 +137,7 @@ int qform(int N, double *U, double *V, double *W, double *quad, int *rank)
   }
   int nullty;
   double log_det;
-  
+
   int ifault = chol(V, N, W, &nullty, &log_det);
   if (ifault)
     return(ifault);
@@ -156,4 +156,4 @@ int qform(int N, double *U, double *V, double *W, double *quad, int *rank)
     free(W);
   return(0);
 }
-	
+

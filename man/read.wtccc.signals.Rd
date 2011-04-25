@@ -6,7 +6,7 @@
 \description{
   \code{read.wtccc.signals} takes a file and a list of snp ids (either
   Affymetrix ProbeSet IDs or rs numbers), and extract the entries
-  into a form suitable for plotting and further analysis  
+  into a form suitable for plotting and further analysis
 }
 \usage{
 read.wtccc.signals(file, snp.list)
@@ -27,20 +27,20 @@ read.wtccc.signals(file, snp.list)
   The signal file is formatted as follows, with the first 5 columns
   being the Affymetrix Probe Set ID, rs number, chromosome position,
   AlleleA and AlleleB. The rest of the header containing the sample id
-  appended with "\_A" and "\_B". 
+  appended with "\_A" and "\_B".
 
-\preformatted{  
+\preformatted{
   AFFYID         RSID       pos   AlleleA AlleleB 12999A2_A 12999A2_B ...
-  SNP_A-4295769  rs915677   14433758  C     T     0.318183  0.002809 
-  SNP_A-1781681  rs9617528  14441016  A     G     1.540461  0.468571 
+  SNP_A-4295769  rs915677   14433758  C     T     0.318183  0.002809
+  SNP_A-1781681  rs9617528  14441016  A     G     1.540461  0.468571
   SNP_A-1928576  rs11705026 14490036  G     T     0.179653  2.261650
-} 
+}
 
   The routine matches the input list against the first and the 2nd column.
-  
+
 (some early signal files, have the first "AFFYID" missing - this routine
   can cope with that also)
-  
+
 }
 \value{
   The routine returns a list of named matrices, one for each input SNP
@@ -53,7 +53,7 @@ read.wtccc.signals(file, snp.list)
   TODO: There is a built-in limit to the input line buffer (65535)
   which should be sufficient for 2000 samples and 30 characters each.
   May want to seek backwards, re-read and dynamically expand if
-  the buffer is too small. 
+  the buffer is too small.
 }
 \examples{
 \dontrun{

@@ -17,16 +17,16 @@
  *  Fifth Floor, Boston, MA 02110-1301  USA.
  */
 
-/* 
+/*
    The design decision for this hash index implementation is
    somewhat different from the usual: all we want is for
-   the look up to be very fast. We don't care about the usual obsessions 
+   the look up to be very fast. We don't care about the usual obsessions
    of hash designers about dispersion - cache locality actually works
    in our favour, as genetic data is likely to be partially sorted,
    so we *do* want similar strings to be similiarly located,
    unlike the usual design.
 
-   For look up to be fast, 
+   For look up to be fast,
    (1) we pick a very simple hash function,
    (2) and have all the checking during insertion,
    (3) over-allocate so that the link-lists are almost all single-member,
@@ -35,8 +35,8 @@
 
 /* MAX_HASH_SIZE is the size of the table.
    There is no reason why it can't be 2^31,
-   but 2^31 is probably a bit unrealistic. 
-   Just here to keep it from growing out of bound 
+   but 2^31 is probably a bit unrealistic.
+   Just here to keep it from growing out of bound
 */
 
 #include <stdlib.h>
@@ -72,7 +72,7 @@ index_db index_create(int size) {
   return result;
 }
 
-/* check every thing at insert, so that we don't need to 
+/* check every thing at insert, so that we don't need to
    check at lookup */
 int index_insert(index_db db, const char *name, int value) {
   if ((strlen(name) < MAX_ID) && (index_lookup(db, name) < 0) && (value >=0)) {
@@ -94,7 +94,7 @@ int index_insert(index_db db, const char *name, int value) {
    all lowercase and insert both of those.
 */
 int index_insert_case_independent(index_db db, const char *name, int value) {
-  
+
   char *dup_up = strdup(name);
   char *dup_low = strdup(name);
   char *dup_up_ptr  = dup_up;
@@ -135,7 +135,7 @@ void index_destroy(index_db db) {
 
   int i =0;
   for (i = 0; i <= db->bitmask ; i++) {
-    t_node node = db->nodelist[i]; 
+    t_node node = db->nodelist[i];
     while (node) {
       t_node this_node = node;
       node = node->next; /* have to copy first before destroying */

@@ -20,7 +20,7 @@
 /* the maximum length of strings the look-up table */
 #define MAX_ID 128
 
-/* for MAX_ID < 4 or 8, name[] is smaller than 
+/* for MAX_ID < 4 or 8, name[] is smaller than
    *name and also have better locality */
 typedef struct node {
   struct node *next;
@@ -40,13 +40,13 @@ typedef struct index_db_struct {
 
   The create routine take a size argument, for the expected
   number of entries - does not need to be accurate (over=wastage,
-  under=slower-lookup) - in the worse case of size=1, 
+  under=slower-lookup) - in the worse case of size=1,
   look-up becomes a linear search of all the entries.
   Returns an "index_db" type for the newly created table, or NULL
   from failure (to allocate the required memory).
 
   The insert routine takes an index_db created earlier,
-  a name and a non-negative value pair. return 0 for 
+  a name and a non-negative value pair. return 0 for
   successful, or -1 for failure. value should be non-negative.
 
   The lookup routine takes an index_db created earlier,

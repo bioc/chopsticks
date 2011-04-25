@@ -1,17 +1,17 @@
 /* poly/solve_cubic.c
- * 
+ *
  * Copyright (C) 1996, 1997, 1998, 1999, 2000 Brian Gough
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
@@ -33,8 +33,8 @@
 
 #define SWAP(a,b) do { double tmp = b ; b = a ; a = tmp ; } while(0)
 
-int 
-gsl_poly_solve_cubic (double a, double b, double c, 
+int
+gsl_poly_solve_cubic (double a, double b, double c,
                       double *x0, double *x1, double *x2)
 {
   double q = (a * a - 3 * b);
@@ -56,7 +56,7 @@ gsl_poly_solve_cubic (double a, double b, double c,
       *x2 = - a / 3 ;
       return 3 ;
     }
-  else if (CR2 == CQ3) 
+  else if (CR2 == CQ3)
     {
       /* this test is actually R2 == Q3, written in a form suitable
          for exact computation with integers */
@@ -90,20 +90,20 @@ gsl_poly_solve_cubic (double a, double b, double c,
       *x0 = norm * cos (theta / 3) - a / 3;
       *x1 = norm * cos ((theta + 2.0 * M_PI) / 3) - a / 3;
       *x2 = norm * cos ((theta - 2.0 * M_PI) / 3) - a / 3;
-      
+
       /* Sort *x0, *x1, *x2 into increasing order */
 
       if (*x0 > *x1)
         SWAP(*x0, *x1) ;
-      
+
       if (*x1 > *x2)
         {
           SWAP(*x1, *x2) ;
-          
+
           if (*x0 > *x1)
             SWAP(*x0, *x1) ;
         }
-      
+
       return 3;
     }
   else

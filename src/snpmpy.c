@@ -1,14 +1,14 @@
-/* 
-  If A is a snp.matrix these routines calculate the matrices B.M or M.B, 
-  where M is a general matrix and B is derived from A by normalising 
-  columns to have zero mean and unit standard deviation under HWE. 
-  That is, if p is the allele frequency for one column of A, the 
-  corresponding column of B (if elements are coded 0, 1, or 2) is 
-  obtained by subtracting the mean, 2*p and dividing by the SD, 
-  sqrt(2*p*(1-p)). For male samples and the X chromosome, codes are 
+/*
+  If A is a snp.matrix these routines calculate the matrices B.M or M.B,
+  where M is a general matrix and B is derived from A by normalising
+  columns to have zero mean and unit standard deviation under HWE.
+  That is, if p is the allele frequency for one column of A, the
+  corresponding column of B (if elements are coded 0, 1, or 2) is
+  obtained by subtracting the mean, 2*p and dividing by the SD,
+  sqrt(2*p*(1-p)). For male samples and the X chromosome, codes are
   0 and 2 so that the mean is again 2*p, but the SD is now 2*sqrt(p*(1-p)).
-  Missing genotypes score zero (equivalent to replacing missing values by 
-  the mean in the original matrix. Missing genotypes are replaced by 
+  Missing genotypes score zero (equivalent to replacing missing values by
+  the mean in the original matrix. Missing genotypes are replaced by
   their (marginal) expectations - i.e. twice the allele frequency
 
   Allele frequencies may be taken from the data or supplied as an argument
@@ -25,7 +25,7 @@
 
 SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
 	     const SEXP Uncertain) {
-  
+
   int *ifFemale = NULL;
   SEXP cl = GET_CLASS(Snps);
   if (TYPEOF(cl) != STRSXP) {
@@ -39,7 +39,7 @@ SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
   }
   else if (strcmp(CHAR(STRING_ELT(cl, 0)), "snp.matrix")) {
     error("Argument error - Snps wrong type");
-  }    
+  }
 
   const unsigned char *snps = RAW(Snps);
   int N, M;
@@ -71,7 +71,7 @@ SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
   }
   else if (TYPEOF(Frequency) != NILSXP)
     error("Argument error: Frequency is wrong type");
-     
+
   /* Handling of uncertain genotypes */
 
   if (TYPEOF(Uncertain) != LGLSXP)
@@ -85,7 +85,7 @@ SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
   PROTECT(Dimnames = allocVector(VECSXP, 2));
   SET_VECTOR_ELT(Dimnames, 0, duplicate(Rownames));
   SET_VECTOR_ELT(Dimnames, 1, duplicate(Snpnames));
-    
+
   double *result = REAL(Result);
   memset(result, 0x00, P*M*sizeof(double));
 
@@ -96,9 +96,9 @@ SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
     /* Get allele frequency */
 
     double afk = NA_REAL;
-    if (frequency) 
+    if (frequency)
       afk = frequency[k];
-    else {     
+    else {
       int s1=0, s2=0;
       for (int ki=ik, i=0; i<N; i++) {
 	int w = (int) snps[ki++];
@@ -117,7 +117,7 @@ SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
       if (s1)
 	afk = ((double) s2) / ((double) s1);
     }
-    
+
     /* If polymorphic, add contribution */
 
     if (afk!=NA_REAL && afk>0.0 && afk<1.0) {
@@ -143,14 +143,14 @@ SEXP snp_pre(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
       ik += N;
     }
   }
-      
+
   UNPROTECT(2);
   return(Result);
 }
 
-SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency, 
+SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
 	      const SEXP Uncertain) {
-  
+
   int *ifFemale = NULL;
   SEXP cl = GET_CLASS(Snps);
   if (TYPEOF(cl) != STRSXP) {
@@ -164,7 +164,7 @@ SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
   }
   else if (strcmp(CHAR(STRING_ELT(cl, 0)), "snp.matrix")) {
     error("Argument error - Snps wrong type");
-  }    
+  }
 
   const unsigned char *snps = RAW(Snps);
   int N, M;
@@ -185,7 +185,7 @@ SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
   int P = dim[1];
   double *mat = REAL(Mat);
   SEXP Colnames = GetColNames(Mat);
-     
+
   /* Allele frequencies */
 
   double *frequency = NULL;
@@ -196,7 +196,7 @@ SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
   }
   else if (TYPEOF(Frequency) != NILSXP)
     error("Argument error: Frequency is wrong type");
-     
+
    /* Handling of uncertain genotypes */
 
   if (TYPEOF(Uncertain) != LGLSXP)
@@ -210,7 +210,7 @@ SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
   PROTECT(Dimnames = allocVector(VECSXP, 2));
   SET_VECTOR_ELT(Dimnames, 0, duplicate(Sampnames));
   SET_VECTOR_ELT(Dimnames, 1, duplicate(Colnames));
-    
+
   double *result = REAL(Result);
   memset(result, 0x00, N*P*sizeof(double));
 
@@ -221,9 +221,9 @@ SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
       /* Get allele frequency */
 
     double afk = NA_REAL;
-    if (frequency) 
+    if (frequency)
       afk = frequency[k];
-    else {     
+    else {
       int s1=0, s2=0;
       for (int ki=ik, i=0; i<N; i++) {
 	int w = (int) snps[ki++];
@@ -242,7 +242,7 @@ SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
       if (s1)
 	afk = ((double) s2) / ((double) s1);
     }
-    
+
     /* If polymorphic, add contribution */
 
     if (afk!=NA_REAL && afk>0.0 && afk<1.0) {
@@ -268,9 +268,9 @@ SEXP snp_post(const SEXP Snps, const SEXP Mat, const SEXP Frequency,
       ik += N;
     }
   }
-      
+
   UNPROTECT(2);
   return(Result);
 }
-  
+
 

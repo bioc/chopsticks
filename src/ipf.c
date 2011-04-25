@@ -6,7 +6,7 @@
 #include <Rinternals.h>
 #include "ipf.h"
 
-/* 
+/*
    Count bits set in an integer (up to 14 bit integer)
    See http://graphics.stanford.edu/~seander/bithacks.html
 */
@@ -22,7 +22,7 @@ unsigned int bitxtr(unsigned int x, unsigned int mask) {
   unsigned int add = 01;
   while (x) {
     if (mask & 0x01) {
-      if (x & 0x01) 
+      if (x & 0x01)
 	res = res|add;
       add = add<<1;
     }
@@ -31,14 +31,14 @@ unsigned int bitxtr(unsigned int x, unsigned int mask) {
   }
   return(res);
 }
-  
-	
-/* 
-   K                number of dimensions 
+
+
+/*
+   K                number of dimensions
    observed         input table, first subscript varying fastest
    nterms           number of terms (fitted margins)
-   terms            array of terms; each term is represented by a bit pattern 
-                    in which each bit indicates whether the corresponding 
+   terms            array of terms; each term is represented by a bit pattern
+                    in which each bit indicates whether the corresponding
                     factor appears in the term or not
    expected         output table of fitted freqencies
                     if expected[0]>=0, this should also hold an initial fit
@@ -46,15 +46,15 @@ unsigned int bitxtr(unsigned int x, unsigned int mask) {
    eps              convergence criterion
 */
 
-int ipf(int K, const double *observed, 
+int ipf(int K, const double *observed,
 	const int nterms, const unsigned int *terms,  double *expected,
 	const int maxit, const double eps) {
 
   /* Size of observed and expected arrays */
   int size = (1<<K);
   /* Initialize */
-  
-  if (expected[0]<0.0) 
+
+  if (expected[0]<0.0)
     for (int i=0; i<size; i++)
       expected[i] = 1.0;
 
@@ -72,7 +72,7 @@ int ipf(int K, const double *observed,
   double *mobs = (double *) Calloc(maxsize, double);
 
   /* IPF */
-  
+
   int it = 0; /* step counter */
   double test = 0.0; /* convergence test */
   while (it<maxit) {

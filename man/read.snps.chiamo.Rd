@@ -10,7 +10,7 @@ read.snps.chiamo(filename, sample.list, threshold)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{filename}{List of file names of output from Chiamo ; 
+  \item{filename}{List of file names of output from Chiamo ;
   the outcome is the concatenation from runs of Chiamo, e.g. on blocks of SNPs,
   which is often done for practical reasons}
   \item{sample.list}{A character vector giving the sample list}

@@ -35,19 +35,19 @@ xxt(snps, strata = NULL, correct.for.missing = FALSE, lower.only = FALSE,
   components for genome-wide SNP data. As pointed out by Price et al.
   (2006), when the data matrix has more rows than columns it is
   most efficient to calculate the eigenvectors of
-  \var{X}.\var{X}-transpose, where \var{X} is a 
+  \var{X}.\var{X}-transpose, where \var{X} is a
   \code{snp.matrix} whose columns have been  standardized to zero mean and
   unit variance. For autosomes, the genotypes are given codes 0, 1 or 2
   after subtraction of the mean, 2\var{p}, are divided by the standard
-  deviation 
+  deviation
   sqrt(2\var{p}(1-\var{p})) (\var{p} is the estimated allele
   frequency). For SNPs on the X chromosome in male subjects,
-  genotypes are coded 0 or 2. Then 
-  the mean is still 2\var{p}, but the standard deviation is 
+  genotypes are coded 0 or 2. Then
+  the mean is still 2\var{p}, but the standard deviation is
   2sqrt(\var{p}(1-\var{p})). If the \code{strata} is supplied, a
   stratum-specific estimate value for \var{p} is used for
-  standardization. 
-  
+  standardization.
+
   Missing observations present some difficulty. Price et al. (2006)
   recommended replacing missing observations by their means, this being
   equivalent to replacement by zeros in the standardized matrix. However

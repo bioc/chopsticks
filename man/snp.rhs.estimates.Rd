@@ -5,7 +5,7 @@
 This function fits a generalized linear model with phenotype as
 dependent variable and with a series of SNPs (or small sets of SNPs) as
 predictor variables.  Optionally, one or more potential confounders of
-a phenotype-genotype association may be included in the model. 
+a phenotype-genotype association may be included in the model.
 In order to protect against misspecification
 of the variance function,  "robust" estimates of the variance-covariance
 matrix of estimates may be calculated in place of the usual
@@ -30,7 +30,7 @@ snp.rhs.estimates(formula, family = "binomial", link, weights, subset, data
   default action is to use the "canonical" link for the family selected}
   \item{data}{The dataframe in which the model formula is to be interpreted}
   \item{snp.data}{An object of class \code{"snp.matrix"} or
-    \code{"X.snp.matrix"} containing the SNP data} 
+    \code{"X.snp.matrix"} containing the SNP data}
   \item{sets}{Either a vector of SNP names (or  numbers) for the SNPs
     to be added to the model formula, or a list of short vectors
     defining sets of SNPs to be included (see \code{Details})}
@@ -53,7 +53,7 @@ snp.rhs.estimates(formula, family = "binomial", link, weights, subset, data
   returned. These protect against mis-specification of the variance
   function in the GLM, for example if binary or count data are
   overdispersed,
-    
+
   If a \code{data} argument is supplied, the \code{snp.data} and
   \code{data} objects are aligned by rowname. Otherwise all variables in
   the model formulae are assumed to be stored in the same order as the
@@ -81,7 +81,7 @@ snp.rhs.estimates(formula, family = "binomial", link, weights, subset, data
 }
 \seealso{\code{\link{snp.estimates.glm-class}},
     \code{\link{snp.lhs.estimates}},
-    \code{\link{snp.rhs.tests}}, 
+    \code{\link{snp.rhs.tests}},
     \code{\link{snp.matrix-class}}, \code{\link{X.snp.matrix-class}}}
 \examples{
 data(testdata)

@@ -4,7 +4,7 @@
 Read genotypes imputed by the IMPUTE2 program
 }
 \description{
-The IMPUTE2 program generates, for each SNP and each subject, 
+The IMPUTE2 program generates, for each SNP and each subject,
 posterior probabilities for the three genotypes. This function reads
 such data as a \code{snp.matrix} object, storing the posterior
 probabilities to as much accuracy allowed by a one-byte coding
@@ -28,7 +28,7 @@ read.impute(file, rownames = NULL, nsnp = NULL, snpcol = 2)
   }
   \item{snpcol}{
     Which column of the input will be used as the SNP name. Default is
-    column 2 
+    column 2
   }
 }
 \details{

@@ -19,7 +19,7 @@ sample.size(x)
 effective.sample.size(x)
 }
 \arguments{
-  \item{x}{An object of class \code{"snp.tests.single"}, 
+  \item{x}{An object of class \code{"snp.tests.single"},
      \code{"snp.tests.single.score"}, or \code{"snp.tests.glm"}}
    \item{df}{Either the numeric value 1 or 2 (not used when \code{x} is
      of class \code{"snp.tests.glm"})}
@@ -30,7 +30,7 @@ effective.sample.size(x)
      list}
 }
 \details{
-  These functions operate on objects created by 
+  These functions operate on objects created by
   \code{\link{single.snp.tests}}, \code{\link{snp.lhs.tests}}, and
   \code{\link{snp.lhs.tests}}.
 
@@ -42,7 +42,7 @@ effective.sample.size(x)
   \code{snp.lhs.tests} and \code{snp.rhs.tests} potentially calculate
   chi-squared tests on varying degrees of freedom, which can be
   extracted with \code{deg.freedom}. The function \code{effect.sign}
-  indicates the direction of 
+  indicates the direction of
   associations. When applied to an output object from
   \code{snp.single.tests}, it returns \code{+1} if the association, as
   measured by the 1 df test, is positive and \code{-1} if the
@@ -65,7 +65,7 @@ effective.sample.size(x)
 \note{The \code{df} and \code{simplify} arguments are not always
   required (or legal). See above}
 \author{David Clayton \email{david.clayton@cimr.cam.ac.uk}}
-\seealso{\code{\link{single.snp.tests}}, 
+\seealso{\code{\link{single.snp.tests}},
   \code{\link{snp.lhs.tests}}, \code{\link{snp.rhs.tests}},
   \code{\link{snp.tests.single-class}},
   \code{\link{snp.tests.single.score-class}},

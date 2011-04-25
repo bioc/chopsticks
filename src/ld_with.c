@@ -24,7 +24,7 @@
 
 SEXP ld_with(SEXP x, SEXP snps, SEXP signed_r) {
   SEXP dims = R_NilValue;
-  SEXP in_names = R_NilValue, cnames = R_NilValue; 
+  SEXP in_names = R_NilValue, cnames = R_NilValue;
   SEXP dprime = R_NilValue, rmisc = R_NilValue, lod = R_NilValue, ans = R_NilValue;
   SEXP dimnames = R_NilValue, snpnames = R_NilValue;
   SEXP ans_name = R_NilValue;
@@ -32,7 +32,7 @@ SEXP ld_with(SEXP x, SEXP snps, SEXP signed_r) {
   int need_signed_r = 0;
   int i=0,j=0;
 
-  int n_select = LENGTH(snps); 
+  int n_select = LENGTH(snps);
 
   if(TYPEOF(x) != RAWSXP)
     error(" input snp.data wrong type\n");
@@ -40,7 +40,7 @@ SEXP ld_with(SEXP x, SEXP snps, SEXP signed_r) {
     error(" input snps wrong type\n");
   if(TYPEOF(signed_r) != LGLSXP)
     error(" input signed_r wrong type\n");
-  
+
   PROTECT(dims = getAttrib(x, R_DimSymbol));
   if (length(dims) == 2) {
     rows = INTEGER(dims)[0];
@@ -49,7 +49,7 @@ SEXP ld_with(SEXP x, SEXP snps, SEXP signed_r) {
   } else {
     error("The input does not seem to have two dimensions\n");
   }
-  
+
   if(LOGICAL(signed_r)[0]) {
     need_signed_r = 1;
   }
@@ -58,7 +58,7 @@ SEXP ld_with(SEXP x, SEXP snps, SEXP signed_r) {
   cnames = GetColNames(in_names);
 
   /* finished playing with the input, now do some real work */
-  
+
   PROTECT(dprime = allocMatrix(REALSXP, cols, n_select));
   PROTECT(rmisc  = allocMatrix(REALSXP, cols, n_select));
   PROTECT(lod    = allocMatrix(REALSXP, cols, n_select));

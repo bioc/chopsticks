@@ -6,7 +6,7 @@ This function calculates Pearson correlation coefficients  between columns of a
 \code{snp.matrix} and columns of an ordinary matrix. The two matrices
 must have the same number of rows. All valid pairs are used in the
 computation of each correlation coefficient.
-} 
+}
 \usage{
 snp.cor(x, y, uncertain = FALSE)
 }
