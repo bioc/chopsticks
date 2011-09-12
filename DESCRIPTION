@@ -1,7 +1,7 @@
 Package: chopsticks
 Title: The snp.matrix and X.snp.matrix classes
-Version: 1.17.3
-Date: 2011-08-05
+Version: 1.17.4
+Date: 2011-09-12
 Author: Hin-Tak Leung <htl10@users.sourceforge.net>
 Description: Implements classes and methods for large-scale SNP association studies 
 Maintainer: Hin-Tak Leung <htl10@users.sourceforge.net>
