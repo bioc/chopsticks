@@ -14,6 +14,7 @@ gtypes      Array of char's, length nchip*nsnp, to hold genotype data
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <R.h>
 
 #define MAX_ID 128
 #define MAX_GT 16
@@ -28,7 +29,7 @@ void insnp(char *filename, char *tmpdir,
   sprintf(sort_command,
 	  "sort  -k 2,2 -k 1,1 -T \"%s\" -o \"%s\" \"%s\"",
           tmpdir, filename, filename);
-  printf("%s\n", sort_command);
+  Rprintf("%s\n", sort_command);
   int error = system(sort_command);
   if (error) goto sort_error;
   FILE *infile = fopen(filename, "r");
