@@ -168,6 +168,7 @@ geno_cptr get_geno_count(unsigned char *pos1, unsigned char *pos2, int length)
   return do_geno_cal(res);
 }
 
+#ifdef WITHOUT_R
 int pairwise_linkage_main(int argc, char **argv)
 {
   int *count = NULL;
@@ -214,7 +215,7 @@ int pairwise_linkage_main(int argc, char **argv)
   free(res);
   return 0;
 }
-
+#endif
 
 geno_cptr do_geno_cal(geno_cptr res)
 {
