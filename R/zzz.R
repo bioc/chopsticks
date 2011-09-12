@@ -1,5 +1,5 @@
-.onLoad <- function(libname, package) {
-  library.dynam("chopsticks", package=package)
+.onLoad <- function(lib, pkg) {
+  library.dynam("chopsticks", package=pkg)
   methods:::bind_activation(TRUE)
 }
 
