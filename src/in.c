@@ -114,6 +114,7 @@ void insnp(char *filename, char *tmpdir,
 
 }
 
+#ifdef DEBUG
 int main() {
   char* chips[2] = {"1", "2"};
   char* snps[3] = {"a", "b", "c"};
@@ -133,3 +134,4 @@ int main() {
 
   exit(0);
 }
+#endif
