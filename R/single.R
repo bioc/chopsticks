@@ -1,6 +1,7 @@
 single.snp.tests <- function(phenotype, stratum, data=sys.parent(), snp.data,
                              rules=NULL, subset, snp.subset, uncertain=FALSE,
                              score=FALSE) {
+  warning("The 2-df test never worked for a small percent of SNPs. See snpStatsBug vignette.")
   m <- match.call()
   smiss <- missing(stratum)
   ssmiss <- missing(subset)

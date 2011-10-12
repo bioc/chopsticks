@@ -14,8 +14,10 @@ function(snp.data, base.formula, add.formula, subset, snp.subset,
          data=sys.parent(), robust=FALSE, uncertain=FALSE,
          control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98),
          score=FALSE)
-{   
-  if (is(snp.data,"snp.matrix")) 
+{
+  if(robust)
+    stop("The robust option does not work since Oct 2008 imputation change. See snpStatsBug vignette.")
+  if (is(snp.data,"snp.matrix"))
     snames <- rownames(snp.data)
   else
     stop("snp.data must be stored as a snp.matrix object")
@@ -155,7 +157,7 @@ function(formula, family="binomial", link, weights, subset,
           tests=NULL, robust=FALSE, uncertain=FALSE,
           control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98),
           allow.missing=0.01, score=FALSE) {
-  
+  stop("snp.rhs.tests does not work correctly since Oct 2008 imputation change. See snpStatsBug vignette.")
   call <- match.call()
 
   # Family and link function
