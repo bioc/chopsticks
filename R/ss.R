@@ -667,6 +667,7 @@ setMethod("effect.sign",
 
 setMethod("sample.size", signature(x="snp.tests.glm"),
           function(x) {
+            warning("sample.size does not work correctly since Oct 2008 imputation change. See snpStatsBug vignette.")
             res <- x@N
             names(res) <- x@test.names
             res
@@ -773,6 +774,7 @@ setMethod("pool2",
           signature(x="snp.tests.glm.score",y="snp.tests.glm.score",
                     score="logical"),
           function(x, y, score) {
+            warning("snp.tests.glm does not work correctly since Oct 2008 imputation change. See snpStatsBug vignette.")
             nm.x <- x@test.names
             nm.y <- y@test.names
             if (is.null(nm.x) || is.null(nm.y)) {
