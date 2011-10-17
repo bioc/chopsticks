@@ -395,7 +395,8 @@ function(snp.data, base.formula, add.formula, subset, snp.subset,
     snames <- rownames(snp.data)
   else
     stop("snp.data must be stored as a snp.matrix object")
-  
+  warning("snp.*hs.estimates does not work ever since Oct 2008 imputation change. See snpStatsBug vignette.")
+
   call <- match.call()
   temp <- c("", "base.formula", "subset", "data")
   m <- call[match(temp, names(call), nomatch=0)]
@@ -532,6 +533,7 @@ function(formula, family="binomial", link, weights, subset,
           control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98)) {
   
   call <- match.call()
+  warning("snp.*hs.estimates does not work ever since Oct 2008 imputation change. See snpStatsBug vignette.")
 
   # Family and link function
   
