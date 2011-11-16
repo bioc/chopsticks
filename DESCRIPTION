@@ -6,10 +6,12 @@ Author: Hin-Tak Leung <htl10@users.sourceforge.net>
 Description: Implements classes and methods for large-scale SNP association studies 
 Maintainer: Hin-Tak Leung <htl10@users.sourceforge.net>
 Depends: R(>= 2.3.0), survival, methods
-Imports: graphics, grDevices, methods, stats, survival, utils
 Suggests: hexbin
-License: GPL-3
-URL: http://sourceforge.net/projects/outmodedbonsai/
-Collate: ld.with.R ss.R contingency.table.R glm-test.R ibs.stats.R imputation.R indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R plink.R qc.R qq-chisq.R read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R snp.compare.R tdt-single.R structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R
+License: GNU General Public Licence (GPLv3)
+URL: http://outmodedbonsai.sourceforge.net/
+Collate: ld.with.R ss.R contingency.table.R glm_test.R ibs.stats.R
+        indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R qq_chisq.R
+        read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R
+        structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R
 LazyLoad: yes
-biocViews: Microarray, SNP, GeneticVariability
+biocViews: Microarray, SNPsAndGeneticVariability
