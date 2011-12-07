@@ -80,7 +80,18 @@ ld_graphics_ptr graphic_init(const char *filename, int ii, int jj, int i_depth, 
 
   junk = fwrite(EPS_HEADER, strlen(EPS_HEADER), 1, gh->fp);
   fprintf(gh->fp, EPS_BOUNDBOX(gh->range , i_depth, scale, gh->headroom));
-  junk = fwrite(EPS_PROLOG, strlen(EPS_PROLOG), 1, gh->fp);
+  junk = fwrite(EPS_PROLOG_1, strlen(EPS_PROLOG_1), 1, gh->fp);
+  junk = fwrite(EPS_PROLOG_2, strlen(EPS_PROLOG_2), 1, gh->fp);
+  junk = fwrite(EPS_PROLOG_3, strlen(EPS_PROLOG_3), 1, gh->fp);
+  junk = fwrite(EPS_PROLOG_4, strlen(EPS_PROLOG_4), 1, gh->fp);
+  junk = fwrite(EPS_PROLOG_5, strlen(EPS_PROLOG_5), 1, gh->fp);
+  junk = fwrite(EPS_PROLOG_6, strlen(EPS_PROLOG_6), 1, gh->fp);
+  junk = fwrite(EPS_PROLOG_7, strlen(EPS_PROLOG_7), 1, gh->fp);
+  junk = fwrite(EPS_PROLOG_8, strlen(EPS_PROLOG_8), 1, gh->fp);
+  junk = fwrite(EPS_PROLOG_9, strlen(EPS_PROLOG_9), 1, gh->fp);
+  junk = fwrite(EPS_PROLOG_10, strlen(EPS_PROLOG_10), 1, gh->fp);
+  junk = fwrite(EPS_PROLOG_11, strlen(EPS_PROLOG_11), 1, gh->fp);
+  junk = fwrite(EPS_PROLOG_12, strlen(EPS_PROLOG_12), 1, gh->fp);
   fprintf(gh->fp, EPS_SCALE_TO_FIT(scale));
   fprintf(gh->fp, EPS_CLIP_PATH(gh->range , i_depth, gh->headroom));
   junk = fwrite(EPS_BODY, strlen(EPS_BODY), 1, gh->fp);
