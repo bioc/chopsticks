@@ -5,9 +5,9 @@ Date: 2012-03-08
 Author: Hin-Tak Leung <htl10@users.sourceforge.net>
 Description: Implements classes and methods for large-scale SNP association studies 
 Maintainer: Hin-Tak Leung <htl10@users.sourceforge.net>
-Depends: R(>= 2.3.0), survival, methods
+Depends: R(>= 2.10.0), survival, methods
 Suggests: hexbin
-License: GNU General Public Licence (GPLv3)
+License: GPL-3
 URL: http://outmodedbonsai.sourceforge.net/
 Collate: ld.with.R ss.R contingency.table.R glm_test.R ibs.stats.R
         indata.R ld.snp.R ld.with.R.eml.R misc.R outdata.R qq_chisq.R
