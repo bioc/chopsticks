@@ -9,4 +9,5 @@ export(epsout.ld.snp, glm.test.control, ibs.stats, ibsCount, ibsDist, ld.snp,
        snp.cor, snp.lhs.tests, snp.post, snp.pre,
        snp.rhs.tests, write.snp.matrix, xxt)
 importFrom(survival, untangle.specials, cluster, strata)
+export(convert.snpMatrix, convert.snpMatrix.dir)
 useDynLib(chopsticks)
