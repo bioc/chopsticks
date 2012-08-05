@@ -343,3 +343,9 @@ snp.cbind <- function(...){
 setMethod("rbind2", signature(x="snp.matrix", y="snp.matrix"), .rbind2)
 setMethod("cbind2", signature(x="snp.matrix", y="snp.matrix"), .cbind2)
 
+convert.snpMatrix <- function(x) {
+  x
+}
+convert.snpMatrix.dir <- function(x) {
+  x
+}
