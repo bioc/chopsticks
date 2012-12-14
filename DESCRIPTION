@@ -14,4 +14,4 @@ Collate: ld.with.R ss.R contingency.table.R glm_test.R ibs.stats.R
         read.chiamo.R read.HapMap.R read.snps.pedfile.R single.R
         structure.R wtccc.sample.list.R wtccc.signals.R xstuff.R zzz.R
 LazyLoad: yes
-biocViews: Microarray, SNPsAndGeneticVariability
+biocViews: Microarray, SNPsAndGeneticVariability, SNP, GeneticVariability
