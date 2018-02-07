@@ -1,8 +1,11 @@
 \name{snp.matrix-class}
+\title{Class "snp.matrix"}
 \docType{class}
 \alias{snp.matrix-class}
-\alias{initialize,snp.matrix-method} 
+\alias{initialize,snp.matrix-method}
 \alias{[,snp.matrix-method}
+\alias{[,snp.matrix,ANY,ANY,ANY-method}
+\alias{[,X.snp.matrix,ANY,ANY,ANY-method}
 \alias{rbind2,snp.matrix,snp.matrix-method}
 \alias{cbind2,snp.matrix,snp.matrix-method}
 \alias{coerce,snp.matrix,numeric-method}
@@ -17,7 +20,6 @@
 \alias{show,snp.matrix-method}
 \alias{summary,snp.matrix-method}
 
-\title{Class "snp.matrix"}
 \description{ This class defines objects holding large arrays of single
   nucleotide polymorphism (SNP) genotypes generated using array
   technologies.}
@@ -30,11 +32,12 @@ Objects can be created by calls of the form \code{new("snp.matrix", x)}
 	 used to link the data to further data concerning samples and SNPs
 }
 \section{Slots}{
-	 \describe{
+  \describe{
     \item{\code{.Data}:}{Object of class \code{"matrix"} and storage
-      mode \code{raw}  
-    Internally, missing data are coded 00 and SNP genotypes are coded
-    01, 02 or 03. }
+      mode \code{raw}
+      Internally, missing data are coded \code{00} and SNP genotypes are coded
+      \code{01}, \code{02} or \code{03}.
+    }
   }
 }
 \section{Extends}{

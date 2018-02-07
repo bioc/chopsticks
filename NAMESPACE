@@ -1,13 +1,38 @@
+useDynLib(chopsticks)
+
+importFrom("graphics",
+           abline, legend, plot, points, polygon)
+importFrom("utils",
+           download.file, flush.console, read.table)
+importFrom("stats",
+           model.matrix, model.offset, model.response, model.weights,
+           pchisq, qbeta, qchisq, terms)
+importFrom("methods",
+           as, callNextMethod, cbind2, rbind2, coerce, initialize, is, new,
+           show, slot, "slot<-")
+
+importFrom("survival",
+           untangle.specials, cluster, strata)
+
+## -------------------------------
+
 exportClasses(snp.matrix, X.snp.matrix, snp, X.snp, snp.dprime)
-exportMethods(cbind2, is.na, ld.with, rbind2, show, summary,
+
+exportMethods(cbind2, rbind2, is.na, ld.with, show, summary,
               "[", "[<-", coerce, initialize)
+
+S3method(print, snp.dprime)
+S3method(plot,  snp.dprime)
+## (but still export them below (?))
+
 export(epsout.ld.snp, glm.test.control, ibs.stats, ibsCount, ibsDist, ld.snp,
-       ld.with, niceprint, pair.result.ld.snp, plot.snp.dprime,
-       print.snp.dprime, qq.chisq, read.HapMap.data, read.pedfile.info,
+       ld.with, niceprint, pair.result.ld.snp,
+       plot.snp.dprime, print.snp.dprime,
+       qq.chisq, read.HapMap.data, read.pedfile.info,
        read.snps.chiamo, read.snps.long, read.snps.long.old, read.snps.pedfile,
        read.wtccc.signals, row.summary, single.snp.tests, snp.cbind, snp.rbind,
        snp.cor, snp.lhs.tests, snp.post, snp.pre,
        snp.rhs.tests, write.snp.matrix, xxt)
-importFrom(survival, untangle.specials, cluster, strata)
+
 export(convert.snpMatrix, convert.snpMatrix.dir)
-useDynLib(chopsticks)
+

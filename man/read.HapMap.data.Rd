@@ -1,16 +1,14 @@
 \name{read.HapMap.data}
 \alias{read.HapMap.data}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{ function to import HapMap genotype data as snp.matrix}
 \description{
-  Given a URL for HapMap genotype data, \code{read.HapMap.data}, 
+  Given a URL for HapMap genotype data, \code{read.HapMap.data},
   download and convert the genotype data into a \code{snp.matrix} class
   object, and saving snp support infomation into an associated data.frame.
 }
 \usage{
 read.HapMap.data(url, verbose=FALSE, save=NULL, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{url}{URL for HapMap data. Web data is to be specified with
     prefix "http://", ftp data with prefix "ftp://", and local file as "file://"}
@@ -30,7 +28,8 @@ read.HapMap.data(url, verbose=FALSE, save=NULL, ...)
   However, about 1 in 1000 entries are more complicated e.g. may involving
   deletion, e.g. "-/A/G" or "-/A/AGT/G/T". Some heuristics are
   used in such cases, in which the observed genotypes in the specific
-  snp of the current batch are examined in two passes. The first time to see which bases are present, excluding "N".
+  snp of the current batch are examined in two passes.  The first time
+  to see which bases are present, excluding "N".
 
   If more than 2 bases are observed in the batch specified in the url,
   the routine aborts, but so far this possibility has not arisen in tests.
@@ -40,7 +39,8 @@ read.HapMap.data(url, verbose=FALSE, save=NULL, ...)
   version of the dbSNPAlleles entry). Likewise, if only "A" or "T"
   is observed, then we know automatically it is the first (assigned as
   "A/.") or the last allele (assigned as "./T") of a hypothetical
-  pair, without looking at the dbSNPAlleles entry. For other observed cases of 1 base, the
+  pair, without looking at the dbSNPAlleles entry.  For other observed
+  cases of 1 base, the
   routine goes further and look at the dnSNPAlleles
   entry and see if it begins with "-/X/" or ends with "/X", as a single
   base, and compare it with the single base observed to see if it should be
@@ -48,8 +48,9 @@ read.HapMap.data(url, verbose=FALSE, save=NULL, ...)
   allele 2 (same as the end, or different from the beginning).
   If no decision can be made for a particular snp entry, the routine
   aborts with an appropriate message.
-  (for zero observed bases, assignment is "./.", and of course,
-  all observed genotypes of that snp are therefore converted to the equivalent of NA)
+  (For zero observed bases, assignment is "./.", and of course,
+  all observed genotypes of that snp are therefore converted to the
+  equivalent of NA.)
 
   (This heuristics does not cover all grounds, but practically it seems
   to work. See Notes below.)
@@ -87,18 +88,19 @@ read.HapMap.data(url, verbose=FALSE, save=NULL, ...)
   bytes for snps plus overhead) and similiar for the support data
   (i.e. ~ 2x), takes about 30 seconds, and at peak memory usage requires
   ~ 4x . The actual download is ~20MB, which is compressed from
-  ~200MB.  
-  
+  ~200MB.
+
 }
 \seealso{\code{\link{snp.matrix-class}}}
 \examples{
 \dontrun{
 
 ## ** Please be aware that the HapMap project generates new builds from
-## ** to time and the build number in the URL changes.
+## ** time to time and the build number in the URL changes.
 
 > library(snpMatrix)
-> testurl <- "http://www.hapmap.org/genotypes/latest/fwd_strand/non-redundant/genotypes_chr1_CEU_r21_nr_fwd.txt.gz"
+> testurl <- paste0("http://www.hapmap.org/genotypes/latest/fwd_strand/",
+                    "non-redundant/genotypes_chr1_CEU_r21_nr_fwd.txt.gz")
 > result1 <- read.HapMap.data(testurl)
 > sum1 <- summary(result1$snp.data)
 
@@ -120,8 +122,8 @@ rs12562034    90 1.0000000 0.088888889 0.0000000 0.17777778 0.8222222 0.92554468
 
 ## This URL is broken up into two to fit the width of
 ## the paper. There is no need in actual usage:
-> testurl2 <- paste("http://www.hapmap.org/genotypes/latest/",
-                  "fwd_strand/non-redundant/genotypes_chr1_JPT_r21_nr_fwd.txt.gz", sep="")
+> testurl2 <- paste0("http://www.hapmap.org/genotypes/latest/",
+         "fwd_strand/non-redundant/genotypes_chr1_JPT_r21_nr_fwd.txt.gz")
 > result2 <- read.HapMap.data(testurl2)
 
 > head(result2$snp.support)

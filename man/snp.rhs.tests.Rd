@@ -10,9 +10,10 @@ association with phenotype. In order to protect against misspecification
 of the variance function,  "robust" tests may be selected.
 }
 \usage{
-snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent.frame(),
-   snp.data, tests=NULL, robust = FALSE,
-   control=glm.test.control(maxit=20, epsilon=1.e-4, R2Max=0.98), allow.missing=0.01)
+snp.rhs.tests(formula, family = "binomial", link, weights, subset,
+              data = parent.frame(), snp.data, tests=NULL, robust = FALSE,
+              control = glm.test.control(maxit=20, epsilon=1e-4, R2Max=0.98),
+              allow.missing = 0.01)
 }
 \arguments{
   \item{formula}{The base model formula, with phenotype as dependent variable}
@@ -26,7 +27,7 @@ snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent
   default action is to use the "canonical" link for the family selected}
   \item{data}{The dataframe in which the base model is to be fitted}
   \item{snp.data}{An object of class \code{"snp.matrix"} or
-    \code{"X.snp.matrix"} containing the SNP data} 
+    \code{"X.snp.matrix"} containing the SNP data}
   \item{tests}{Either a vector of column names or  numbers for the SNPs
     to be tested, or a list of short vectors defining groups of SNPs to be
     tested (again by name or number). The default action is to carry out
@@ -54,7 +55,7 @@ snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent
   often be
   appropriate to include sex of subject in the base model (this is
   not done automatically).
-  
+
   If a \code{data} argument is supplied, the \code{snp.data} and
   \code{data} objects are aligned by rowname. Otherwise all variables in
   the model formulae are assumed to be stored in the same order as the
@@ -92,8 +93,9 @@ snp.rhs.tests(formula, family = "binomial", link, weights, subset, data = parent
   \code{\link{snp.matrix-class}}, \code{\link{X.snp.matrix-class}}}
 \examples{
 data(testdata)
+library(survival) # strata
 slt3 <- snp.rhs.tests(cc~strata(region), family="binomial",
-   data=subject.data, snp.data= Autosomes, tests=1:10)
+              data=subject.data, snp.data = Autosomes, tests=1:10)
 print(slt3)
 }
 \keyword{htest}

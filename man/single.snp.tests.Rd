@@ -29,7 +29,7 @@ single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data, subset, snp.
     to be used in teh analysis. This is evaluated in the same
     environment as the \code{phenotype} and \code{stratum} arguments}
   \item{snp.subset}{A vector describing the subset of SNPs to be
-    considered. Default action is to test all SNPs.} 
+    considered. Default action is to test all SNPs.}
 }
 \details{
   Formally, the test statistics are score tests for generalized linear
@@ -66,9 +66,9 @@ single.snp.tests(phenotype, stratum, data = sys.parent(), snp.data, subset, snp.
 \examples{
 data(testdata)
 results <- single.snp.tests(cc, stratum=region, data=subject.data,
-   snp.data=Autosomes, snp.subset=1:10)
+                            snp.data=Autosomes, snp.subset=1:10)
 summary(results)
-# QQ plot - see \code{\link{qq.chisq}}
+# QQ plot - see  help(qq.chisq)
 qq.chisq(results$chi2.1df)
 qq.chisq(results$chi2.2df)
 }

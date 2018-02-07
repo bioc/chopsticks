@@ -134,8 +134,8 @@ pair.result.ld.snp <- function(snpdata, loc.snpA, loc.snpB) {
 niceprint <- function(x, ...) NextMethod("print", x, ...)
 
 print.snp.dprime <- function(x, ..., output="") {
-  if (class(x)!="snp.dprime")
-    stop("data to be must be of class snp.dprime")
+  if (!inherits(x, "snp.dprime"))
+    stop("data to be must be of class \"snp.dprime\"")
   
   do.rsq2 <- ("rsq2" %in% names(x))
   
@@ -167,4 +167,5 @@ print.snp.dprime <- function(x, ..., output="") {
           "\n", sep="\t", append=TRUE)
     }
   }
+  invisible(x)
 }
