@@ -609,7 +609,7 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
       Rprintf("Recasting and checking nucleotide coding\n");
     int none_snps = recode_snp(result, Nsample, Nsnp);
     if (none_snps) {
-      Rprintf("%d polymorphisms were not SNPs and have been set to NA ");
+      Rprintf("%d polymorphisms were not SNPs and have been set to NA ", none_snps);
       Rprintf("(see warnings for details)\n");
     }
   }
