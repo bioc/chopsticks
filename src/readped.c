@@ -201,7 +201,7 @@ SEXP readped(SEXP filename, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) {
 
   /* Array to indicate any errors */
 
-  int *skip = Calloc(nc, int);
+  int *skip = R_Calloc(nc, int);
   for ( j = 0 ; j < nc ; j++)
     skip[j] = 0;
   
@@ -274,7 +274,7 @@ SEXP readped(SEXP filename, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) {
       smatij += nr;
     }
   }
-  Free(skip);
+  R_Free(skip);
   /* Subject support frame */
 
   SEXP Support, DFClass, DFNames;
