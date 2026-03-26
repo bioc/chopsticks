@@ -297,7 +297,7 @@ SEXP insnp_new(const SEXP Filenames, const SEXP Sample_id, const SEXP Snp_id,
   else
     SET_STRING_ELT(Class, 0, mkChar("snp.matrix"));
   classgets(Result, Class);
-  SET_S4_OBJECT(Result);
+  Rf_asS4(Result, TRUE, 0);
   unsigned char *result = RAW(Result);
   memset(result, 0x00, Nsample*Nsnp);
 

@@ -505,7 +505,7 @@ SEXP read_hapmap_data(SEXP downloaded_file, SEXP sexp_verbose) {
   SET_VECTOR_ELT(dimnames, 0, sample_names); /* rownames */
   setAttrib(snp_matrix_ans, R_DimNamesSymbol, dimnames);
   setAttrib(snp_matrix_ans, R_ClassSymbol, mkString("snp.matrix"));
-  SET_S4_OBJECT(snp_matrix_ans);
+  Rf_asS4(snp_matrix_ans, TRUE, 0);
 
   /* now make the result list */
   PROTECT(ans      = allocVector(VECSXP, 2));

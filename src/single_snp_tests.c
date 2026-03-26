@@ -49,8 +49,8 @@ SEXP one_at_a_time(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
   /* SNPs ---- should be a snp.matrix or an X.snp.matrix */
 
   const char *classS = NULL;
-  if (TYPEOF(R_data_class(Snps, FALSE)) == STRSXP) {
-    classS = CHAR(STRING_ELT(R_data_class(Snps, FALSE), 0));
+  if (TYPEOF(R_class(Snps)) == STRSXP) {
+    classS = CHAR(STRING_ELT(R_class(Snps), 0));
   } else {
     classS = CHAR(STRING_ELT(getAttrib(Snps, R_ClassSymbol), 0));
   }
@@ -63,7 +63,7 @@ SEXP one_at_a_time(const SEXP Phenotype, const SEXP Stratum, const SEXP Snps,
     ifX = 0; /* to avoid warning message */
     error("Argument error - class(Snps)");
   }
-  if(!IS_S4_OBJECT(Snps)) {
+  if(!Rf_isS4(Snps)) {
     error("Argument error - Snps is not S4 object");
   }
 

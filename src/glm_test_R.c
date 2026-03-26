@@ -15,12 +15,12 @@ SEXP snp_lhs_score(const SEXP Y, const SEXP X, const SEXP Stratum,
 
   /* Y should be a snp.matrix or an X.snp.matrix */
   const char *classY = NULL;
-  if (TYPEOF(R_data_class(Y, FALSE)) == STRSXP) {
-    classY = CHAR(STRING_ELT(R_data_class(Y, FALSE), 0));
+  if (TYPEOF(R_class(Y)) == STRSXP) {
+    classY = CHAR(STRING_ELT(R_class(Y), 0));
   } else {
     classY = CHAR(STRING_ELT(getAttrib(Y, R_ClassSymbol), 0));
   }
-  if(!IS_S4_OBJECT(Y)) {
+  if(!Rf_isS4(Y)) {
     error("Y in snp_lhs_score is missing S4 Object bit");
   }
   int ifX = 0;
@@ -360,12 +360,12 @@ SEXP snp_rhs_score(SEXP Y, SEXP family, SEXP link,
   /* Z should be a snp.matrix or an X.snp.matrix */
 
   const char *classZ = NULL;
-  if (TYPEOF(R_data_class(Z, FALSE)) == STRSXP) {
-    classZ = CHAR(STRING_ELT(R_data_class(Z, FALSE), 0));
+  if (TYPEOF(R_class(Z)) == STRSXP) {
+    classZ = CHAR(STRING_ELT(R_class(Z), 0));
   } else {
     classZ = CHAR(STRING_ELT(getAttrib(Z, R_ClassSymbol), 0));
   }
-  if(!IS_S4_OBJECT(Z)) {
+  if(!Rf_isS4(Z)) {
     error("Z in snp_rhs_score is missing S4 Object bit");
   }
   /*

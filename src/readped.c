@@ -326,7 +326,7 @@ SEXP readped(SEXP filename, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) {
   else
     SET_STRING_ELT(SMClass, 0, mkChar("snp.matrix"));
   classgets(Smat, SMClass);
-  SET_S4_OBJECT(Smat);
+  Rf_asS4(Smat, TRUE, 0);
   PROTECT(DimNames = allocVector(VECSXP, 2));
   SET_VECTOR_ELT(DimNames, 0, duplicate(Rnames));
   protected += 2;

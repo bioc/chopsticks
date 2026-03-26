@@ -265,7 +265,7 @@ SEXP read_chiamo(SEXP mcmc_file, SEXP sample_list, SEXP threshold) {
   PROTECT(snp_data_class = allocVector(STRSXP, 1));
   SET_STRING_ELT(snp_data_class, 0, mkChar("snp.matrix"));  
   classgets(snp_data, snp_data_class);
-  SET_S4_OBJECT(snp_data);
+  Rf_asS4(snp_data, TRUE, 0);
   protected +=2;
 
   /* the rest of the snps support data frame */

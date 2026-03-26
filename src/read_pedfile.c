@@ -437,7 +437,7 @@ SEXP read_pedfile(SEXP in_file, SEXP snp_names, SEXP missing, SEXP X, SEXP sep) 
     SET_STRING_ELT(snp_data_class, 0, mkChar("snp.matrix"));
   }
   classgets(snp_data, snp_data_class);
-  SET_S4_OBJECT(snp_data);
+  Rf_asS4(snp_data, TRUE, 0);
 
   PROTECT(snp_data_dimnames = allocVector(VECSXP, 2));
   SET_VECTOR_ELT(snp_data_dimnames, 0, duplicate(sample_names));

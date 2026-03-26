@@ -19,7 +19,7 @@ SEXP X_snp_summary(const SEXP Snps) {
   if (Snps == R_NilValue) {
     error("Argument error - Snps = NULL");
   }
-  if(!IS_S4_OBJECT(Snps)) {
+  if(!Rf_isS4(Snps)) {
     error("Argument error - Snps is not S4 object");
   }
   const unsigned char *snps = RAW(Snps);
@@ -168,7 +168,7 @@ SEXP snp_summary(const SEXP Snps) {
   if (Snps == R_NilValue) {
     error("Argument error - Snps = NULL");
   }
-  if(!IS_S4_OBJECT(Snps)) {
+  if(!Rf_isS4(Snps)) {
     error("Argument error - Snps is not S4 object");
   }
   const unsigned char *snps = RAW(Snps);
@@ -292,7 +292,7 @@ SEXP row_summary(const SEXP Snps) {
   if (Snps == R_NilValue) {
     error("Argument error - Snps = NULL");
   }
-  if(!IS_S4_OBJECT(Snps)) {
+  if(!Rf_isS4(Snps)) {
     error("Argument error - Snps is not S4 object");
   }
   const unsigned char *snps = RAW(Snps);

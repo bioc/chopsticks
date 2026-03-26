@@ -62,7 +62,7 @@ SEXP xxt(const SEXP Snps, const SEXP Correct_for_missing,
   int *ifFemale = NULL;
   SEXP cl = GET_CLASS(Snps);
   if (TYPEOF(cl) != STRSXP) {
-    cl = R_data_class(Snps, FALSE); /* S4 way of getting class attribute */
+    cl = R_class(Snps); /* S4 way of getting class attribute */
   }
   if (!strcmp(CHAR(STRING_ELT(cl, 0)), "X.snp.matrix")) {
     SEXP Female = R_do_slot(Snps, mkString("Female"));
@@ -301,7 +301,7 @@ SEXP ibs_count(const SEXP Snps) {
   int *ifFemale = NULL;
   SEXP cl = GET_CLASS(Snps);
   if (TYPEOF(cl) != STRSXP) {
-    cl = R_data_class(Snps, FALSE); /* S4 way of getting class attribute */
+    cl = R_class(Snps); /* S4 way of getting class attribute */
   }
   if (!strcmp(CHAR(STRING_ELT(cl, 0)), "X.snp.matrix")) {
     SEXP Female = R_do_slot(Snps, mkString("Female"));
